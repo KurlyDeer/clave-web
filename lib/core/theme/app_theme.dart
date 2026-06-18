@@ -21,11 +21,11 @@ class AppColors {
   static void setDarkMode(bool v) => _isDark = v;
 
   static Color get glassGradientStart =>
-      _isDark ? const Color(0xFF0D1B3E) : const Color(0xFFF5F0EB);
+      _isDark ? const Color(0xFF09090B) : const Color(0xFFFFFFFF);
   static Color get glassGradientMid =>
-      _isDark ? const Color(0xFF1A1045) : const Color(0xFFF8EDE0);
+      _isDark ? const Color(0xFF09090B) : const Color(0xFFFFFFFF);
   static Color get glassGradientEnd =>
-      _isDark ? const Color(0xFF2D1B69) : const Color(0xFFFFEDD8);
+      _isDark ? const Color(0xFF09090B) : const Color(0xFFFFFFFF);
   static Color get glassSurface =>
       _isDark ? const Color(0x26FFFFFF) : const Color(0x12000000);
   static Color get glassBorder =>

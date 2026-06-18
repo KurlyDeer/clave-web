@@ -6,7 +6,7 @@ class SettingsState {
   const SettingsState({
     this.isDarkMode = true,
     this.isAudioEnabled = true,
-    this.isPremium = false,
+    this.isPremium = true,
   });
   final bool isDarkMode;
   final bool isAudioEnabled;
@@ -30,7 +30,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     state = SettingsState(
       isDarkMode: _prefs.getBool('dark_mode') ?? true,
       isAudioEnabled: _prefs.getBool('tts_enabled') ?? true,
-      isPremium: _prefs.getBool('is_premium') ?? false,
+      isPremium: true,
     );
   }
 
