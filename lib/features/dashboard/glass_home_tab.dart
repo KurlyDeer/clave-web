@@ -5,6 +5,7 @@ import '../../core/providers/path_lesson_provider.dart';
 import '../../core/providers/repaso_provider.dart';
 import '../../core/providers/settings_provider.dart';
 import '../../core/providers/smart_review_provider.dart';
+import '../../core/providers/stats_provider.dart';
 import '../../core/providers/vocab_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/glass_container.dart';
@@ -31,6 +32,7 @@ class GlassHomeTab extends ConsumerWidget {
     final repasoDue = ref.watch(repasoDueWordsProvider);
     final showRepaso = repasoDue.isNotEmpty || vocabStats.total > 0;
     final smartReviewCount = ref.watch(smartReviewCountProvider);
+    final stats = ref.watch(statsProvider);
 
     // Index of the first incomplete lesson — that card gets a glow border.
     final nextIndex = lessons.indexWhere((l) {
@@ -60,7 +62,96 @@ class GlassHomeTab extends ConsumerWidget {
                 child: WelcomeHeroWidget(),
               ),
             ),
-
+            // ── Gamified Stats Dashboard ──────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GlassContainer(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Column(
+                          children: [
+                            const Text('🔥', style: TextStyle(fontSize: 24)),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${stats.streak}',
+                              style: TextStyle(
+                                fontSize: AppFontSizes.title,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.glassText,
+                              ),
+                            ),
+                            Text(
+                              'Racha',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.glassTextMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: GlassContainer(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Column(
+                          children: [
+                            const Text('⭐', style: TextStyle(fontSize: 24)),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${stats.xp}',
+                              style: TextStyle(
+                                fontSize: AppFontSizes.title,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.glassText,
+                              ),
+                            ),
+                            Text(
+                              'XP Total',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.glassTextMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: GlassContainer(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Column(
+                          children: [
+                            const Text('🎙️', style: TextStyle(fontSize: 24)),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${stats.speakingLessonsCompleted}',
+                              style: TextStyle(
+                                fontSize: AppFontSizes.title,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.glassText,
+                              ),
+                            ),
+                            Text(
+                              'Hablando',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.glassTextMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             // ── AI Daily Lesson card ──────────────────────────────────────
             const SliverToBoxAdapter(
               child: Padding(

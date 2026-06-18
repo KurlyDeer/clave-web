@@ -126,22 +126,62 @@ class PathLessonCard extends ConsumerWidget {
     );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-      child: isLocked
-          ? (onLockedTap != null
-              ? GestureDetector(
-                  onTap: onLockedTap,
-                  child: Opacity(opacity: 0.45, child: cardContent),
-                )
-              : Opacity(opacity: 0.45, child: cardContent))
-          : GestureDetector(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => LessonDetailScreen(lesson: lesson),
-                ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Timeline track
+            SizedBox(
+              width: 30,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 4,
+                    color: isCompleted ? AppColors.successGreen.withOpacity(0.5) : AppColors.glassBorder,
+                  ),
+                  Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isCompleted 
+                          ? AppColors.successGreen 
+                          : (isNextAvailable ? AppColors.glowTerracotta : AppColors.glassSurface),
+                      border: Border.all(
+                        color: isCompleted || isNextAvailable ? Colors.transparent : AppColors.glassBorder,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              child: cardContent,
             ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: isLocked
+                    ? (onLockedTap != null
+                        ? GestureDetector(
+                            onTap: onLockedTap,
+                            child: Opacity(opacity: 0.45, child: cardContent),
+                          )
+                        : Opacity(opacity: 0.45, child: cardContent))
+                    : GestureDetector(
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => LessonDetailScreen(lesson: lesson),
+                          ),
+                        ),
+                        child: cardContent,
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

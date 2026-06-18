@@ -72,7 +72,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              _DotIndicator(currentPage: _currentPage, pageCount: 3),
+              _DotIndicator(currentPage: _currentPage, pageCount: 5),
               const SizedBox(height: 16),
               Expanded(
                 child: PageView(
@@ -82,16 +82,24 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   children: [
                     _WelcomePage(),
                     _NamePage(controller: _nameController),
+                    const _LevelPage(),
                     const _GoalPage(),
+                    const _TimePage(),
                   ],
                 ),
               ),
               _BottomButton(
                 currentPage: _currentPage,
-                isEnabled: _currentPage < 2 ||
-                    onboarding.userGoal != null,
+                pageCount: 5,
+                isEnabled: () {
+                  if (_currentPage == 1) return _nameController.text.trim().isNotEmpty;
+                  if (_currentPage == 2) return onboarding.userLevel != null;
+                  if (_currentPage == 3) return onboarding.userGoal != null;
+                  if (_currentPage == 4) return onboarding.userDailyTime != null;
+                  return true;
+                }(),
                 onPressed: () {
-                  if (_currentPage < 2) {
+                  if (_currentPage < 4) {
                     _nextPage();
                   } else {
                     _complete(context);
@@ -143,18 +151,20 @@ class _DotIndicator extends StatelessWidget {
 class _BottomButton extends StatelessWidget {
   const _BottomButton({
     required this.currentPage,
+    required this.pageCount,
     required this.isEnabled,
     required this.onPressed,
   });
 
   final int currentPage;
+  final int pageCount;
   final bool isEnabled;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     final label =
-        currentPage == 2 ? AppStrings.ftueStartEs : AppStrings.ftueNextEs;
+        currentPage == pageCount - 1 ? AppStrings.ftueStartEs : AppStrings.ftueNextEs;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -455,6 +465,140 @@ class _GoalCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ── Page 4: Level Selection ───────────────────────────────────────────────────
+
+class _LevelPage extends ConsumerWidget {
+  const _LevelPage();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedLevel = ref.watch(onboardingProvider).userLevel;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 24),
+          Text(
+            '¿Cuál es tu nivel de inglés?',
+            style: TextStyle(
+              fontSize: AppFontSizes.headline,
+              fontWeight: FontWeight.w800,
+              color: AppColors.glassText,
+              height: 1.2,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Esto nos ayudará a personalizar tu contenido.',
+            style: TextStyle(
+              fontSize: AppFontSizes.body,
+              color: AppColors.glassTextMuted,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 28),
+          _GoalCard(
+            emoji: '🌱',
+            title: 'Principiante',
+            description: 'Apenas estoy empezando a aprender.',
+            goal: UserGoal.career, // Ignore this for UI
+            isSelected: selectedLevel == UserLevel.beginner,
+            onTap: () => ref.read(onboardingProvider.notifier).setUserLevel(UserLevel.beginner),
+          ),
+          const SizedBox(height: 16),
+          _GoalCard(
+            emoji: '🌿',
+            title: 'Intermedio',
+            description: 'Puedo tener conversaciones básicas.',
+            goal: UserGoal.career,
+            isSelected: selectedLevel == UserLevel.intermediate,
+            onTap: () => ref.read(onboardingProvider.notifier).setUserLevel(UserLevel.intermediate),
+          ),
+          const SizedBox(height: 16),
+          _GoalCard(
+            emoji: '🌳',
+            title: 'Avanzado',
+            description: 'Hablo con fluidez pero quiero mejorar.',
+            goal: UserGoal.career,
+            isSelected: selectedLevel == UserLevel.advanced,
+            onTap: () => ref.read(onboardingProvider.notifier).setUserLevel(UserLevel.advanced),
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Page 5: Daily Time Goal ───────────────────────────────────────────────────
+
+class _TimePage extends ConsumerWidget {
+  const _TimePage();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedTime = ref.watch(onboardingProvider).userDailyTime;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 24),
+          Text(
+            '¿Cuánto tiempo puedes dedicar al día?',
+            style: TextStyle(
+              fontSize: AppFontSizes.headline,
+              fontWeight: FontWeight.w800,
+              color: AppColors.glassText,
+              height: 1.2,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'La consistencia es clave para aprender un idioma.',
+            style: TextStyle(
+              fontSize: AppFontSizes.body,
+              color: AppColors.glassTextMuted,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 28),
+          _GoalCard(
+            emoji: '⏱️',
+            title: '5 Minutos',
+            description: 'Casual. Perfecto para días ocupados.',
+            goal: UserGoal.career,
+            isSelected: selectedTime == UserDailyTime.min5,
+            onTap: () => ref.read(onboardingProvider.notifier).setUserDailyTime(UserDailyTime.min5),
+          ),
+          const SizedBox(height: 16),
+          _GoalCard(
+            emoji: '🏃',
+            title: '15 Minutos',
+            description: 'Regular. Buen equilibrio diario.',
+            goal: UserGoal.career,
+            isSelected: selectedTime == UserDailyTime.min15,
+            onTap: () => ref.read(onboardingProvider.notifier).setUserDailyTime(UserDailyTime.min15),
+          ),
+          const SizedBox(height: 16),
+          _GoalCard(
+            emoji: '🔥',
+            title: '30 Minutos',
+            description: 'Intenso. Aprendizaje acelerado.',
+            goal: UserGoal.career,
+            isSelected: selectedTime == UserDailyTime.min30,
+            onTap: () => ref.read(onboardingProvider.notifier).setUserDailyTime(UserDailyTime.min30),
+          ),
+          const SizedBox(height: 24),
+        ],
       ),
     );
   }

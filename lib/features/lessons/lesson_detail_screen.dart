@@ -1,3 +1,4 @@
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -638,7 +639,7 @@ class _QuizQuestion extends StatelessWidget {
   }
 }
 
-class _QuizSummary extends StatelessWidget {
+class _QuizSummary extends StatefulWidget {
   const _QuizSummary({
     required this.score,
     required this.total,
@@ -656,41 +657,67 @@ class _QuizSummary extends StatelessWidget {
   final VoidCallback? onBack;
 
   @override
+  State<_QuizSummary> createState() => _QuizSummaryState();
+}
+
+class _QuizSummaryState extends State<_QuizSummary> {
+  late ConfettiController _confettiController;
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 2));
+    final pct = widget.total > 0 ? (widget.score / widget.total * 100).round() : 0;
+    if (pct >= 60) {
+      _confettiController.play();
+    }
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final bodySize = isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body;
-    final pct = total > 0 ? (score / total * 100).round() : 0;
+    final bodySize = widget.isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body;
+    final pct = widget.total > 0 ? (widget.score / widget.total * 100).round() : 0;
     final emoji = pct >= 80 ? '🏆' : pct >= 60 ? '👍' : '💪';
 
-    return GlassContainer(
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        GlassContainer(
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
           Text(emoji, style: const TextStyle(fontSize: 56)),
           const SizedBox(height: 12),
           Text(
-            isReviewMode
+            widget.isReviewMode
                 ? AppStrings.smartReviewCompleteTitleEs
                 : AppStrings.lessonDetailQuizResultEs,
             style: TextStyle(
               fontSize: bodySize,
-              fontWeight: isReviewMode ? FontWeight.w700 : FontWeight.w400,
-              color: isReviewMode
+              fontWeight: widget.isReviewMode ? FontWeight.w700 : FontWeight.w400,
+              color: widget.isReviewMode
                   ? AppColors.glassText
                   : AppColors.glassTextMuted,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            '$score / $total ($pct%)',
+            '${widget.score} / ${widget.total} ($pct%)',
             style: TextStyle(
-              fontSize: isSenior ? AppFontSizes.titleLarge : AppFontSizes.title,
+              fontSize: widget.isSenior ? AppFontSizes.titleLarge : AppFontSizes.title,
               fontWeight: FontWeight.w900,
               color: pct >= 80
                   ? AppColors.successGreen
                   : AppColors.glowTerracotta,
             ),
           ),
-          if (isReviewMode) ...[
+          if (widget.isReviewMode) ...[
             const SizedBox(height: 8),
             Text(
               AppStrings.smartReviewCompleteBodyEs,
@@ -704,10 +731,10 @@ class _QuizSummary extends StatelessWidget {
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
-            height: isSenior ? 64.0 : 54.0,
-            child: isReviewMode
+            height: widget.isSenior ? 64.0 : 54.0,
+            child: widget.isReviewMode
                 ? ElevatedButton(
-                    onPressed: onBack,
+                    onPressed: widget.onBack,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.glowTerracotta,
                       foregroundColor: Colors.white,
@@ -717,7 +744,7 @@ class _QuizSummary extends StatelessWidget {
                     child: Text(
                       AppStrings.smartReviewBackEs,
                       style: TextStyle(
-                        fontSize: isSenior
+                        fontSize: widget.isSenior
                             ? AppFontSizes.subtitleLarge
                             : AppFontSizes.subtitle,
                         fontWeight: FontWeight.w700,
@@ -725,7 +752,7 @@ class _QuizSummary extends StatelessWidget {
                     ),
                   )
                 : OutlinedButton(
-                    onPressed: onRestart,
+                    onPressed: widget.onRestart,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.glassText,
                       side: BorderSide(color: AppColors.glassBorder),
@@ -735,7 +762,7 @@ class _QuizSummary extends StatelessWidget {
                     child: Text(
                       'Intentar de nuevo',
                       style: TextStyle(
-                        fontSize: isSenior
+                        fontSize: widget.isSenior
                             ? AppFontSizes.subtitleLarge
                             : AppFontSizes.subtitle,
                         fontWeight: FontWeight.w600,
@@ -743,7 +770,7 @@ class _QuizSummary extends StatelessWidget {
                     ),
                   ),
           ),
-          if (!isReviewMode) ...[
+          if (!widget.isReviewMode) ...[
             const SizedBox(height: 12),
             Text(
               AppStrings.lessonDetailQuizContinueEs,
@@ -756,8 +783,16 @@ class _QuizSummary extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
+    ),
+    ConfettiWidget(
+        confettiController: _confettiController,
+        blastDirectionality: BlastDirectionality.explosive,
+        shouldLoop: false,
+        colors: const [Colors.green, Colors.blue, Colors.pink, Colors.orange, Colors.purple],
+      ),
+    ],
+  );
+}
 }
 
 // ── Page 4 (original): Practice ───────────────────────────────────────────────

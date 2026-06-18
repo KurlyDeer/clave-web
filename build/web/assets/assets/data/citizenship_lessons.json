@@ -1,0 +1,855 @@
+{
+  "lessons": [
+    {
+      "id": "path_citizenship_oath_01",
+      "titleEs": "El Juramento y Preguntas Iniciales",
+      "titleEn": "The Oath and Opening Questions",
+      "difficulty": "Citizenship",
+      "iconEmoji": "✋",
+      "targetVocabulary": [
+        {
+          "wordEn": "swear / affirm",
+          "wordEs": "jurar / afirmar",
+          "exampleEn": "Do you swear to tell the truth, the whole truth, and nothing but the truth?",
+          "exampleEs": "¿Jura decir la verdad, toda la verdad y nada más que la verdad?"
+        },
+        {
+          "wordEn": "oath",
+          "wordEs": "juramento",
+          "exampleEn": "Please raise your right hand and take the oath.",
+          "exampleEs": "Por favor levante su mano derecha y tome el juramento."
+        },
+        {
+          "wordEn": "allegiance",
+          "wordEs": "lealtad / fidelidad",
+          "exampleEn": "I pledge allegiance to the United States of America.",
+          "exampleEs": "Juro lealtad a los Estados Unidos de América."
+        },
+        {
+          "wordEn": "under penalty of perjury",
+          "wordEs": "bajo pena de perjurio",
+          "exampleEn": "You must answer truthfully, under penalty of perjury.",
+          "exampleEs": "Debe responder con la verdad, bajo pena de perjurio."
+        },
+        {
+          "wordEn": "raise your right hand",
+          "wordEs": "levante su mano derecha",
+          "exampleEn": "Please raise your right hand and repeat after me.",
+          "exampleEs": "Por favor levante su mano derecha y repita después de mí."
+        },
+        {
+          "wordEn": "identification",
+          "wordEs": "identificación",
+          "exampleEn": "Please present your identification and appointment letter.",
+          "exampleEs": "Por favor presente su identificación y carta de cita."
+        },
+        {
+          "wordEn": "green card",
+          "wordEs": "tarjeta verde / residencia permanente",
+          "exampleEn": "May I see your green card, please?",
+          "exampleEs": "¿Me puede mostrar su tarjeta verde, por favor?"
+        },
+        {
+          "wordEn": "appointment letter",
+          "wordEs": "carta de cita",
+          "exampleEn": "I have my appointment letter and photo ID.",
+          "exampleEs": "Tengo mi carta de cita y mi identificación con foto."
+        },
+        {
+          "wordEn": "naturalization",
+          "wordEs": "naturalización",
+          "exampleEn": "I am here for my naturalization interview.",
+          "exampleEs": "Estoy aquí para mi entrevista de naturalización."
+        },
+        {
+          "wordEn": "applicant",
+          "wordEs": "solicitante",
+          "exampleEn": "The applicant must answer all questions honestly.",
+          "exampleEs": "El solicitante debe responder todas las preguntas honestamente."
+        },
+        {
+          "wordEn": "permanent resident",
+          "wordEs": "residente permanente",
+          "exampleEn": "I have been a permanent resident for five years.",
+          "exampleEs": "He sido residente permanente por cinco años."
+        },
+        {
+          "wordEn": "proceed",
+          "wordEs": "proceder / continuar",
+          "exampleEn": "We will now proceed with the interview.",
+          "exampleEs": "Ahora procederemos con la entrevista."
+        },
+        {
+          "wordEn": "state your name",
+          "wordEs": "diga su nombre",
+          "exampleEn": "Please state your full legal name for the record.",
+          "exampleEs": "Por favor diga su nombre legal completo para el registro."
+        },
+        {
+          "wordEn": "current address",
+          "wordEs": "dirección actual",
+          "exampleEn": "What is your current address?",
+          "exampleEs": "¿Cuál es su dirección actual?"
+        },
+        {
+          "wordEn": "understand",
+          "wordEs": "entender / comprender",
+          "exampleEn": "Do you understand that you must tell the truth?",
+          "exampleEs": "¿Entiende que debe decir la verdad?"
+        },
+        {
+          "wordEn": "interview",
+          "wordEs": "entrevista",
+          "exampleEn": "Your naturalization interview will begin now.",
+          "exampleEs": "Su entrevista de naturalización comenzará ahora."
+        },
+        {
+          "wordEn": "waiting room",
+          "wordEs": "sala de espera",
+          "exampleEn": "Please wait in the waiting room until your name is called.",
+          "exampleEs": "Por favor espere en la sala de espera hasta que llamen su nombre."
+        },
+        {
+          "wordEn": "officer",
+          "wordEs": "oficial / agente",
+          "exampleEn": "The officer will review your documents.",
+          "exampleEs": "El oficial revisará sus documentos."
+        },
+        {
+          "wordEn": "form",
+          "wordEs": "formulario",
+          "exampleEn": "I completed Form N-400 last year.",
+          "exampleEs": "Completé el Formulario N-400 el año pasado."
+        },
+        {
+          "wordEn": "truthfully",
+          "wordEs": "con la verdad / honestamente",
+          "exampleEn": "You must answer every question truthfully.",
+          "exampleEs": "Debe responder cada pregunta con la verdad."
+        }
+      ],
+      "grammarRuleEs": "━━━ DECLARACIONES FORMALES EN LA ENTREVISTA ━━━\n\nEn la entrevista de ciudadanía, el oficial usará oraciones declarativas formales y preguntas especiales llamadas \"oath questions\" (preguntas de juramento). Entender estas estructuras es crítico.\n\n━━━ ESTRUCTURA: \"DO YOU SWEAR / AFFIRM...?\" ━━━\n\nEsta estructura pregunta si usted promete hacer algo. Es formal y legal:\n• \"Do you swear to tell the truth?\" = ¿Jura decir la verdad?\n• \"Do you affirm that this information is correct?\" = ¿Afirma que esta información es correcta?\n• \"Do you understand that lying is a federal crime?\" = ¿Entiende que mentir es un delito federal?\n• \"Do you swear that all your answers are true?\" = ¿Jura que todas sus respuestas son verdaderas?\n• \"Do you affirm to answer all questions honestly?\" = ¿Afirma responder todas las preguntas honestamente?\n\nRespuesta correcta: \"Yes, I do\" o \"Yes, I swear\" — nunca solo \"Yes\".\n\n━━━ DECLARACIONES FORMALES (SUBJECT + VERB) ━━━\n\nEl oficial hará afirmaciones directas. Usted debe confirmar o responder:\n• \"State your full legal name.\" → \"My full legal name is Maria Elena Gómez.\"\n• \"Please present your identification.\" → \"Here is my green card and my appointment letter.\"\n• \"You are here for a naturalization interview.\" → \"Yes, that is correct.\"\n\n━━━ DIFERENCIA CLAVE CON EL ESPAÑOL ━━━\n\nEn inglés SIEMPRE se necesita el sujeto explícito:\n• Incorrecto: \"Am from Mexico.\"\n• Correcto: \"I am from Mexico.\"\n• Incorrecto: \"Is correct.\"\n• Correcto: \"That is correct.\"",
+      "grammarRuleEn": "In the citizenship interview, officers use formal declarative statements and oath-style questions ('Do you swear...?'). Always include the subject pronoun and answer in complete sentences.",
+      "grammarExample": "Officer: \"Do you swear to tell the truth?\" → Applicant: \"Yes, I do. I swear to tell the truth.\"",
+      "simulatorPrompt": "You are Officer Davis, a formal USCIS (U.S. Citizenship and Immigration Services) officer conducting a naturalization interview. You are professional, procedural, and NOT friendly or encouraging. This is a legal proceeding.\n\nCONVERSATION STAGES (follow this order strictly):\nSTAGE 1 — Document check: Ask the applicant to present their green card and appointment letter. Verify their name matches the documents.\nSTAGE 2 — Oath: Instruct them to raise their right hand. Ask them to swear or affirm to tell the truth under penalty of perjury. Wait for their verbal confirmation.\nSTAGE 3 — Verification questions: Ask their full legal name, current address, how long they have been a permanent resident, and what state they live in.\nSTAGE 4 — Transition: Inform them you will now move to the formal interview questions and ask if they understand.\n\nRULES:\n- Stay in character as a stern, procedural officer at all times\n- Speak in short, direct sentences (1-3 sentences maximum per turn)\n- If the applicant gives a vague or grammatically unclear answer, say: \"Please answer in a complete sentence.\"\n- Do NOT compliment or encourage the applicant\n- After Stage 4 is complete, close the scenario\n- Return ONLY valid JSON: {\"feedbackColor\": \"green\"|\"amber\"|\"red\", \"aiSpokenReply\": \"...\", \"isConversationFinished\": false}\n- feedbackColor: \"green\" = clear, complete, grammatically correct answer; \"amber\" = understood but grammatically incomplete or unclear; \"red\" = incomprehensible or off-topic\n- Set isConversationFinished to true only after Stage 4 is complete and confirmed",
+      "simulatorCharacterEn": "Officer Davis",
+      "simulatorCharacterRoleEs": "Oficial de USCIS — Entrevista de naturalización",
+      "simulatorOpeningEn": "Good morning. Please be seated. I am Officer Davis. I will be conducting your naturalization interview today. Please present your green card and appointment letter.",
+      "simulatorOpeningHintEs": "Presente sus documentos — diga \"Here is my green card and my appointment letter.\"",
+      "simulatorExpectedTurns": 8,
+      "simulatorTargetGoalEs": "Completar el juramento y las preguntas iniciales de verificación",
+      "quizzes": [
+        {
+          "question": "What does it mean to 'swear an oath' during the naturalization interview?",
+          "options": [
+            "To sign a document with your name",
+            "To make a solemn legal promise to tell the truth",
+            "To show your passport to the officer",
+            "To pay a government fee"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "question": "What document must you bring to your naturalization interview along with your green card?",
+          "options": [
+            "Your birth certificate from your home country",
+            "Your tax returns from the last 5 years",
+            "Your appointment letter (Form N-445)",
+            "Your high school diploma"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "question": "What is the correct response when the officer says 'Do you swear to tell the truth?'",
+          "options": [
+            "\"Yes.\"",
+            "\"Sure, no problem.\"",
+            "\"Yes, I do. I swear to tell the truth.\"",
+            "\"I promise.\""
+          ],
+          "correctIndex": 2
+        },
+        {
+          "question": "What does 'under penalty of perjury' mean?",
+          "options": [
+            "You may be fined for arriving late to the interview",
+            "You could face criminal charges if you lie during the interview",
+            "You must pay a penalty fee before answering questions",
+            "The officer has the right to end the interview at any time"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "question": "What is 'naturalization'?",
+          "options": [
+            "The process of becoming a legal permanent resident (green card holder)",
+            "The process by which a non-citizen legally becomes a U.S. citizen",
+            "A test to prove you were born in the United States",
+            "A program to help immigrants learn English for free"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    },
+    {
+      "id": "path_citizenship_n400_01",
+      "titleEs": "Formulario N-400: Información Personal",
+      "titleEn": "N-400 Form: Personal Information",
+      "difficulty": "Citizenship",
+      "iconEmoji": "📋",
+      "targetVocabulary": [
+        {
+          "wordEn": "marital status",
+          "wordEs": "estado civil",
+          "exampleEn": "What is your current marital status?",
+          "exampleEs": "¿Cuál es su estado civil actual?"
+        },
+        {
+          "wordEn": "spouse",
+          "wordEs": "cónyuge / esposo(a)",
+          "exampleEn": "Is your spouse a United States citizen?",
+          "exampleEs": "¿Es su cónyuge ciudadano de los Estados Unidos?"
+        },
+        {
+          "wordEn": "maiden name",
+          "wordEs": "apellido de soltera",
+          "exampleEn": "What was your maiden name before marriage?",
+          "exampleEs": "¿Cuál era su apellido de soltera antes del matrimonio?"
+        },
+        {
+          "wordEn": "alias",
+          "wordEs": "alias / otro nombre usado",
+          "exampleEn": "Have you ever used any other names or aliases?",
+          "exampleEs": "¿Ha usado alguna vez otros nombres o alias?"
+        },
+        {
+          "wordEn": "legal name",
+          "wordEs": "nombre legal",
+          "exampleEn": "Your legal name must match your government-issued ID.",
+          "exampleEs": "Su nombre legal debe coincidir con su identificación oficial."
+        },
+        {
+          "wordEn": "employer",
+          "wordEs": "empleador / patrón",
+          "exampleEn": "Who is your current employer?",
+          "exampleEs": "¿Quién es su empleador actual?"
+        },
+        {
+          "wordEn": "arrest",
+          "wordEs": "arresto / detención",
+          "exampleEn": "Have you ever been arrested or detained by any law enforcement officer?",
+          "exampleEs": "¿Ha sido alguna vez arrestado o detenido por algún agente del orden?"
+        },
+        {
+          "wordEn": "deport / deportation",
+          "wordEs": "deportar / deportación",
+          "exampleEn": "Have you ever been deported from the United States?",
+          "exampleEs": "¿Ha sido alguna vez deportado de los Estados Unidos?"
+        },
+        {
+          "wordEn": "claim",
+          "wordEs": "reclamar / afirmar / declarar",
+          "exampleEn": "Have you ever claimed to be a United States citizen?",
+          "exampleEs": "¿Ha afirmado alguna vez ser ciudadano de los Estados Unidos?"
+        },
+        {
+          "wordEn": "file taxes",
+          "wordEs": "declarar impuestos",
+          "exampleEn": "Have you filed your federal income taxes every year?",
+          "exampleEs": "¿Ha declarado sus impuestos federales cada año?"
+        },
+        {
+          "wordEn": "continuous residence",
+          "wordEs": "residencia continua",
+          "exampleEn": "You must demonstrate continuous residence for five years.",
+          "exampleEs": "Debe demostrar residencia continua por cinco años."
+        },
+        {
+          "wordEn": "physical presence",
+          "wordEs": "presencia física",
+          "exampleEn": "Have you maintained physical presence in the United States?",
+          "exampleEs": "¿Ha mantenido presencia física en los Estados Unidos?"
+        },
+        {
+          "wordEn": "trip / absence",
+          "wordEs": "viaje / ausencia",
+          "exampleEn": "Have you taken any trips outside the United States in the last five years?",
+          "exampleEs": "¿Ha hecho algún viaje fuera de los Estados Unidos en los últimos cinco años?"
+        },
+        {
+          "wordEn": "felony",
+          "wordEs": "delito grave / crimen mayor",
+          "exampleEn": "Have you ever been convicted of a felony?",
+          "exampleEs": "¿Ha sido alguna vez condenado por un delito grave?"
+        },
+        {
+          "wordEn": "misdemeanor",
+          "wordEs": "delito menor / falta",
+          "exampleEn": "A misdemeanor is a minor criminal offense.",
+          "exampleEs": "Un delito menor es una infracción criminal de menor gravedad."
+        },
+        {
+          "wordEn": "to the best of my knowledge",
+          "wordEs": "a mi leal saber y entender",
+          "exampleEn": "To the best of my knowledge, all my answers are true.",
+          "exampleEs": "A mi leal saber y entender, todas mis respuestas son verdaderas."
+        },
+        {
+          "wordEn": "employment",
+          "wordEs": "empleo / trabajo",
+          "exampleEn": "Please list your employment history for the past five years.",
+          "exampleEs": "Por favor liste su historial de empleo de los últimos cinco años."
+        },
+        {
+          "wordEn": "No, never",
+          "wordEs": "No, nunca",
+          "exampleEn": "Have you ever been arrested? — No, I have never been arrested.",
+          "exampleEs": "¿Ha sido alguna vez arrestado? — No, nunca he sido arrestado."
+        },
+        {
+          "wordEn": "Yes, I have",
+          "wordEs": "Sí, lo he hecho / Sí, he tenido",
+          "exampleEn": "Have you filed your taxes? — Yes, I have filed every year.",
+          "exampleEs": "¿Ha declarado impuestos? — Sí, he declarado cada año."
+        },
+        {
+          "wordEn": "truthfully",
+          "wordEs": "con la verdad / honestamente",
+          "exampleEn": "You must answer all questions truthfully.",
+          "exampleEs": "Debe responder todas las preguntas honestamente."
+        }
+      ],
+      "grammarRuleEs": "━━━ EL PRESENTE PERFECTO EN PREGUNTAS LEGALES ━━━\n\nEl Presente Perfecto en inglés se forma con HAVE/HAS + participio pasado del verbo. Es el tiempo gramatical FAVORITO del formulario N-400 porque pregunta sobre experiencias de TODA LA VIDA, sin especificar cuándo.\n\n━━━ ESTRUCTURA DE LA PREGUNTA ━━━\n\n\"Have you ever + [participio]...?\"\n• \"Have you ever been arrested?\" = ¿Ha sido alguna vez arrestado?\n• \"Have you ever claimed to be a U.S. citizen?\" = ¿Ha afirmado alguna vez ser ciudadano?\n• \"Have you ever been deported?\" = ¿Ha sido alguna vez deportado?\n• \"Have you ever failed to file taxes?\" = ¿Ha dejado alguna vez de declarar impuestos?\n• \"Have you ever taken a trip outside the U.S.?\" = ¿Ha hecho alguna vez un viaje fuera de EE.UU.?\n\n━━━ CÓMO RESPONDER CORRECTAMENTE ━━━\n\nRespuesta NEGATIVA (la más común en N-400):\n• \"No, I have never been arrested.\"\n• \"No, I have never claimed to be a citizen.\"\n• EVITE responder solo \"No\" — el oficial puede pedirle una respuesta completa.\n\nRespuesta AFIRMATIVA (si aplica):\n• \"Yes, I have. I was arrested in 2018 for a traffic violation.\"\n• \"Yes, I have taken trips to Mexico twice in the last five years.\"\n\n━━━ DIFERENCIA CRÍTICA CON EL ESPAÑOL ━━━\n\nEn español usamos el pretérito indefinido o imperfecto. En inglés legal, el Presente Perfecto cubre toda experiencia pasada hasta el momento actual — por eso USCIS lo usa para cubrir toda su historia sin importar cuándo ocurrió.",
+      "grammarRuleEn": "The Present Perfect tense ('Have you ever...?') covers your entire life history up to the present moment. Always answer in a complete sentence: 'No, I have never...' or 'Yes, I have...'",
+      "grammarExample": "Officer: \"Have you ever been arrested?\" → Applicant: \"No, I have never been arrested.\"",
+      "simulatorPrompt": "You are Officer Martinez, a stern USCIS officer reading directly from the N-400 naturalization form. You are formal, serious, and procedural. This is a legal interview — you are NOT friendly, encouraging, or conversational.\n\nCONVERSATION STAGES (follow this order strictly):\nSTAGE 1 — Name verification: Ask for their full legal name, any other names or aliases they have used, and their date of birth.\nSTAGE 2 — Marital status: Ask if they are single, married, divorced, or widowed. If married, ask spouse's name and citizenship status.\nSTAGE 3 — Employment and travel: Ask about current employer and job title. Ask if they have taken any trips outside the United States in the last five years and for how long.\nSTAGE 4 — N-400 history questions: Read the following questions one at a time and wait for each answer: (1) Have you ever been arrested, cited, or detained by any law enforcement officer? (2) Have you ever been deported or removed from the United States? (3) Have you ever claimed to be a United States citizen in writing or any other way? (4) Have you filed your federal income taxes every year since becoming a permanent resident?\n\nRULES:\n- Stay in character as a strict, procedural officer at all times\n- Read each question clearly and wait for a response before continuing\n- If the applicant gives an incomplete answer such as just \"No\", prompt: \"Please answer in a complete sentence.\"\n- If the answer is grammatically unclear, say: \"I need you to be more specific.\"\n- Do NOT explain or teach — you are conducting an interview, not a lesson\n- Return ONLY valid JSON: {\"feedbackColor\": \"green\"|\"amber\"|\"red\", \"aiSpokenReply\": \"...\", \"isConversationFinished\": false}\n- feedbackColor: \"green\" = complete, clear, grammatically correct answer using Present Perfect when appropriate; \"amber\" = answer understood but used wrong tense or incomplete sentence; \"red\" = answer was unclear, evasive, or incomprehensible\n- Set isConversationFinished to true only after all Stage 4 questions are answered",
+      "simulatorCharacterEn": "Officer Martinez",
+      "simulatorCharacterRoleEs": "Oficial de USCIS — Preguntas del Formulario N-400",
+      "simulatorOpeningEn": "Good morning. I am Officer Martinez. I will be reviewing your N-400 application today. Please state your full legal name as it appears on your application.",
+      "simulatorOpeningHintEs": "Diga su nombre legal completo — por ejemplo: \"My full legal name is Carlos Eduardo Ramírez.\"",
+      "simulatorExpectedTurns": 10,
+      "simulatorTargetGoalEs": "Responder correctamente las preguntas del formulario N-400 usando el Presente Perfecto",
+      "quizzes": [
+        {
+          "question": "What does 'marital status' mean on the N-400 form?",
+          "options": [
+            "Your current job or occupation",
+            "The country where you were born",
+            "Whether you are single, married, divorced, or widowed",
+            "The number of years you have lived in the U.S."
+          ],
+          "correctIndex": 2
+        },
+        {
+          "question": "How should you answer 'Have you ever been arrested?' if you have NOT been arrested?",
+          "options": [
+            "\"No, never.\"",
+            "\"No, I have never been arrested.\"",
+            "\"Not that I remember.\"",
+            "\"I don't think so.\""
+          ],
+          "correctIndex": 1
+        },
+        {
+          "question": "What does 'continuous residence' mean for naturalization purposes?",
+          "options": [
+            "You have lived in the same apartment for 5 years",
+            "You have maintained your main home in the U.S. and have not left for more than 6 months at a time",
+            "You have worked continuously for the same employer",
+            "You have paid rent or a mortgage every month"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "question": "What is the difference between a 'felony' and a 'misdemeanor'?",
+          "options": [
+            "A felony is a traffic violation; a misdemeanor is a parking ticket",
+            "A felony is a minor offense; a misdemeanor is a serious crime",
+            "A felony is a serious crime (e.g. robbery); a misdemeanor is a less serious offense (e.g. a small fine)",
+            "There is no legal difference between the two terms"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "question": "What does the phrase 'to the best of my knowledge' mean?",
+          "options": [
+            "You studied hard and know the answer perfectly",
+            "You are answering as accurately and honestly as you can based on what you know",
+            "You must provide written proof for every answer",
+            "You are only answering questions about your education"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    },
+    {
+      "id": "path_citizenship_civics_01",
+      "titleEs": "Examen de Civismo: Principios de la Democracia",
+      "titleEn": "Civics Test: Principles of American Democracy",
+      "difficulty": "Citizenship",
+      "iconEmoji": "🏛️",
+      "targetVocabulary": [
+        {
+          "wordEn": "Constitution",
+          "wordEs": "Constitución",
+          "exampleEn": "The Constitution is the supreme law of the United States.",
+          "exampleEs": "La Constitución es la ley suprema de los Estados Unidos."
+        },
+        {
+          "wordEn": "supreme law",
+          "wordEs": "ley suprema",
+          "exampleEn": "The Constitution is the supreme law of the land.",
+          "exampleEs": "La Constitución es la ley suprema del país."
+        },
+        {
+          "wordEn": "amendment",
+          "wordEs": "enmienda",
+          "exampleEn": "The First Amendment protects freedom of speech.",
+          "exampleEs": "La Primera Enmienda protege la libertad de expresión."
+        },
+        {
+          "wordEn": "Bill of Rights",
+          "wordEs": "Declaración de Derechos",
+          "exampleEn": "The Bill of Rights is the first ten amendments to the Constitution.",
+          "exampleEs": "La Declaración de Derechos son las primeras diez enmiendas a la Constitución."
+        },
+        {
+          "wordEn": "self-government",
+          "wordEs": "autogobierno / gobierno propio",
+          "exampleEn": "The principle of self-government means the people choose their leaders.",
+          "exampleEs": "El principio de autogobierno significa que el pueblo elige a sus líderes."
+        },
+        {
+          "wordEn": "rule of law",
+          "wordEs": "estado de derecho / imperio de la ley",
+          "exampleEn": "In the United States, everyone must follow the rule of law.",
+          "exampleEs": "En los Estados Unidos, todos deben seguir el estado de derecho."
+        },
+        {
+          "wordEn": "legislative branch",
+          "wordEs": "poder legislativo",
+          "exampleEn": "The legislative branch makes the laws.",
+          "exampleEs": "El poder legislativo hace las leyes."
+        },
+        {
+          "wordEn": "executive branch",
+          "wordEs": "poder ejecutivo",
+          "exampleEn": "The executive branch enforces the laws.",
+          "exampleEs": "El poder ejecutivo hace cumplir las leyes."
+        },
+        {
+          "wordEn": "judicial branch",
+          "wordEs": "poder judicial",
+          "exampleEn": "The judicial branch interprets and explains the laws.",
+          "exampleEs": "El poder judicial interpreta y explica las leyes."
+        },
+        {
+          "wordEn": "Congress",
+          "wordEs": "Congreso",
+          "exampleEn": "Congress is made up of the Senate and the House of Representatives.",
+          "exampleEs": "El Congreso está formado por el Senado y la Cámara de Representantes."
+        },
+        {
+          "wordEn": "Senate",
+          "wordEs": "Senado",
+          "exampleEn": "There are one hundred senators in the United States Senate.",
+          "exampleEs": "Hay cien senadores en el Senado de los Estados Unidos."
+        },
+        {
+          "wordEn": "House of Representatives",
+          "wordEs": "Cámara de Representantes",
+          "exampleEn": "The House of Representatives has four hundred thirty-five members.",
+          "exampleEs": "La Cámara de Representantes tiene cuatrocientos treinta y cinco miembros."
+        },
+        {
+          "wordEn": "checks and balances",
+          "wordEs": "pesos y contrapesos / controles y equilibrios",
+          "exampleEn": "Checks and balances prevent any one branch from having too much power.",
+          "exampleEs": "Los controles y equilibrios evitan que una rama tenga demasiado poder."
+        },
+        {
+          "wordEn": "separation of powers",
+          "wordEs": "separación de poderes",
+          "exampleEn": "The separation of powers divides government into three branches.",
+          "exampleEs": "La separación de poderes divide el gobierno en tres ramas."
+        },
+        {
+          "wordEn": "democratic republic",
+          "wordEs": "república democrática",
+          "exampleEn": "The United States is a democratic republic.",
+          "exampleEs": "Los Estados Unidos son una república democrática."
+        },
+        {
+          "wordEn": "We the People",
+          "wordEs": "Nosotros el Pueblo",
+          "exampleEn": "\"We the People\" are the first three words of the Constitution.",
+          "exampleEs": "\"We the People\" son las primeras tres palabras de la Constitución."
+        },
+        {
+          "wordEn": "freedom of speech",
+          "wordEs": "libertad de expresión",
+          "exampleEn": "Freedom of speech is one of the most important rights in the Bill of Rights.",
+          "exampleEs": "La libertad de expresión es uno de los derechos más importantes de la Declaración de Derechos."
+        },
+        {
+          "wordEn": "Supreme Court",
+          "wordEs": "Corte Suprema / Tribunal Supremo",
+          "exampleEn": "The Supreme Court is the highest court in the United States.",
+          "exampleEs": "La Corte Suprema es el tribunal más alto de los Estados Unidos."
+        },
+        {
+          "wordEn": "President / Vice President",
+          "wordEs": "Presidente / Vicepresidente",
+          "exampleEn": "The President is the head of the executive branch.",
+          "exampleEs": "El Presidente es el jefe del poder ejecutivo."
+        },
+        {
+          "wordEn": "right",
+          "wordEs": "derecho",
+          "exampleEn": "Every citizen has the right to vote.",
+          "exampleEs": "Cada ciudadano tiene el derecho de votar."
+        }
+      ],
+      "grammarRuleEs": "━━━ PRESENTE SIMPLE PARA HECHOS CONSTITUCIONALES ━━━\n\nEn el examen de civismo, el oficial pregunta sobre hechos permanentes y definiciones. Para esto se usa el PRESENTE SIMPLE — el tiempo verbal para verdades universales y hechos que no cambian.\n\n━━━ ESTRUCTURA: \"WHAT DOES... DO?\" ━━━\n\nEsta pregunta pide que explique la función o el rol de algo:\n• \"What does the legislative branch do?\" → \"The legislative branch makes the laws.\"\n• \"What does the Constitution do?\" → \"The Constitution is the supreme law of the land.\"\n• \"What does the judicial branch do?\" → \"The judicial branch reviews and interprets the laws.\"\n• \"What does the executive branch do?\" → \"The executive branch enforces the laws.\"\n\n━━━ ESTRUCTURA: \"WHO...?\" ━━━\n\nEsta pregunta pide identificar una persona o grupo:\n• \"Who makes the federal laws?\" → \"Congress makes the federal laws.\"\n• \"Who is in charge of the executive branch?\" → \"The President is in charge of the executive branch.\"\n• \"Who does a U.S. Senator represent?\" → \"A Senator represents all people of the state.\"\n• \"Who was the first President?\" → \"George Washington was the first President.\"\n• \"Who signs bills into law?\" → \"The President signs bills into law.\"\n\n━━━ REGLA CRÍTICA: ARTÍCULOS (THE / A) ━━━\n\nEn respuestas de civismo, SIEMPRE use el artículo correcto:\n• \"The Constitution\" (definido — solo hay una)\n• \"A senator\" (indefinido — hay muchos)\n• \"The President\" (definido — cargo único)\n\nNunca diga: \"Constitution is the supreme law.\" → CORRECTO: \"The Constitution is the supreme law of the land.\"",
+      "grammarRuleEn": "Use the Simple Present tense to state constitutional facts. Master two question structures: 'What does [branch] do?' and 'Who [role]?' Always include the correct article (the/a) and answer in a complete sentence.",
+      "grammarExample": "Officer: \"What does Congress do?\" → Applicant: \"Congress makes the federal laws of the United States.\"",
+      "simulatorPrompt": "You are Officer Thompson, a no-nonsense USCIS officer administering the oral civics test as part of the naturalization interview. You ask questions directly from the official USCIS 100 civics questions list. You are strict, procedural, and do not provide hints or encouragement.\n\nCONVERSATION STAGES (follow this order strictly):\nSTAGE 1 — Constitution and supreme law: Ask one at a time: (1) What is the supreme law of the land? (2) What does the Constitution do? (3) What are the first three words of the Constitution?\nSTAGE 2 — Branches of government: Ask one at a time: (1) Name the three branches of the United States government. (2) What does the legislative branch do? (3) What are the two parts of the United States Congress?\nSTAGE 3 — Rights and amendments: Ask one at a time: (1) What is the Bill of Rights? (2) Name one right guaranteed by the First Amendment.\nSTAGE 4 — Current officials: Ask one at a time: (1) Who is the President of the United States now? (2) Who is the Vice President of the United States now?\n\nACCEPTABLE ANSWERS:\n- Supreme law: \"The Constitution\" or \"The Constitution is the supreme law of the land.\"\n- What Constitution does: \"Sets up the government\" or \"defines the government\" or \"protects basic rights of Americans\"\n- First three words: \"We the People\"\n- Three branches: \"Legislative, Executive, and Judicial\"\n- Legislative branch: \"Makes the laws\" or \"writes the laws\"\n- Two parts of Congress: \"The Senate and the House of Representatives\"\n- Bill of Rights: \"The first ten amendments to the Constitution\" or \"protects basic rights\"\n- First Amendment right: Accept speech, religion, assembly, press, or petition\n- President and Vice President: Accept any currently accurate answer\n\nRULES:\n- Ask one question at a time and wait for the answer before proceeding\n- If the answer is correct, say only: \"Correct. Next question.\" and continue\n- If the answer is partially correct or unclear, say: \"Can you be more specific?\" and wait\n- If the answer is wrong, say: \"That is not correct.\" and move to the next question\n- Do NOT explain the correct answer or teach during the test\n- After Stage 4 is complete, announce how many were answered correctly out of 10\n- Return ONLY valid JSON: {\"feedbackColor\": \"green\"|\"amber\"|\"red\", \"aiSpokenReply\": \"...\", \"isConversationFinished\": false}\n- feedbackColor: \"green\" = correct answer in a complete sentence with proper article; \"amber\" = correct answer but incomplete sentence or missing article; \"red\" = wrong answer or question not understood\n- Set isConversationFinished to true after Stage 4 results are announced",
+      "simulatorCharacterEn": "Officer Thompson",
+      "simulatorCharacterRoleEs": "Oficial de USCIS — Examen Oral de Civismo",
+      "simulatorOpeningEn": "We will now begin the civics portion of your naturalization interview. I will ask you up to ten questions. You must answer at least six correctly to pass. Are you ready?",
+      "simulatorOpeningHintEs": "Responda \"Yes, I am ready\" y espere la primera pregunta del examen de civismo.",
+      "simulatorExpectedTurns": 12,
+      "simulatorTargetGoalEs": "Responder 6 de 10 preguntas del examen de civismo correctamente",
+      "quizzes": [
+        {
+          "question": "What is the supreme law of the land? (USCIS Q1)",
+          "options": [
+            "The Declaration of Independence",
+            "The Bill of Rights",
+            "The Constitution",
+            "The Emancipation Proclamation"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "question": "What are the first three words of the Constitution? (USCIS Q2)",
+          "options": [
+            "\"We the Citizens\"",
+            "\"We the People\"",
+            "\"In the Beginning\"",
+            "\"One Nation United\""
+          ],
+          "correctIndex": 1
+        },
+        {
+          "question": "What does the judicial branch do? (USCIS Q3)",
+          "options": [
+            "Makes federal laws and controls the budget",
+            "Commands the military and signs treaties",
+            "Reviews laws and explains what the Constitution means",
+            "Collects taxes and prints money"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "question": "How many U.S. Senators are there? (USCIS Q4)",
+          "options": [
+            "50",
+            "100",
+            "435",
+            "270"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "question": "What is the Bill of Rights? (USCIS Q5)",
+          "options": [
+            "The list of the 50 states and their capitals",
+            "The first ten amendments to the Constitution that protect basic freedoms",
+            "A document that lists the duties of the President",
+            "A law that gives Congress the power to tax citizens"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    },
+    {
+      "id": "citizenship_lesson_4",
+      "titleEs": "Formulario N-400: Moral, Ética y Ley",
+      "titleEn": "N-400 Form: Morals, Ethics, and Law",
+      "difficulty": "Citizenship",
+      "iconEmoji": "⚖️",
+      "targetVocabulary": [
+        {
+          "wordEn": "arrested",
+          "wordEs": "arrestado / detenido",
+          "exampleEn": "Have you ever been arrested by a law enforcement officer?",
+          "exampleEs": "¿Ha sido alguna vez arrestado por un agente del orden?"
+        },
+        {
+          "wordEn": "cited",
+          "wordEs": "multado / citado (recibir una infracción)",
+          "exampleEn": "Have you ever been cited for a traffic violation?",
+          "exampleEs": "¿Ha recibido alguna vez una multa por una infracción de tráfico?"
+        },
+        {
+          "wordEn": "detained",
+          "wordEs": "detenido / retenido por autoridades",
+          "exampleEn": "Have you ever been detained at the border or by immigration?",
+          "exampleEs": "¿Ha sido alguna vez detenido en la frontera o por inmigración?"
+        },
+        {
+          "wordEn": "smuggle",
+          "wordEs": "contrabandear / pasar de contrabando",
+          "exampleEn": "Have you ever helped anyone smuggle people or drugs into the country?",
+          "exampleEs": "¿Ha ayudado alguna vez a alguien a contrabandear personas o drogas al país?"
+        },
+        {
+          "wordEn": "fraudulent",
+          "wordEs": "fraudulento / falso / engañoso",
+          "exampleEn": "Have you ever submitted a fraudulent document to the government?",
+          "exampleEs": "¿Ha presentado alguna vez un documento fraudulento al gobierno?"
+        },
+        {
+          "wordEn": "bear arms",
+          "wordEs": "portar armas / servir en el ejército",
+          "exampleEn": "Are you willing to bear arms on behalf of the United States?",
+          "exampleEs": "¿Está dispuesto a portar armas en nombre de los Estados Unidos?"
+        },
+        {
+          "wordEn": "terrorist organization",
+          "wordEs": "organización terrorista",
+          "exampleEn": "Have you ever been a member of a terrorist organization?",
+          "exampleEs": "¿Ha sido alguna vez miembro de una organización terrorista?"
+        },
+        {
+          "wordEn": "drug trafficking",
+          "wordEs": "tráfico de drogas / narcotráfico",
+          "exampleEn": "Have you ever been involved in drug trafficking?",
+          "exampleEs": "¿Ha estado alguna vez involucrado en el tráfico de drogas?"
+        },
+        {
+          "wordEn": "polygamy",
+          "wordEs": "poligamia (estar casado con más de una persona)",
+          "exampleEn": "Have you ever practiced polygamy?",
+          "exampleEs": "¿Ha practicado alguna vez la poligamia?"
+        },
+        {
+          "wordEn": "gambling",
+          "wordEs": "juego de apuestas ilegales",
+          "exampleEn": "Have you ever been involved in illegal gambling?",
+          "exampleEs": "¿Ha estado alguna vez involucrado en apuestas ilegales?"
+        },
+        {
+          "wordEn": "probation",
+          "wordEs": "libertad condicional / probatoria",
+          "exampleEn": "Have you ever been on probation or parole?",
+          "exampleEs": "¿Ha estado alguna vez en libertad condicional o bajo palabra?"
+        },
+        {
+          "wordEn": "suspended sentence",
+          "wordEs": "sentencia suspendida / condena en suspenso",
+          "exampleEn": "I received a suspended sentence and was never incarcerated.",
+          "exampleEs": "Recibí una sentencia suspendida y nunca estuve encarcelado."
+        },
+        {
+          "wordEn": "incite violence",
+          "wordEs": "incitar a la violencia / provocar actos violentos",
+          "exampleEn": "Have you ever tried to incite violence against the government?",
+          "exampleEs": "¿Ha intentado alguna vez incitar a la violencia contra el gobierno?"
+        },
+        {
+          "wordEn": "overthrow the government",
+          "wordEs": "derrocar al gobierno / tomar el poder por la fuerza",
+          "exampleEn": "Have you ever tried to overthrow the government of the United States?",
+          "exampleEs": "¿Ha intentado alguna vez derrocar al gobierno de los Estados Unidos?"
+        },
+        {
+          "wordEn": "treason",
+          "wordEs": "traición (a la patria)",
+          "exampleEn": "Have you ever committed treason against the United States?",
+          "exampleEs": "¿Ha cometido alguna vez traición contra los Estados Unidos?"
+        },
+        {
+          "wordEn": "good moral character",
+          "wordEs": "buena conducta moral / buen comportamiento",
+          "exampleEn": "You must demonstrate good moral character to become a citizen.",
+          "exampleEs": "Debe demostrar buena conducta moral para convertirse en ciudadano."
+        },
+        {
+          "wordEn": "convicted",
+          "wordEs": "condenado / declarado culpable",
+          "exampleEn": "Have you ever been convicted of a crime in any country?",
+          "exampleEs": "¿Ha sido alguna vez condenado por un delito en algún país?"
+        },
+        {
+          "wordEn": "parole",
+          "wordEs": "libertad bajo palabra / libertad supervisada",
+          "exampleEn": "Have you ever been released on parole?",
+          "exampleEs": "¿Ha sido alguna vez puesto en libertad bajo palabra?"
+        },
+        {
+          "wordEn": "court order",
+          "wordEs": "orden judicial / mandato del tribunal",
+          "exampleEn": "Have you ever failed to obey a court order?",
+          "exampleEs": "¿Ha dejado alguna vez de obedecer una orden judicial?"
+        },
+        {
+          "wordEn": "No, that has never happened",
+          "wordEs": "No, eso nunca ha ocurrido / Nunca he hecho eso",
+          "exampleEn": "Have you ever been arrested? — No, I have never been arrested. That has never happened.",
+          "exampleEs": "¿Ha sido alguna vez arrestado? — No, nunca he sido arrestado. Eso nunca ha ocurrido."
+        }
+      ],
+      "grammarRuleEs": "━━━ RESPONDER PREGUNTAS NEGATIVAS Y DEFINIR TÉRMINOS LEGALES ━━━\n\nEsta sección del N-400 es la más difícil — las preguntas usan vocabulario legal que muchos solicitantes no entienden. Hay dos habilidades críticas: responder correctamente y pedir una definición sin pánico.\n\n━━━ HABILIDAD 1: RESPONDER PREGUNTAS NEGATIVAS ━━━\n\nLa mayoría de respuestas en esta sección serán negativas. NUNCA responda solo \"No\" — complete la oración:\n\n• \"Have you ever been arrested?\"\n  ❌ \"No.\"\n  ✅ \"No, I have never been arrested.\"\n  ✅ \"No, Officer. I have never been arrested or detained.\"\n\n• \"Have you ever helped anyone smuggle people?\"\n  ✅ \"No, I have never helped anyone smuggle people into the country.\"\n\n• \"Have you ever been a member of a terrorist organization?\"\n  ✅ \"No, I have never been a member of any terrorist organization.\"\n\n• \"Have you ever tried to overthrow the government?\"\n  ✅ \"No, Officer. I have never tried to overthrow any government.\"\n\n━━━ HABILIDAD 2: PEDIR UNA DEFINICIÓN CON RESPETO ━━━\n\nSi el oficial pregunta algo que usted no entiende, tiene derecho a pedir una aclaración. Hágalo con calma y cortesía:\n\n• \"I'm sorry, Officer. Could you explain what that means?\"\n• \"Excuse me — what does 'cited' mean in this context?\"\n• \"Officer, I want to make sure I understand. Does 'detained' mean held by police?\"\n\nCuando el oficial explique, confirme con:\n• \"I understand. No, that has never happened to me.\"\n• \"Thank you for clarifying. No, I have never done that.\"\n\n━━━ HABILIDAD 3: CÓMO DEFINIR TÉRMINOS USTED MISMO ━━━\n\nEl oficial puede pedirle que DEFINA un término (por ejemplo: '¿Qué significa ser arrestado?'). Use esta estructura:\n• \"To be arrested means to be taken into custody by a police officer.\"\n• \"Smuggling means to bring something or someone into the country illegally.\"\n• \"Fraudulent means something that is false or deceptive, done to trick the government.\"\n• \"To bear arms means to carry weapons or to serve in the military.\"\n• \"Probation means a period of supervision instead of going to prison.\"\n\n━━━ FRASE DE SEGURIDAD PARA CUALQUIER PREGUNTA ━━━\n\nSi alguna pregunta lo pone nervioso, use esta frase mientras piensa:\n\"Officer, I want to answer accurately. Give me just a moment.\"\nLuego responda completamente y con calma.",
+      "grammarRuleEn": "In the N-400 morals and law section, always answer in a complete sentence using the Present Perfect: 'No, I have never...' If you don't understand a legal term, politely ask: 'Could you explain what that means?' You may also be asked to define a term — use 'To [verb] means...' structure.",
+      "grammarExample": "Officer: \"Have you ever been cited or detained by any law enforcement officer?\" → Applicant: \"No, Officer. I have never been cited or detained by any law enforcement officer.\"",
+      "simulatorPrompt": "You are Officer Chen, a highly formal USCIS officer conducting the most serious section of the naturalization interview — Part 12 of the N-400, which covers crimes, law violations, and moral character. You read each question exactly as written on the form. You are stern, precise, and watch for hesitation or incomplete answers. This section is legally binding.\n\nCONVERSATION STAGES (follow this order strictly):\n\nSTAGE 1 — Introduction to this section: Inform the applicant you are now entering the crimes and moral character section of the N-400. State clearly that all answers are made under oath. Read: \"I am now going to ask you a series of questions from Part 12 of your N-400 application. These questions are about crimes, offenses, and moral character. You must answer each question truthfully and completely.\"\n\nSTAGE 2 — Law violations: Ask each question one at a time and wait for a full answer: (1) \"Have you ever been arrested, cited, or detained by a law enforcement officer for any reason?\" (2) \"Have you ever been convicted of a crime or offense in any court?\" (3) \"Have you ever been on probation, parole, or received a suspended sentence?\"\n\nSTAGE 3 — Definition challenge: After question 3, ask the applicant to define one term: \"Before we continue — what does it mean to be 'cited' by a law enforcement officer? Please explain in your own words.\" Wait for their definition. Accept any reasonable explanation involving a fine, ticket, or official notice for a violation. If unclear, say: \"Can you be more specific?\"\n\nSTAGE 4 — Serious offenses: Ask one at a time: (1) \"Have you ever helped anyone enter the United States illegally, or helped anyone smuggle people or goods?\" (2) \"Have you ever been a member of, or in any way associated with, a terrorist organization?\" (3) \"Are you willing to bear arms on behalf of the United States when required by law?\"\n\nRULES:\n- You are strictly procedural — no warmth, no encouragement\n- If the applicant answers only \"No\" without completing the sentence, say: \"Please answer in a complete sentence.\"\n- If the applicant asks to clarify a legal term, provide a brief, factual definition: e.g., 'Cited means to receive an official notice or ticket for a violation, such as a traffic ticket.'\n- If the applicant's answer is grammatically correct and complete, say only: \"Thank you. Next question.\"\n- Do NOT accept one-word answers\n- After Stage 4, close with: \"Thank you. This concludes the crimes and moral character section.\"\n- Return ONLY valid JSON: {\"feedbackColor\": \"green\"|\"amber\"|\"red\", \"aiSpokenReply\": \"...\", \"isConversationFinished\": false}\n- feedbackColor: 'green' = complete answer using Present Perfect ('I have never...'), correct definition of legal term, full sentence; 'amber' = answer understood but incomplete sentence, or definition too vague; 'red' = answer was one word only, evasive, or the legal term could not be defined at all\n- Set isConversationFinished to true only after Stage 4 is fully complete and the closing statement is delivered",
+      "simulatorCharacterEn": "Officer Chen",
+      "simulatorCharacterRoleEs": "Oficial de USCIS — Sección de Crímenes y Conducta Moral del N-400",
+      "simulatorOpeningEn": "We will now move to Part 12 of your N-400 application. This section covers crimes, offenses, and moral character. All answers you give are made under oath. Do you understand?",
+      "simulatorOpeningHintEs": "Confirme que entiende — diga \"Yes, Officer. I understand.\" Luego espere las preguntas sobre crímenes e historial legal. Responda siempre en oración completa: \"No, I have never been arrested.\"",
+      "simulatorExpectedTurns": 10,
+      "simulatorTargetGoalEs": "Responder las preguntas de crímenes y conducta moral del N-400 usando el Presente Perfecto, y definir al menos un término legal con claridad"
+    },
+    {
+      "id": "citizenship_lesson_5",
+      "titleEs": "El Examen de Lectura y Escritura",
+      "titleEn": "The Reading and Writing Test",
+      "difficulty": "Citizenship",
+      "iconEmoji": "✍️",
+      "targetVocabulary": [
+        {
+          "wordEn": "taxes",
+          "wordEs": "impuestos",
+          "exampleEn": "Americans pay taxes to the government every year.",
+          "exampleEs": "Los estadounidenses pagan impuestos al gobierno cada año."
+        },
+        {
+          "wordEn": "President",
+          "wordEs": "Presidente",
+          "exampleEn": "The President lives in the White House.",
+          "exampleEs": "El Presidente vive en la Casa Blanca."
+        },
+        {
+          "wordEn": "White House",
+          "wordEs": "Casa Blanca",
+          "exampleEn": "The White House is in Washington, D.C.",
+          "exampleEs": "La Casa Blanca está en Washington, D.C."
+        },
+        {
+          "wordEn": "freedom of speech",
+          "wordEs": "libertad de expresión",
+          "exampleEn": "Citizens have the right to freedom of speech.",
+          "exampleEs": "Los ciudadanos tienen el derecho a la libertad de expresión."
+        },
+        {
+          "wordEn": "Congress",
+          "wordEs": "Congreso",
+          "exampleEn": "Congress makes the laws of the United States.",
+          "exampleEs": "El Congreso hace las leyes de los Estados Unidos."
+        },
+        {
+          "wordEn": "citizen",
+          "wordEs": "ciudadano / ciudadana",
+          "exampleEn": "A citizen has the right to vote in elections.",
+          "exampleEs": "Un ciudadano tiene el derecho de votar en las elecciones."
+        },
+        {
+          "wordEn": "vote",
+          "wordEs": "votar / voto",
+          "exampleEn": "Citizens vote for their leaders.",
+          "exampleEs": "Los ciudadanos votan por sus líderes."
+        },
+        {
+          "wordEn": "flag",
+          "wordEs": "bandera",
+          "exampleEn": "The American flag has fifty stars.",
+          "exampleEs": "La bandera americana tiene cincuenta estrellas."
+        },
+        {
+          "wordEn": "capital",
+          "wordEs": "capital (ciudad)",
+          "exampleEn": "The capital of the United States is Washington, D.C.",
+          "exampleEs": "La capital de los Estados Unidos es Washington, D.C."
+        },
+        {
+          "wordEn": "liberty",
+          "wordEs": "libertad",
+          "exampleEn": "Liberty is one of the core values of the United States.",
+          "exampleEs": "La libertad es uno de los valores fundamentales de los Estados Unidos."
+        },
+        {
+          "wordEn": "independence",
+          "wordEs": "independencia",
+          "exampleEn": "The United States declared independence on July 4, 1776.",
+          "exampleEs": "Los Estados Unidos declararon su independencia el 4 de julio de 1776."
+        },
+        {
+          "wordEn": "Abraham Lincoln",
+          "wordEs": "Abraham Lincoln",
+          "exampleEn": "Abraham Lincoln was the President during the Civil War.",
+          "exampleEs": "Abraham Lincoln fue el Presidente durante la Guerra Civil."
+        },
+        {
+          "wordEn": "Civil War",
+          "wordEs": "Guerra Civil",
+          "exampleEn": "The Civil War was fought from 1861 to 1865.",
+          "exampleEs": "La Guerra Civil se libró de 1861 a 1865."
+        },
+        {
+          "wordEn": "Declaration of Independence",
+          "wordEs": "Declaración de Independencia",
+          "exampleEn": "The Declaration of Independence was signed in 1776.",
+          "exampleEs": "La Declaración de Independencia fue firmada en 1776."
+        },
+        {
+          "wordEn": "United States",
+          "wordEs": "Estados Unidos",
+          "exampleEn": "The United States has fifty states.",
+          "exampleEs": "Los Estados Unidos tienen cincuenta estados."
+        },
+        {
+          "wordEn": "representative",
+          "wordEs": "representante",
+          "exampleEn": "We elect a representative to Congress every two years.",
+          "exampleEs": "Elegimos un representante al Congreso cada dos años."
+        },
+        {
+          "wordEn": "senator",
+          "wordEs": "senador / senadora",
+          "exampleEn": "Each state has two senators.",
+          "exampleEs": "Cada estado tiene dos senadores."
+        },
+        {
+          "wordEn": "equal",
+          "wordEs": "igual / igualdad",
+          "exampleEn": "All people are created equal under the law.",
+          "exampleEs": "Todas las personas son creadas iguales ante la ley."
+        },
+        {
+          "wordEn": "law",
+          "wordEs": "ley",
+          "exampleEn": "Congress makes the law.",
+          "exampleEs": "El Congreso hace la ley."
+        },
+        {
+          "wordEn": "nation / country",
+          "wordEs": "nación / país",
+          "exampleEn": "The United States is a nation of immigrants.",
+          "exampleEs": "Los Estados Unidos es una nación de inmigrantes."
+        }
+      ],
+      "grammarRuleEs": "━━━ EL EXAMEN DE LECTURA Y ESCRITURA DE USCIS ━━━\n\nEl examen de inglés tiene DOS partes: LEER (Reading) y ESCRIBIR (Writing). Aquí le explicamos exactamente qué esperar y cómo practicar cada una.\n\n━━━ PARTE 1: LECTURA (READING TEST) ━━━\n\nEl oficial le mostrará una oración en una tableta o tarjeta. Usted debe leerla EN VOZ ALTA y con claridad. El oficial evalúa:\n• ¿Pronunció las palabras correctamente?\n• ¿Leyó la oración completa sin detenerse mucho?\n• ¿Entendió el significado general?\n\nEjemplos de oraciones que pueden aparecer (tomadas de la lista oficial de USCIS):\n• \"The President lives in the White House.\"\n• \"Congress makes the laws.\"\n• \"Citizens have the right to vote.\"\n• \"Abraham Lincoln was the President during the Civil War.\"\n• \"The flag has fifty stars and thirteen stripes.\"\n\n⚠️ CONSEJOS DE LECTURA:\n• Lea despacio y claro — no importa la velocidad, importa la claridad\n• Haga pausa natural en las comas (,) y puntos (.)\n• Si hay una palabra que no puede pronunciar, siga leyendo — el oficial busca comprensión general\n• Artículos como 'the' y 'a' son importantes — no los omita\n\n━━━ PARTE 2: ESCRITURA (WRITING TEST) ━━━\n\nEl oficial le dictará una oración en voz alta y usted debe escribirla correctamente. El oficial evaluará:\n• ¿Escribió las palabras con la ortografía correcta?\n• ¿Usó mayúsculas en nombres propios (President, Congress, United States, Abraham Lincoln)?\n• ¿Escribió la oración completa?\n\nEjemplos de oraciones de dictado oficial de USCIS:\n• \"Congress makes the laws.\"\n• \"The President lives in the White House.\"\n• \"I want to be a citizen.\"\n• \"All people can vote.\"\n• \"The capital is Washington.\"\n• \"Citizens pay taxes.\"\n• \"I love the United States.\"\n\n⚠️ REGLAS DE ESCRITURA CRÍTICAS:\n• SIEMPRE empiece la oración con mayúscula\n• Nombres propios SIEMPRE en mayúscula: President, Congress, United States, White House, Abraham Lincoln, Washington\n• No olvide el punto final (.)\n• Si no escuchó bien, puede pedir: \"Could you repeat that, please?\"\n• Puede pedir que le repitan la oración hasta DOS VECES — es su derecho\n\n━━━ CUÁNTAS TIENE QUE HACER ━━━\n\nUsted debe LEER 1 de 3 oraciones propuestas correctamente, y ESCRIBIR 1 de 3 oraciones dictadas correctamente. Solo necesita pasar UNA de cada parte para aprobar el examen de inglés.",
+      "grammarRuleEn": "The USCIS English test has two parts: Reading (read 1 of 3 sentences aloud) and Writing (write 1 of 3 dictated sentences). Capitalize proper nouns (President, Congress, United States). You may ask for a sentence to be repeated up to twice. Speak clearly — accuracy matters more than speed.",
+      "grammarExample": "Reading: Officer shows card → Applicant reads aloud: \"The President lives in the White House.\" Writing: Officer says \"Congress makes the laws\" → Applicant writes: \"Congress makes the laws.\"",
+      "simulatorPrompt": "You are Officer Williams, a USCIS officer administering the English reading and writing test as part of the naturalization interview. You are professional and neutral — not harsh, but not warm either. This is a standardized test with specific procedures.\n\nYour role is to simulate the exact format of the USCIS English literacy test. The reading test involves showing the applicant a sentence to read aloud. The writing test involves dictating a sentence for the applicant to type (in this simulation, they will type their written answer).\n\nCONVERSATION STAGES (follow this order strictly):\n\nSTAGE 1 — Introduction: Introduce this section of the interview. Say: \"We will now conduct the English reading and writing test. First, you will read a sentence aloud. Then I will ask you to write a sentence. You may ask me to repeat a sentence up to two times. Are you ready?\"\n\nSTAGE 2 — Reading test (show 3 sentences, need 1 correct): Present one sentence at a time from this list, telling the applicant: \"Please read this sentence aloud.\"\n  - Sentence A: \"The President lives in the White House.\"\n  - Sentence B: \"Congress makes the laws of the United States.\"\n  - Sentence C: \"Citizens have the right to vote.\"\nIf the applicant reads it clearly and accurately (allow minor accent), say \"Thank you\" and move on. If they struggle significantly, offer the next sentence. Stop after the first successful read.\n\nSTAGE 3 — Writing test (dictate 3 sentences, need 1 correct): Tell the applicant: \"Now I will say a sentence. Please write exactly what you hear.\" Dictate one sentence at a time:\n  - Sentence A: \"Congress makes the laws.\"\n  - Sentence B: \"The capital is Washington.\"\n  - Sentence C: \"All people can vote.\"\nWait for the applicant to type their answer. Evaluate: capitalization of proper nouns, correct spelling, complete sentence. If correct (allow minor spelling error on one common word), say \"Thank you\" and move on. If incorrect, offer the next sentence.\n\nSTAGE 4 — Results and close: Announce the results clearly: whether they passed the reading portion and whether they passed the writing portion. Then close: \"This concludes the English reading and writing portion of your interview.\"\n\nRULES:\n- For reading evaluation: 'green' if pronunciation is clear enough to understand; 'amber' if some words were mispronounced but the sentence was mostly readable; 'red' if the sentence could not be read at all\n- For writing evaluation: 'green' if the sentence is written correctly with proper capitalization and spelling; 'amber' if mostly correct but missing capitalization of a proper noun or one misspelling; 'red' if the sentence is incomprehensible or completely wrong\n- If the applicant asks to hear a sentence again, repeat it once, clearly and slowly, then wait\n- If the applicant asks what a word means during the reading test, say: \"I'm sorry, I cannot define words during the reading test. Please read the sentence as best you can.\"\n- Keep all your turns to 1-3 sentences\n- Return ONLY valid JSON: {\"feedbackColor\": \"green\"|\"amber\"|\"red\", \"aiSpokenReply\": \"...\", \"isConversationFinished\": false}\n- Set isConversationFinished to true only after the Stage 4 closing statement is delivered",
+      "simulatorCharacterEn": "Officer Williams",
+      "simulatorCharacterRoleEs": "Oficial de USCIS — Examen de Lectura y Escritura en Inglés",
+      "simulatorOpeningEn": "Good morning. We will now conduct the English reading and writing portion of your naturalization interview. First you will read a sentence aloud, and then I will dictate a sentence for you to write. You may ask me to repeat up to two times. Are you ready to begin?",
+      "simulatorOpeningHintEs": "Diga \"Yes, I am ready\" para comenzar. En la prueba de LECTURA: lea la oración en voz alta, despacio y con claridad. En la prueba de ESCRITURA: escriba exactamente lo que el oficial dice — no olvide las mayúsculas en palabras como 'Congress', 'President' y 'Washington'.",
+      "simulatorExpectedTurns": 8,
+      "simulatorTargetGoalEs": "Aprobar el examen de lectura leyendo 1 oración en voz alta correctamente, y el examen de escritura escribiendo 1 oración dictada con la ortografía y mayúsculas correctas"
+    }
+  ]
+}

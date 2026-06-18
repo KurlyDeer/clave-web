@@ -8,6 +8,8 @@ import 'user_name_provider.dart';
 // ── UserGoal ──────────────────────────────────────────────────────────────────
 
 enum UserGoal { career, travel, citizenship }
+enum UserLevel { beginner, intermediate, advanced }
+enum UserDailyTime { min5, min15, min30 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
@@ -16,21 +18,29 @@ class OnboardingState {
     this.name = '',
     this.persona,
     this.userGoal,
+    this.userLevel,
+    this.userDailyTime,
   });
 
   final String name;
   final Persona? persona;
   final UserGoal? userGoal;
+  final UserLevel? userLevel;
+  final UserDailyTime? userDailyTime;
 
   OnboardingState copyWith({
     String? name,
     Persona? persona,
     UserGoal? userGoal,
+    UserLevel? userLevel,
+    UserDailyTime? userDailyTime,
   }) {
     return OnboardingState(
       name: name ?? this.name,
       persona: persona ?? this.persona,
       userGoal: userGoal ?? this.userGoal,
+      userLevel: userLevel ?? this.userLevel,
+      userDailyTime: userDailyTime ?? this.userDailyTime,
     );
   }
 }
@@ -45,6 +55,8 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   void setName(String name) => state = state.copyWith(name: name);
   void setPersona(Persona p) => state = state.copyWith(persona: p);
   void setUserGoal(UserGoal goal) => state = state.copyWith(userGoal: goal);
+  void setUserLevel(UserLevel level) => state = state.copyWith(userLevel: level);
+  void setUserDailyTime(UserDailyTime time) => state = state.copyWith(userDailyTime: time);
 
   /// Persist everything and mark onboarding as complete.
   Future<void> complete() async {
@@ -61,6 +73,12 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     // Save goal
     if (state.userGoal != null) {
       await prefs.setString('user_goal', state.userGoal!.name);
+    }
+    if (state.userLevel != null) {
+      await prefs.setString('user_level', state.userLevel!.name);
+    }
+    if (state.userDailyTime != null) {
+      await prefs.setString('user_daily_time', state.userDailyTime!.name);
     }
 
     // Switch to citizenship track if that was the goal
