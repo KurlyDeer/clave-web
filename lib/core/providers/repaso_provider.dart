@@ -5,10 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/vocab_word_model.dart';
 import 'persona_provider.dart';
 import 'shared_preferences_provider.dart';
-import 'streak_provider.dart';
-import 'tts_provider.dart';
+import 'gamification_controller.dart';
+import 'audio_provider.dart';
 import 'vocab_provider.dart';
-import 'xp_provider.dart';
 
 // ── Date helpers ──────────────────────────────────────────────────────────────
 
@@ -88,6 +87,7 @@ class RepasoState {
     this.knownIds = const {},
     this.repeatIds = const {},
     this.isComplete = false,
+    this.currentIndex = 0,
   });
 
   final List<VocabWord> words;
@@ -95,6 +95,13 @@ class RepasoState {
   final Set<String> knownIds;
   final Set<String> repeatIds;
   final bool isComplete;
+  final int currentIndex;
+
+  /// Whether the current card has been flipped.
+  bool get isCurrentFlipped =>
+      words.isNotEmpty &&
+      currentIndex < words.length &&
+      flippedIds.contains(words[currentIndex].id);
 
   RepasoState copyWith({
     List<VocabWord>? words,
@@ -102,6 +109,7 @@ class RepasoState {
     Set<String>? knownIds,
     Set<String>? repeatIds,
     bool? isComplete,
+    int? currentIndex,
   }) {
     return RepasoState(
       words: words ?? this.words,
@@ -109,6 +117,7 @@ class RepasoState {
       knownIds: knownIds ?? this.knownIds,
       repeatIds: repeatIds ?? this.repeatIds,
       isComplete: isComplete ?? this.isComplete,
+      currentIndex: currentIndex ?? this.currentIndex,
     );
   }
 }
@@ -138,50 +147,54 @@ class RepasoNotifier extends StateNotifier<RepasoState> {
     state = RepasoState(words: sessionWords);
   }
 
-  /// Flip a tile to reveal the English translation.
+  /// Flip the current card to reveal Spanish.
   /// Abuelo persona: auto-plays TTS on flip.
-  void flipCard(String id) {
-    if (state.flippedIds.contains(id)) return;
-    state = state.copyWith(flippedIds: {...state.flippedIds, id});
+  void flipCurrentCard() {
+    if (state.words.isEmpty || state.currentIndex >= state.words.length) return;
+    final word = state.words[state.currentIndex];
+    if (state.flippedIds.contains(word.id)) return;
+
+    state = state.copyWith(flippedIds: {...state.flippedIds, word.id});
 
     final persona = _ref.read(personaProvider);
     if (persona == Persona.abuelo) {
-      final idx = state.words.indexWhere((w) => w.id == id);
-      if (idx != -1) {
-        _ref.read(ttsServiceProvider).speak(state.words[idx].wordEn);
-      }
+      _ref.read(audioServiceProvider).speak(word.wordEs);
     }
   }
 
-  /// Mark a word as known — persists to vocabProvider and removes from schedule.
-  void markKnown(String id) {
-    _ref.read(vocabProvider.notifier).markKnown(id);
-    _ref.read(repasoScheduleProvider.notifier).removeWord(id);
-    _settle(knownIds: {...state.knownIds, id});
+  /// Mark current word as known and advance to the next card.
+  void markKnownAndAdvance() {
+    if (state.words.isEmpty || state.currentIndex >= state.words.length) return;
+    final word = state.words[state.currentIndex];
+    _ref.read(vocabProvider.notifier).markKnown(word.id);
+    _ref.read(repasoScheduleProvider.notifier).removeWord(word.id);
+    _advance(knownIds: {...state.knownIds, word.id});
   }
 
-  /// Schedule word for review tomorrow.
-  void scheduleRepeat(String id) {
-    _ref.read(repasoScheduleProvider.notifier).scheduleWord(id, _tomorrow());
-    _settle(repeatIds: {...state.repeatIds, id});
+  /// Schedule current word for repeat tomorrow and advance to the next card.
+  void scheduleRepeatAndAdvance() {
+    if (state.words.isEmpty || state.currentIndex >= state.words.length) return;
+    final word = state.words[state.currentIndex];
+    _ref.read(repasoScheduleProvider.notifier).scheduleWord(word.id, _tomorrow());
+    _advance(repeatIds: {...state.repeatIds, word.id});
   }
 
-  void _settle({Set<String>? knownIds, Set<String>? repeatIds}) {
+  void _advance({Set<String>? knownIds, Set<String>? repeatIds}) {
     final known = knownIds ?? state.knownIds;
     final repeats = repeatIds ?? state.repeatIds;
-    final acted = {...known, ...repeats};
-    final isComplete =
-        state.words.isNotEmpty && acted.length >= state.words.length;
+    final nextIndex = state.currentIndex + 1;
+    final isComplete = nextIndex >= state.words.length;
 
     state = state.copyWith(
       knownIds: known,
       repeatIds: repeats,
+      currentIndex: nextIndex,
       isComplete: isComplete,
     );
 
     if (isComplete) {
-      _ref.read(xpProvider.notifier).addXp(5);
-      _ref.read(streakProvider.notifier).recordPractice();
+      _ref.read(gamificationProvider.notifier).addXp(5);
+      _ref.read(gamificationProvider.notifier).recordPractice();
     }
   }
 }

@@ -13,6 +13,8 @@ class ScenarioData {
     required this.openingHintEs,
     required this.systemPrompt,
     this.expectedTurns = 6,
+    this.sourceLessonId,
+    this.targetGoalEs = '',
   });
 
   final String id;
@@ -26,6 +28,13 @@ class ScenarioData {
   final String openingHintEs;
   final String systemPrompt;
   final int expectedTurns;
+
+  /// Set when this scenario was launched from a PathLesson.
+  /// On completion, the simulador will mark that lesson as complete.
+  final String? sourceLessonId;
+
+  /// Short Spanish description of the conversation goal shown to the user.
+  final String targetGoalEs;
 }
 
 // ── ScenarioTurn ──────────────────────────────────────────────────────────────
@@ -39,6 +48,7 @@ class ScenarioTurn {
     this.hintEs = '',
     this.feedbackEs = '',
     this.isAcceptable = true,
+    this.feedbackColor = 'green',
   });
 
   final TurnSpeaker speaker;
@@ -46,4 +56,5 @@ class ScenarioTurn {
   final String hintEs;
   final String feedbackEs;
   final bool isAcceptable;
+  final String feedbackColor;
 }

@@ -31,7 +31,11 @@ class NotificationService {
     await _plugin.initialize(initSettings);
   }
 
-  Future<void> scheduleDailyReminder(Persona persona) async {
+  Future<void> scheduleDailyReminder({
+    required Persona persona,
+    required int hour,
+    required int minute,
+  }) async {
     await cancelAll();
 
     final String title;
@@ -70,7 +74,8 @@ class NotificationService {
       now.year,
       now.month,
       now.day,
-      19, // 7 PM
+      hour,
+      minute,
     );
 
     if (scheduledDate.isBefore(now)) {
@@ -88,6 +93,12 @@ class NotificationService {
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
     );
+  }
+
+  /// Cancels today's scheduled notification.
+  /// On next app launch, main.dart will re-schedule it.
+  Future<void> cancelToday() async {
+    await _plugin.cancel(_dailyReminderId);
   }
 
   Future<void> cancelAll() async {

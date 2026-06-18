@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/stt_low_confidence_tooltip.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../features/sos/widgets/mic_hold_button.dart';
 
@@ -16,6 +17,7 @@ class VoiceChallengeView extends StatelessWidget {
     required this.onLongPressStart,
     required this.onLongPressEnd,
     required this.onSkip,
+    this.sttLowConfidence = false,
   });
 
   final String targetSentence;
@@ -27,6 +29,7 @@ class VoiceChallengeView extends StatelessWidget {
   final VoidCallback onLongPressStart;
   final VoidCallback onLongPressEnd;
   final VoidCallback onSkip;
+  final bool sttLowConfidence;
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +121,9 @@ class VoiceChallengeView extends StatelessWidget {
                 ),
               ),
             ],
+          ] else if (sttLowConfidence) ...[
+            const SizedBox(height: 8),
+            SttLowConfidenceTooltip(fontSize: bodySize - 2),
           ] else ...[
             Text(
               'Mantén presionado el micrófono y habla en inglés',

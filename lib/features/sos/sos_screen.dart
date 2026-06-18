@@ -75,7 +75,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
     final notifier = ref.read(sosProvider.notifier);
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -195,7 +195,7 @@ class _GlassHeader extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back_ios_new,
               color: AppColors.glassText,
             ),
@@ -636,7 +636,7 @@ class _GlassResultCard extends ConsumerWidget {
               foregroundColor: AppColors.glassText,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                side: const BorderSide(color: AppColors.glassBorder),
+                side: BorderSide(color: AppColors.glassBorder),
               ),
               elevation: 0,
             ),

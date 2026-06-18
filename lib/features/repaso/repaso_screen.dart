@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/vocab_word_model.dart';
 import '../../core/providers/persona_provider.dart';
 import '../../core/providers/repaso_provider.dart';
-import '../../core/providers/tts_provider.dart';
+import '../../core/providers/audio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/glass_container.dart';
 import '../../l10n/app_strings.dart';
@@ -23,7 +23,7 @@ class RepasoScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.glassGradientStart,
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -41,38 +41,57 @@ class RepasoScreen extends ConsumerWidget {
               if (state.words.isEmpty)
                 Expanded(child: _EmptyState(isSenior: isSenior))
               else if (state.isComplete)
-                Expanded(child: _CompletionState(state: state, isSenior: isSenior))
+                Expanded(
+                    child: _CompletionState(state: state, isSenior: isSenior))
               else
                 Expanded(
-                  child: GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 0.62,
-                    ),
-                    itemCount: state.words.length,
-                    itemBuilder: (context, index) {
-                      final word = state.words[index];
-                      return _VocabTile(
-                        key: ValueKey(word.id),
-                        word: word,
-                        isFlipped: state.flippedIds.contains(word.id),
-                        isKnown: state.knownIds.contains(word.id),
-                        isRepeating: state.repeatIds.contains(word.id),
-                        isSenior: isSenior,
-                        onTap: () =>
-                            ref.read(repasoProvider.notifier).flipCard(word.id),
-                        onKnown: () =>
-                            ref.read(repasoProvider.notifier).markKnown(word.id),
-                        onRepeat: () =>
-                            ref.read(repasoProvider.notifier).scheduleRepeat(word.id),
-                        onSpeak: () =>
-                            ref.read(ttsServiceProvider).speak(word.wordEn),
-                      );
-                    },
+                  child: Column(
+                    children: [
+                      // ── Single flashcard ──────────────────────────────────
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 350),
+                            transitionBuilder: (child, animation) {
+                              final isIncoming =
+                                  (child.key as ValueKey<int>?)?.value ==
+                                      state.currentIndex;
+                              final offsetTween = isIncoming
+                                  ? Tween<Offset>(
+                                      begin: const Offset(1, 0),
+                                      end: Offset.zero)
+                                  : Tween<Offset>(
+                                      begin: const Offset(-1, 0),
+                                      end: Offset.zero);
+                              return SlideTransition(
+                                position: offsetTween.animate(animation),
+                                child: FadeTransition(
+                                    opacity: animation, child: child),
+                              );
+                            },
+                            child: _FlashcardWidget(
+                              key: ValueKey(state.currentIndex),
+                              word: state.words[state.currentIndex],
+                              isSenior: isSenior,
+                            ),
+                          ),
+                        ),
+                      ),
+                      // ── Action buttons (fade in when flipped) ─────────────
+                      IgnorePointer(
+                        ignoring: !state.isCurrentFlipped,
+                        child: AnimatedOpacity(
+                          opacity: state.isCurrentFlipped ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 300),
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.fromLTRB(24, 0, 24, 20),
+                            child: _ActionButtons(isSenior: isSenior),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
             ],
@@ -95,15 +114,15 @@ class _RepasoHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final titleSize =
         isSenior ? AppFontSizes.subtitleLarge : AppFontSizes.subtitle;
-    final acted = state.knownIds.length + state.repeatIds.length;
     final total = state.words.length;
+    final current = (state.currentIndex + 1).clamp(1, total);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new,
+            icon: Icon(Icons.arrow_back_ios_new,
                 color: AppColors.glassText),
             onPressed: () => Navigator.of(context).pop(),
           ),
@@ -122,8 +141,8 @@ class _RepasoHeader extends StatelessWidget {
                 if (total > 0 && !state.isComplete) ...[
                   const SizedBox(height: 4),
                   Text(
-                    '$acted ${AppStrings.repasoWordsOfEs} $total',
-                    style: const TextStyle(
+                    '$current ${AppStrings.repasoWordsOfEs} $total',
+                    style: TextStyle(
                       fontSize: 13,
                       color: AppColors.glassTextMuted,
                       fontWeight: FontWeight.w600,
@@ -140,80 +159,60 @@ class _RepasoHeader extends StatelessWidget {
   }
 }
 
-// ── Vocab Tile with 3D flip ───────────────────────────────────────────────────
+// ── Flashcard widget (single card with 3D flip) ───────────────────────────────
 
-class _VocabTile extends StatefulWidget {
-  const _VocabTile({
+class _FlashcardWidget extends ConsumerStatefulWidget {
+  const _FlashcardWidget({
     required super.key,
     required this.word,
-    required this.isFlipped,
-    required this.isKnown,
-    required this.isRepeating,
     required this.isSenior,
-    required this.onTap,
-    required this.onKnown,
-    required this.onRepeat,
-    required this.onSpeak,
   });
 
   final VocabWord word;
-  final bool isFlipped;
-  final bool isKnown;
-  final bool isRepeating;
   final bool isSenior;
-  final VoidCallback onTap;
-  final VoidCallback onKnown;
-  final VoidCallback onRepeat;
-  final VoidCallback onSpeak;
 
   @override
-  State<_VocabTile> createState() => _VocabTileState();
+  ConsumerState<_FlashcardWidget> createState() => _FlashcardWidgetState();
 }
 
-class _VocabTileState extends State<_VocabTile>
+class _FlashcardWidgetState extends ConsumerState<_FlashcardWidget>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
+  late final AnimationController _flipCtrl;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
+    _flipCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 420),
     );
   }
 
   @override
-  void didUpdateWidget(_VocabTile old) {
-    super.didUpdateWidget(old);
-    if (widget.isFlipped && !old.isFlipped) {
-      _ctrl.forward();
-    }
-  }
-
-  @override
   void dispose() {
-    _ctrl.dispose();
+    _flipCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Acted tiles: show a static overlay instead of animated card.
-    if (widget.isKnown || widget.isRepeating) {
-      return _ActedTile(
-        word: widget.word,
-        isKnown: widget.isKnown,
-        isSenior: widget.isSenior,
-      );
-    }
+    ref.listen<RepasoState>(repasoProvider, (prev, next) {
+      if (next.isCurrentFlipped && (prev == null || !prev.isCurrentFlipped)) {
+        _flipCtrl.forward();
+      }
+    });
+
+    final isFlipped = ref.watch(repasoProvider).isCurrentFlipped;
+    void onSpeak() => ref.read(audioServiceProvider).speak(widget.word.wordEs);
 
     return GestureDetector(
-      onTap: widget.isFlipped ? null : widget.onTap,
+      onTap: isFlipped
+          ? null
+          : () => ref.read(repasoProvider.notifier).flipCurrentCard(),
       child: AnimatedBuilder(
-        animation: _ctrl,
-        builder: (context, child) {
-          final angle = _ctrl.value * pi;
+        animation: _flipCtrl,
+        builder: (context, _) {
+          final angle = _flipCtrl.value * pi;
           final showFront = angle <= pi / 2;
 
           return Transform(
@@ -222,13 +221,14 @@ class _VocabTileState extends State<_VocabTile>
               ..setEntry(3, 2, 0.001)
               ..rotateY(showFront ? angle : angle - pi),
             child: showFront
-                ? _TileFront(word: widget.word, isSenior: widget.isSenior)
-                : _TileBack(
+                ? _CardFront(
                     word: widget.word,
                     isSenior: widget.isSenior,
-                    onKnown: widget.onKnown,
-                    onRepeat: widget.onRepeat,
-                    onSpeak: widget.onSpeak,
+                  )
+                : _CardBack(
+                    word: widget.word,
+                    isSenior: widget.isSenior,
+                    onSpeak: onSpeak,
                   ),
           );
         },
@@ -237,135 +237,35 @@ class _VocabTileState extends State<_VocabTile>
   }
 }
 
-// ── Tile — Front (Spanish word) ───────────────────────────────────────────────
+// ── Card — Front (English) ────────────────────────────────────────────────────
 
-class _TileFront extends StatelessWidget {
-  const _TileFront({required this.word, required this.isSenior});
+class _CardFront extends StatelessWidget {
+  const _CardFront({required this.word, required this.isSenior});
 
   final VocabWord word;
   final bool isSenior;
 
   @override
   Widget build(BuildContext context) {
-    final wordSize = isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body;
+    final wordSize =
+        isSenior ? AppFontSizes.titleLarge : AppFontSizes.title;
 
     return GlassContainer(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Label
+          // Language label
           Text(
-            AppStrings.repasoCardFrontLabelEs,
-            style: const TextStyle(
-              fontSize: 10,
-              letterSpacing: 1.8,
+            AppStrings.repasoCardBackLabelEs, // 'INGLÉS'
+            style: TextStyle(
+              fontSize: 11,
+              letterSpacing: 2.0,
               fontWeight: FontWeight.w800,
               color: AppColors.glassTextMuted,
             ),
           ),
-          const SizedBox(height: 10),
-          // Spanish word — fills available space
-          Expanded(
-            child: Center(
-              child: Text(
-                word.wordEs,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: wordSize,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.glassText,
-                  height: 1.35,
-                ),
-              ),
-            ),
-          ),
-          // Source badge
-          Align(
-            alignment: Alignment.bottomRight,
-            child: _SourceBadge(source: word.source),
-          ),
-          const SizedBox(height: 4),
-          // Tap hint
-          Center(
-            child: Text(
-              AppStrings.repasoTapToRevealEs,
-              style: const TextStyle(
-                fontSize: 10,
-                color: AppColors.glassTextMuted,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Tile — Back (English + actions) ──────────────────────────────────────────
-
-class _TileBack extends StatelessWidget {
-  const _TileBack({
-    required this.word,
-    required this.isSenior,
-    required this.onKnown,
-    required this.onRepeat,
-    required this.onSpeak,
-  });
-
-  final VocabWord word;
-  final bool isSenior;
-  final VoidCallback onKnown;
-  final VoidCallback onRepeat;
-  final VoidCallback onSpeak;
-
-  @override
-  Widget build(BuildContext context) {
-    final wordSize = isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body;
-    final btnHeight = isSenior ? 52.0 : 44.0;
-    final btnFontSize = isSenior ? AppFontSizes.body : 15.0;
-
-    // Back card: terracotta tint for Abuelo, deep-blue tint otherwise.
-    final bgColor = isSenior
-        ? AppColors.glowTerracotta.withValues(alpha: 0.25)
-        : AppColors.deepBlue.withValues(alpha: 0.25);
-    final borderColor = isSenior
-        ? AppColors.glowTerracotta.withValues(alpha: 0.6)
-        : AppColors.deepBlue.withValues(alpha: 0.6);
-
-    return GlassContainer(
-      padding: const EdgeInsets.all(12),
-      backgroundColor: bgColor,
-      borderColor: borderColor,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Label row + audio
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                AppStrings.repasoCardBackLabelEs,
-                style: const TextStyle(
-                  fontSize: 10,
-                  letterSpacing: 1.8,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.glassTextMuted,
-                ),
-              ),
-              GestureDetector(
-                onTap: onSpeak,
-                child: const Icon(
-                  Icons.volume_up,
-                  color: AppColors.glassText,
-                  size: 20,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // English translation
+          // English word — centered in remaining space
           Expanded(
             child: Center(
               child: Text(
@@ -373,27 +273,142 @@ class _TileBack extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: wordSize,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                   color: AppColors.glassText,
-                  height: 1.35,
+                  height: 1.3,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 8),
-          // Lo sé button
-          SizedBox(
+          // Bottom row: source badge + tap hint
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              _SourceBadge(source: word.source),
+              Text(
+                AppStrings.repasoTapToRevealEs,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.glassTextMuted,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Card — Back (Spanish) ─────────────────────────────────────────────────────
+
+class _CardBack extends StatelessWidget {
+  const _CardBack({
+    required this.word,
+    required this.isSenior,
+    required this.onSpeak,
+  });
+
+  final VocabWord word;
+  final bool isSenior;
+  final VoidCallback onSpeak;
+
+  @override
+  Widget build(BuildContext context) {
+    final wordSize =
+        isSenior ? AppFontSizes.titleLarge : AppFontSizes.title;
+
+    final bgColor = isSenior
+        ? AppColors.glowTerracotta.withValues(alpha: 0.22)
+        : AppColors.deepBlue.withValues(alpha: 0.22);
+    final borderColor = isSenior
+        ? AppColors.glowTerracotta.withValues(alpha: 0.55)
+        : AppColors.deepBlue.withValues(alpha: 0.55);
+
+    return GlassContainer(
+      padding: const EdgeInsets.all(28),
+      backgroundColor: bgColor,
+      borderColor: borderColor,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Label row + audio button
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                AppStrings.repasoCardFrontLabelEs, // 'ESPAÑOL'
+                style: TextStyle(
+                  fontSize: 11,
+                  letterSpacing: 2.0,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.glassTextMuted,
+                ),
+              ),
+              GestureDetector(
+                onTap: onSpeak,
+                child: Icon(
+                  Icons.volume_up_rounded,
+                  color: AppColors.glassText,
+                  size: 26,
+                ),
+              ),
+            ],
+          ),
+          // Spanish word — centered
+          Expanded(
+            child: Center(
+              child: Text(
+                word.wordEs,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: wordSize,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.glassText,
+                  height: 1.3,
+                ),
+              ),
+            ),
+          ),
+          // Spacing at bottom to balance the label row
+          const SizedBox(height: 26),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Action buttons (Lo sé / Repetir) ─────────────────────────────────────────
+
+class _ActionButtons extends ConsumerWidget {
+  const _ActionButtons({required this.isSenior});
+
+  final bool isSenior;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final btnHeight = isSenior ? 72.0 : 60.0;
+    final btnFontSize =
+        isSenior ? AppFontSizes.subtitleLarge : AppFontSizes.subtitle;
+
+    return Row(
+      children: [
+        // Lo sé ✓
+        Expanded(
+          child: SizedBox(
             height: btnHeight,
             child: ElevatedButton(
-              onPressed: onKnown,
+              onPressed: () =>
+                  ref.read(repasoProvider.notifier).markKnownAndAdvance(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF27AE60),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 elevation: 0,
-                padding: EdgeInsets.zero,
               ),
               child: Text(
                 AppStrings.repasoLoSabeEs,
@@ -404,18 +419,20 @@ class _TileBack extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 6),
-          // Repasar button
-          SizedBox(
+        ),
+        const SizedBox(width: 12),
+        // Repetir 🔁
+        Expanded(
+          child: SizedBox(
             height: btnHeight,
             child: OutlinedButton(
-              onPressed: onRepeat,
+              onPressed: () =>
+                  ref.read(repasoProvider.notifier).scheduleRepeatAndAdvance(),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.glassBorder, width: 1.5),
+                side: BorderSide(color: AppColors.glassBorder, width: 1.5),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                padding: EdgeInsets.zero,
                 foregroundColor: AppColors.glassText,
               ),
               child: Text(
@@ -428,65 +445,8 @@ class _TileBack extends StatelessWidget {
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Acted tile (after Lo sé or Repasar) ──────────────────────────────────────
-
-class _ActedTile extends StatelessWidget {
-  const _ActedTile({
-    required this.word,
-    required this.isKnown,
-    required this.isSenior,
-  });
-
-  final VocabWord word;
-  final bool isKnown;
-  final bool isSenior;
-
-  @override
-  Widget build(BuildContext context) {
-    final label =
-        isKnown ? AppStrings.repasoLearnedEs : AppStrings.repasoScheduledEs;
-    final icon = isKnown ? Icons.check_circle : Icons.schedule;
-    final color = isKnown
-        ? const Color(0xFF27AE60)
-        : AppColors.deepBlue;
-
-    return GlassContainer(
-      backgroundColor: color.withValues(alpha: 0.15),
-      borderColor: color.withValues(alpha: 0.4),
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: color, size: 32),
-          const SizedBox(height: 10),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: isSenior ? AppFontSizes.body : 14.0,
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            word.wordEs,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: isSenior ? 14.0 : 12.0,
-              color: AppColors.glassTextMuted,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -500,21 +460,20 @@ class _SourceBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = source == 'sos' ? 'S.O.S.' : 'Libro';
-    final color = source == 'sos'
-        ? AppColors.glowTerracotta
-        : AppColors.deepBlue;
+    final color =
+        source == 'sos' ? AppColors.glowTerracotta : AppColors.deepBlue;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 9,
+          fontSize: 10,
           color: color,
           fontWeight: FontWeight.w800,
           letterSpacing: 0.5,
@@ -541,7 +500,7 @@ class _EmptyState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.psychology_outlined,
               color: AppColors.glassTextMuted,
               size: 64,
@@ -609,7 +568,6 @@ class _CompletionState extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                // Stats row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [

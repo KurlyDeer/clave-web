@@ -9,10 +9,12 @@ class ScenarioHeader extends StatelessWidget {
     super.key,
     required this.scenario,
     required this.isSenior,
+    this.isDark = false,
   });
 
   final ScenarioData scenario;
   final bool isSenior;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -22,22 +24,23 @@ class ScenarioHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadow,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: isDark ? AppColors.glassSurface : AppColors.cardBackground,
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: AppColors.shadow,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
       child: Row(
         children: [
-          // Emoji circle
           Container(
             width: isSenior ? 56 : 48,
             height: isSenior ? 56 : 48,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Color(0xFF16A085),
               shape: BoxShape.circle,
             ),
@@ -58,7 +61,7 @@ class ScenarioHeader extends StatelessWidget {
                   style: TextStyle(
                     fontSize: nameSize,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.darkText,
+                    color: isDark ? AppColors.glassText : AppColors.darkText,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -66,7 +69,7 @@ class ScenarioHeader extends StatelessWidget {
                   '${AppStrings.simuladorCharacterRoleLabel} ${scenario.characterRoleEs}',
                   style: TextStyle(
                     fontSize: roleSize,
-                    color: Colors.grey[600],
+                    color: isDark ? AppColors.glassTextMuted : Colors.grey[600],
                     fontWeight: FontWeight.w400,
                   ),
                 ),

@@ -66,7 +66,7 @@ class LessonCard extends ConsumerWidget {
                   ),
                   child: Center(
                     child: Text(
-                      '${lesson.id}',
+                      '${lesson.order}',
                       style: TextStyle(
                         fontSize: bodySize - 2,
                         fontWeight: FontWeight.w800,

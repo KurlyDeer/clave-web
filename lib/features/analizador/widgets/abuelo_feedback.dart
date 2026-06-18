@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/glass_container.dart';
 import '../../../l10n/app_strings.dart';
 
-/// Abuelo-mode result: big thumbs emoji + two action buttons.
+/// Abuelo-mode result: big thumbs emoji inside a glass card + two glass action buttons.
 /// Avoids the complex heatmap and shows simple pass/fail feedback.
 class AbueloFeedback extends StatelessWidget {
   const AbueloFeedback({
@@ -19,27 +20,20 @@ class AbueloFeedback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = thumbsUp
-        ? const Color(0xFF27AE60).withValues(alpha: 0.09)
-        : const Color(0xFFE74C3C).withValues(alpha: 0.09);
-    final border = thumbsUp
-        ? const Color(0xFF27AE60).withValues(alpha: 0.35)
-        : const Color(0xFFE74C3C).withValues(alpha: 0.35);
+    final resultColor =
+        thumbsUp ? const Color(0xFF27AE60) : const Color(0xFFE74C3C);
 
     return Column(
       children: [
-        Container(
+        // ── Result card ──────────────────────────────────────────────────────
+        GlassContainer(
           padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 24),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: border, width: 2),
-          ),
+          borderColor: resultColor.withAlpha(150),
           child: Column(
             children: [
               Text(
                 thumbsUp ? '👍' : '👎',
-                style: const TextStyle(fontSize: 72),
+                style: TextStyle(fontSize: 72),
               ),
               const SizedBox(height: 14),
               Text(
@@ -50,16 +44,14 @@ class AbueloFeedback extends StatelessWidget {
                 style: TextStyle(
                   fontSize: AppFontSizes.subtitleLarge,
                   fontWeight: FontWeight.w800,
-                  color: thumbsUp
-                      ? const Color(0xFF27AE60)
-                      : const Color(0xFFE74C3C),
+                  color: resultColor,
                 ),
               ),
               if (thumbsUp) ...[
                 const SizedBox(height: 8),
-                Text(
+                const Text(
                   AppStrings.analizadorXpEarnedSmallEs,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: AppFontSizes.body,
                     fontWeight: FontWeight.w700,
                     color: Colors.amber,
@@ -71,52 +63,54 @@ class AbueloFeedback extends StatelessWidget {
         ),
         const SizedBox(height: 20),
 
-        // Listen at 0.75x speed
-        SizedBox(
-          height: 72,
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: onListenSlow,
-            icon: const Icon(Icons.volume_up_rounded, size: 28),
-            label: const Text(
-              AppStrings.analizadorListenSlowEs,
-              style: TextStyle(
-                fontSize: AppFontSizes.bodyLarge,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.deepBlue,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              elevation: 3,
+        // ── Listen at slow speed ─────────────────────────────────────────────
+        GestureDetector(
+          onTap: onListenSlow,
+          child: GlassContainer(
+            padding:
+                const EdgeInsets.symmetric(vertical: 22, horizontal: 24),
+            borderColor: AppColors.glowTerracotta.withAlpha(150),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.volume_up_rounded,
+                    color: AppColors.glassText, size: 28),
+                SizedBox(width: 12),
+                Text(
+                  AppStrings.analizadorListenSlowEs,
+                  style: TextStyle(
+                    fontSize: AppFontSizes.bodyLarge,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.glassText,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
         const SizedBox(height: 14),
 
-        // Retry
-        SizedBox(
-          height: 72,
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh_rounded, size: 28),
-            label: const Text(
-              AppStrings.analizadorTryAgainEs,
-              style: TextStyle(
-                fontSize: AppFontSizes.bodyLarge,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.terracotta,
-              side: const BorderSide(color: AppColors.terracotta, width: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
+        // ── Retry ────────────────────────────────────────────────────────────
+        GestureDetector(
+          onTap: onRetry,
+          child: GlassContainer(
+            padding:
+                const EdgeInsets.symmetric(vertical: 22, horizontal: 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.refresh_rounded,
+                    color: AppColors.glassText, size: 28),
+                SizedBox(width: 12),
+                Text(
+                  AppStrings.analizadorTryAgainEs,
+                  style: TextStyle(
+                    fontSize: AppFontSizes.bodyLarge,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.glassText,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

@@ -12,8 +12,3 @@ final connectivityStreamProvider = StreamProvider<bool>((ref) {
   return service.onlineStream;
 });
 
-/// One-shot online check — used as pre-call gate before API requests.
-final isOnlineProvider = FutureProvider<bool>((ref) async {
-  final service = ref.watch(connectivityServiceProvider);
-  return service.isOnline();
-});

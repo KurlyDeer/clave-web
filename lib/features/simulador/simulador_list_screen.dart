@@ -128,7 +128,7 @@ class _ScenarioCard extends StatelessWidget {
               Container(
                 width: isSenior ? 64 : 56,
                 height: isSenior ? 64 : 56,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: Color(0xFF16A085),
                   shape: BoxShape.circle,
                 ),

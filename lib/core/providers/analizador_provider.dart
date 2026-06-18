@@ -6,11 +6,12 @@ import 'package:speech_to_text/speech_to_text.dart';
 
 import '../data/analizador_data.dart';
 import '../models/voice_analysis_model.dart';
+import '../services/audio_service.dart';
 import '../services/claude_service.dart';
 import '../services/connectivity_service.dart';
+import '../../l10n/app_strings.dart';
 import 'connectivity_provider.dart';
-import 'streak_provider.dart';
-import 'xp_provider.dart';
+import 'gamification_controller.dart';
 
 // ── Status ────────────────────────────────────────────────────────────────────
 
@@ -34,6 +35,8 @@ class AnalizadorState {
     this.analysisResult,
     this.abueloThumbsUp,
     this.errorMessage = '',
+    this.sttConfidence = 0.0,
+    this.sttLowConfidence = false,
   });
 
   final AnalizadorStatus status;
@@ -42,6 +45,8 @@ class AnalizadorState {
   final VoiceAnalysisResult? analysisResult;
   final bool? abueloThumbsUp; // null = not yet evaluated
   final String errorMessage;
+  final double sttConfidence;
+  final bool sttLowConfidence;
 
   PracticeSentence get currentSentence =>
       AnalizadorData.sentences[sentenceIndex % AnalizadorData.sentences.length];
@@ -52,6 +57,8 @@ class AnalizadorState {
     AnalizadorStatus? status,
     String? transcript,
     String? errorMessage,
+    double? sttConfidence,
+    bool? sttLowConfidence,
   }) {
     return AnalizadorState(
       status: status ?? this.status,
@@ -60,6 +67,8 @@ class AnalizadorState {
       analysisResult: analysisResult,
       abueloThumbsUp: abueloThumbsUp,
       errorMessage: errorMessage ?? this.errorMessage,
+      sttConfidence: sttConfidence ?? this.sttConfidence,
+      sttLowConfidence: sttLowConfidence ?? this.sttLowConfidence,
     );
   }
 }
@@ -97,7 +106,12 @@ class AnalizadorNotifier extends StateNotifier<AnalizadorState> {
   Future<void> _ensureStt() async {
     if (!_sttAvailable) {
       _sttAvailable = await _stt.initialize(
-        onError: (_) {},
+        onError: (_) {
+          state = state.copyWith(
+            status: AnalizadorStatus.idle,
+            errorMessage: AppStrings.sttErrorEs,
+          );
+        },
         onStatus: (_) {},
       );
     }
@@ -109,19 +123,27 @@ class AnalizadorNotifier extends StateNotifier<AnalizadorState> {
     required ValueChanged<double> onSoundLevel,
   }) async {
     await _ensureStt();
-    if (!_sttAvailable) return;
+    if (!_sttAvailable) {
+      state = state.copyWith(errorMessage: AppStrings.sttMicDeniedEs);
+      return;
+    }
 
     state = AnalizadorState(
       sentenceIndex: state.sentenceIndex,
       status: AnalizadorStatus.listening,
     );
 
+    await AudioService.deactivateForStt();
     await _stt.listen(
       localeId: 'en_US',
       listenFor: const Duration(seconds: 30),
       pauseFor: const Duration(seconds: 4),
-      onResult: (result) =>
-          state = state.copyWith(transcript: result.recognizedWords),
+      onResult: (result) => state = state.copyWith(
+        transcript: result.recognizedWords,
+        sttConfidence: result.finalResult
+            ? result.confidence
+            : state.sttConfidence,
+      ),
       onSoundLevelChange: onSoundLevel,
     );
   }
@@ -129,10 +151,19 @@ class AnalizadorNotifier extends StateNotifier<AnalizadorState> {
   /// Stops recording and runs analysis. Passes [isAbuelo] to choose code path.
   Future<void> stopAndAnalyze({required bool isAbuelo}) async {
     await _stt.stop();
+    await AudioService.activateForTts();
     final spoken = state.transcript.trim();
 
     if (spoken.isEmpty) {
       state = AnalizadorState(sentenceIndex: state.sentenceIndex);
+      return;
+    }
+
+    if (state.sttConfidence > 0 && state.sttConfidence < 0.7) {
+      state = state.copyWith(
+        status: AnalizadorStatus.idle,
+        sttLowConfidence: true,
+      );
       return;
     }
 
@@ -163,8 +194,8 @@ class AnalizadorNotifier extends StateNotifier<AnalizadorState> {
     );
 
     if (thumbsUp) {
-      _ref.read(xpProvider.notifier).addXp(5);
-      _ref.read(streakProvider.notifier).recordPractice();
+      _ref.read(gamificationProvider.notifier).addXp(5);
+      _ref.read(gamificationProvider.notifier).recordPractice();
     }
   }
 
@@ -205,8 +236,8 @@ class AnalizadorNotifier extends StateNotifier<AnalizadorState> {
       );
 
       if (result.score >= 60) {
-        _ref.read(xpProvider.notifier).addXp(10);
-        _ref.read(streakProvider.notifier).recordPractice();
+        _ref.read(gamificationProvider.notifier).addXp(10);
+        _ref.read(gamificationProvider.notifier).recordPractice();
       }
     } catch (_) {
       state = AnalizadorState(
@@ -263,7 +294,7 @@ class AnalizadorNotifier extends StateNotifier<AnalizadorState> {
 
   @override
   void dispose() {
-    _stt.stop();
+    _stt.cancel();
     super.dispose();
   }
 }

@@ -12,9 +12,9 @@ class GlassContainer extends StatelessWidget {
     this.padding = const EdgeInsets.all(20),
     this.margin,
     this.borderRadius = 20,
-    this.blurSigma = 12,
-    this.backgroundColor = AppColors.glassSurface,
-    this.borderColor = AppColors.glassBorder,
+    this.blurSigma = 15,
+    this.backgroundColor,
+    this.borderColor,
   });
 
   final Widget child;
@@ -22,8 +22,8 @@ class GlassContainer extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
   final double borderRadius;
   final double blurSigma;
-  final Color backgroundColor;
-  final Color borderColor;
+  final Color? backgroundColor;
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +36,10 @@ class GlassContainer extends StatelessWidget {
           child: Container(
             padding: padding,
             decoration: BoxDecoration(
-              color: backgroundColor,
+              color: backgroundColor ?? AppColors.glassSurface,
               borderRadius: BorderRadius.circular(borderRadius),
-              border: Border.all(color: borderColor, width: 1.0),
+              border: Border.all(
+                  color: borderColor ?? AppColors.glassBorder, width: 1.0),
             ),
             child: child,
           ),

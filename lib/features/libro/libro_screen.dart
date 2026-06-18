@@ -7,8 +7,9 @@ import '../../core/models/book_page_model.dart';
 import '../../core/providers/book_pages_provider.dart';
 import '../../core/providers/libro_provider.dart';
 import '../../core/providers/persona_provider.dart';
-import '../../core/providers/tts_provider.dart';
+import '../../core/providers/audio_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/glass_container.dart';
 import '../../l10n/app_strings.dart';
 import '../../shared/widgets/offline_banner.dart';
 import 'widgets/error_explanation_popup.dart';
@@ -114,7 +115,7 @@ class _LibroScreenState extends ConsumerState<LibroScreen> {
     final persona = ref.watch(personaProvider);
     final isSenior = persona?.isSeniorMode ?? false;
     final notifier = ref.read(libroProvider.notifier);
-    final tts = ref.read(ttsServiceProvider);
+    final tts = ref.read(audioServiceProvider);
 
     // Sync controller text when user resets to editing.
     if (state.status == LibroStatus.editing &&
@@ -132,82 +133,113 @@ class _LibroScreenState extends ConsumerState<LibroScreen> {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.cream,
-      appBar: AppBar(
-        backgroundColor: AppColors.deepBlue,
-        foregroundColor: Colors.white,
-        title: Text(
-          '${AppStrings.libroGalleryTitleEs}  •  ${AppStrings.libroGalleryTitleEn}',
-          style: TextStyle(
-            fontSize: isSenior ? AppFontSizes.subtitle : AppFontSizes.body,
-            fontWeight: FontWeight.w700,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.glassGradientStart,
+              AppColors.glassGradientMid,
+              AppColors.glassGradientEnd,
+            ],
           ),
         ),
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            tts.stop();
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-      body: Column(
-        children: [
-          const OfflineBanner(),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (_effectivePrompt != null) ...[
-                    _InspirationCard(
-                      prompt: _effectivePrompt!,
-                      isSenior: isSenior,
+        child: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              const OfflineBanner(),
+              // ── Top bar ──────────────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 4, 16, 0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: AppColors.glassText,
+                      ),
+                      onPressed: () {
+                        tts.stop();
+                        Navigator.of(context).pop();
+                      },
                     ),
-                    const SizedBox(height: 16),
-                  ],
-                  _buildDraftArea(state, notifier, isSenior, tts),
-                  if (state.status == LibroStatus.reviewed &&
-                      state.errors.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    _ErrorSummaryBanner(
-                      count: state.errors.length,
-                      isSenior: isSenior,
-                    ),
-                  ],
-                  if (state.status == LibroStatus.reviewed ||
-                      state.status == LibroStatus.noErrors) ...[
-                    const SizedBox(height: 12),
-                    _FeedbackCard(
-                      feedback: state.overallFeedbackEs,
-                      isSenior: isSenior,
+                    Expanded(
+                      child: Text(
+                        '${AppStrings.libroGalleryTitleEs}  •  ${AppStrings.libroGalleryTitleEn}',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: isSenior
+                              ? AppFontSizes.subtitleLarge
+                              : AppFontSizes.body,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.glassText,
+                        ),
+                      ),
                     ),
                   ],
-                  const SizedBox(height: 16),
-                  _buildActions(state, notifier, isSenior),
-                  if (state.status == LibroStatus.offlineError) ...[
-                    const SizedBox(height: 16),
-                    _SpanishErrorCard(
-                      message: AppStrings.libroOfflineEs,
-                      isSenior: isSenior,
-                    ),
-                  ],
-                  if (state.status == LibroStatus.apiError) ...[
-                    const SizedBox(height: 16),
-                    _SpanishErrorCard(
-                      message: state.errorMessage.isNotEmpty
-                          ? state.errorMessage
-                          : AppStrings.libroApiErrorEs,
-                      isSenior: isSenior,
-                    ),
-                  ],
-                ],
+                ),
               ),
-            ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (_effectivePrompt != null) ...[
+                        _InspirationCard(
+                          prompt: _effectivePrompt!,
+                          isSenior: isSenior,
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                      _buildDraftArea(state, notifier, isSenior, tts),
+                      if (state.status == LibroStatus.reviewed &&
+                          state.errors.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        _ErrorSummaryBanner(
+                          count: state.errors.length,
+                          isSenior: isSenior,
+                        ),
+                      ],
+                      if (state.status == LibroStatus.reviewed ||
+                          state.status == LibroStatus.noErrors) ...[
+                        const SizedBox(height: 12),
+                        _FeedbackCard(
+                          feedback: state.overallFeedbackEs,
+                          isSenior: isSenior,
+                        ),
+                      ],
+                      const SizedBox(height: 16),
+                      _buildActions(state, notifier, isSenior),
+                      if (state.status == LibroStatus.offlineError) ...[
+                        const SizedBox(height: 16),
+                        _SpanishErrorCard(
+                          message: AppStrings.libroOfflineEs,
+                          isSenior: isSenior,
+                        ),
+                      ],
+                      if (state.status == LibroStatus.apiError) ...[
+                        const SizedBox(height: 16),
+                        _SpanishErrorCard(
+                          message: state.errorMessage.isNotEmpty
+                              ? state.errorMessage
+                              : AppStrings.libroApiErrorEs,
+                          isSenior: isSenior,
+                        ),
+                      ],
+                      // Bottom safe-area padding (accounts for home indicator)
+                      SizedBox(height: MediaQuery.of(context).padding.bottom + 32),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -220,27 +252,14 @@ class _LibroScreenState extends ConsumerState<LibroScreen> {
   ) {
     final bodySize = isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body;
 
-    // Book-page card with a left decorative line.
-    final cardDecoration = BoxDecoration(
-      color: AppColors.cardBackground,
-      borderRadius: BorderRadius.circular(16),
-      boxShadow: const [
-        BoxShadow(
-          color: AppColors.shadow,
-          blurRadius: 8,
-          offset: Offset(0, 3),
-        ),
-      ],
-    );
-
     Widget card;
 
     if (state.status == LibroStatus.editing ||
         state.status == LibroStatus.reviewing ||
         state.status == LibroStatus.offlineError ||
         state.status == LibroStatus.apiError) {
-      card = Container(
-        decoration: cardDecoration,
+      card = GlassContainer(
+        padding: EdgeInsets.zero,
         child: IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -248,10 +267,10 @@ class _LibroScreenState extends ConsumerState<LibroScreen> {
               Container(
                 width: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.terracotta.withValues(alpha: 0.5),
+                  color: AppColors.glowTerracotta.withValues(alpha: 0.5),
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    bottomLeft: Radius.circular(16),
+                    topLeft: Radius.circular(20),
+                    bottomLeft: Radius.circular(20),
                   ),
                 ),
               ),
@@ -264,14 +283,15 @@ class _LibroScreenState extends ConsumerState<LibroScreen> {
                   onChanged: notifier.updateDraft,
                   style: TextStyle(
                     fontSize: bodySize,
-                    color: AppColors.darkText,
+                    color: AppColors.glassText,
                     height: 1.6,
                   ),
+                  cursorColor: AppColors.glowTerracotta,
                   decoration: InputDecoration(
                     hintText: AppStrings.libroHintEs,
                     hintStyle: TextStyle(
                       fontSize: bodySize,
-                      color: AppColors.darkText.withValues(alpha: 0.35),
+                      color: AppColors.glassTextMuted,
                     ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.all(16),
@@ -283,10 +303,9 @@ class _LibroScreenState extends ConsumerState<LibroScreen> {
         ),
       );
     } else {
-      // reviewed / noErrors — show GrammarRichText in same card style.
-      card = Container(
-        padding: const EdgeInsets.only(left: 4),
-        decoration: cardDecoration,
+      // reviewed / noErrors — show GrammarRichText in same glass card style.
+      card = GlassContainer(
+        padding: EdgeInsets.zero,
         child: IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -294,10 +313,10 @@ class _LibroScreenState extends ConsumerState<LibroScreen> {
               Container(
                 width: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.terracotta.withValues(alpha: 0.5),
+                  color: AppColors.glowTerracotta.withValues(alpha: 0.5),
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    bottomLeft: Radius.circular(16),
+                    topLeft: Radius.circular(20),
+                    bottomLeft: Radius.circular(20),
                   ),
                 ),
               ),
@@ -343,57 +362,59 @@ class _LibroScreenState extends ConsumerState<LibroScreen> {
       case LibroStatus.editing:
       case LibroStatus.offlineError:
       case LibroStatus.apiError:
+        final hasText = state.draftText.trim().isNotEmpty;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Save button (deepBlue outline)
-            SizedBox(
-              height: height,
-              child: OutlinedButton(
-                onPressed: state.draftText.trim().isNotEmpty
-                    ? () => _savePage(state)
-                    : null,
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.deepBlue, width: 2),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: Text(
-                  '${AppStrings.libroSavePageEs}  •  ${AppStrings.libroSavePageEn}',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: smallTextSize,
-                    color: AppColors.deepBlue,
-                    fontWeight: FontWeight.w700,
+            // Save button
+            GestureDetector(
+              onTap: hasText ? () => _savePage(state) : null,
+              child: GlassContainer(
+                padding: EdgeInsets.zero,
+                child: SizedBox(
+                  height: height,
+                  child: Center(
+                    child: Text(
+                      '${AppStrings.libroSavePageEs}  •  ${AppStrings.libroSavePageEn}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: smallTextSize,
+                        color: hasText
+                            ? AppColors.glassText
+                            : AppColors.glassTextMuted,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 10),
-            // Review button (terracotta)
-            SizedBox(
-              height: height,
-              child: ElevatedButton(
-                onPressed: state.draftText.trim().isNotEmpty
-                    ? notifier.review
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.terracotta,
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor:
-                      AppColors.terracotta.withValues(alpha: 0.4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 4,
-                ),
-                child: Text(
-                  AppStrings.libroRevisarPaginaEs,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: textSize,
-                    fontWeight: FontWeight.w700,
+            // Review button
+            GestureDetector(
+              onTap: hasText ? notifier.review : null,
+              child: GlassContainer(
+                backgroundColor: hasText
+                    ? AppColors.glowTerracotta.withValues(alpha: 0.8)
+                    : AppColors.glassSurface,
+                borderColor: hasText
+                    ? AppColors.glowTerracotta
+                    : AppColors.glassBorder,
+                padding: EdgeInsets.zero,
+                child: SizedBox(
+                  height: height,
+                  child: Center(
+                    child: Text(
+                      AppStrings.libroRevisarPaginaEs,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: textSize,
+                        fontWeight: FontWeight.w700,
+                        color: hasText
+                            ? Colors.white
+                            : AppColors.glassTextMuted,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -402,27 +423,20 @@ class _LibroScreenState extends ConsumerState<LibroScreen> {
         );
 
       case LibroStatus.reviewing:
-        return SizedBox(
-          height: height,
-          child: ElevatedButton(
-            onPressed: null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.terracotta.withValues(alpha: 0.6),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
+        return GlassContainer(
+          padding: EdgeInsets.zero,
+          child: SizedBox(
+            height: height,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(
+                SizedBox(
                   width: 20,
                   height: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.5,
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.white),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                        AppColors.glowTerracotta),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -431,6 +445,7 @@ class _LibroScreenState extends ConsumerState<LibroScreen> {
                   style: TextStyle(
                     fontSize: textSize,
                     fontWeight: FontWeight.w700,
+                    color: AppColors.glassText,
                   ),
                 ),
               ],
@@ -443,25 +458,24 @@ class _LibroScreenState extends ConsumerState<LibroScreen> {
         return Row(
           children: [
             Expanded(
-              child: SizedBox(
-                height: height,
-                child: OutlinedButton(
-                  onPressed: () {
-                    _controller.text = state.draftText;
-                    notifier.resetToEditing();
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.deepBlue, width: 2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: Text(
-                    AppStrings.libroEditarEs,
-                    style: TextStyle(
-                      fontSize: smallTextSize,
-                      color: AppColors.deepBlue,
-                      fontWeight: FontWeight.w700,
+              child: GestureDetector(
+                onTap: () {
+                  _controller.text = state.draftText;
+                  notifier.resetToEditing();
+                },
+                child: GlassContainer(
+                  padding: EdgeInsets.zero,
+                  child: SizedBox(
+                    height: height,
+                    child: Center(
+                      child: Text(
+                        AppStrings.libroEditarEs,
+                        style: TextStyle(
+                          fontSize: smallTextSize,
+                          color: AppColors.glassText,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -469,33 +483,35 @@ class _LibroScreenState extends ConsumerState<LibroScreen> {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: SizedBox(
-                height: height,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Clipboard.setData(
-                      ClipboardData(text: state.draftText),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(AppStrings.sosCopiedEs),
-                        duration: const Duration(seconds: 2),
-                        backgroundColor: AppColors.deepBlue,
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.deepBlue,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+              child: GestureDetector(
+                onTap: () {
+                  Clipboard.setData(
+                    ClipboardData(text: state.draftText),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(AppStrings.sosCopiedEs),
+                      duration: const Duration(seconds: 2),
+                      backgroundColor: AppColors.deepBlue,
                     ),
-                  ),
-                  child: Text(
-                    AppStrings.libroCopyAllEs,
-                    style: TextStyle(
-                      fontSize: smallTextSize,
-                      fontWeight: FontWeight.w700,
+                  );
+                },
+                child: GlassContainer(
+                  backgroundColor:
+                      AppColors.glowTerracotta.withValues(alpha: 0.25),
+                  borderColor: AppColors.glowTerracotta,
+                  padding: EdgeInsets.zero,
+                  child: SizedBox(
+                    height: height,
+                    child: Center(
+                      child: Text(
+                        AppStrings.libroCopyAllEs,
+                        style: TextStyle(
+                          fontSize: smallTextSize,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.glassText,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -520,13 +536,9 @@ class _InspirationCard extends StatelessWidget {
     final titleSize = isSenior ? AppFontSizes.body : AppFontSizes.body - 2;
     final bodySize = isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body;
 
-    return Container(
+    return GlassContainer(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: AppColors.terracotta.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.terracotta.withValues(alpha: 0.35)),
-      ),
+      borderColor: AppColors.glowTerracotta,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -535,7 +547,7 @@ class _InspirationCard extends StatelessWidget {
             style: TextStyle(
               fontSize: titleSize,
               fontWeight: FontWeight.w700,
-              color: AppColors.terracotta,
+              color: AppColors.glowTerracotta,
               letterSpacing: 0.4,
             ),
           ),
@@ -544,7 +556,7 @@ class _InspirationCard extends StatelessWidget {
             prompt.promptEs,
             style: TextStyle(
               fontSize: bodySize,
-              color: AppColors.darkText,
+              color: AppColors.glassText,
               fontWeight: FontWeight.w600,
               height: 1.4,
             ),
@@ -554,7 +566,7 @@ class _InspirationCard extends StatelessWidget {
             prompt.promptEn,
             style: TextStyle(
               fontSize: bodySize - 2,
-              color: AppColors.darkText.withValues(alpha: 0.55),
+              color: AppColors.glassTextMuted,
               fontStyle: FontStyle.italic,
               height: 1.4,
             ),
@@ -577,19 +589,15 @@ class _ErrorSummaryBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final bodySize = isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body;
 
-    return Container(
+    return GlassContainer(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.terracotta.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.terracotta.withValues(alpha: 0.3)),
-      ),
+      borderColor: AppColors.glowTerracotta,
       child: Text(
         '$count ${AppStrings.libroErrorCountEs}',
         style: TextStyle(
           fontSize: bodySize,
           fontWeight: FontWeight.w700,
-          color: AppColors.terracotta,
+          color: AppColors.glowTerracotta,
         ),
       ),
     );
@@ -606,14 +614,8 @@ class _FeedbackCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final bodySize = isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body;
 
-    return Container(
+    return GlassContainer(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.deepBlue.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: AppColors.deepBlue.withValues(alpha: 0.25)),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -622,7 +624,7 @@ class _FeedbackCard extends StatelessWidget {
             style: TextStyle(
               fontSize: bodySize - 2,
               fontWeight: FontWeight.w700,
-              color: AppColors.deepBlue,
+              color: AppColors.glowTerracotta,
             ),
           ),
           const SizedBox(height: 6),
@@ -630,7 +632,7 @@ class _FeedbackCard extends StatelessWidget {
             feedback,
             style: TextStyle(
               fontSize: bodySize,
-              color: AppColors.darkText,
+              color: AppColors.glassText,
               height: 1.5,
             ),
           ),
@@ -650,19 +652,15 @@ class _SpanishErrorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final bodySize = isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body;
 
-    return Container(
+    return GlassContainer(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.red[50],
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.red[200]!),
-      ),
+      borderColor: Colors.red.withValues(alpha: 0.5),
       child: Text(
         message,
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: bodySize,
-          color: Colors.red[800],
+          color: Colors.red[300],
           height: 1.5,
         ),
       ),

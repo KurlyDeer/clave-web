@@ -6,9 +6,9 @@ import '../../core/models/lesson_models.dart';
 import '../../core/providers/book_pages_provider.dart';
 import '../../core/providers/lesson_progress_provider.dart';
 import '../../core/providers/persona_provider.dart';
-import '../../core/providers/progress_provider.dart';
-import '../../core/providers/streak_provider.dart';
-import '../../core/providers/xp_provider.dart';
+import '../../core/providers/gamification_controller.dart';
+import '../../core/providers/audio_provider.dart';
+import '../../core/services/audio_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../../l10n/app_strings.dart';
 import 'widgets/glass_card.dart';
@@ -98,6 +98,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                         _VocabPage(
                           slide: content.slides[0],
                           isSenior: isSenior,
+                          tts: ref.read(audioServiceProvider),
                           onNext: () => _goToPage(2),
                         )
                       else
@@ -140,7 +141,7 @@ class _GradientBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -189,7 +190,7 @@ class _TopBar extends StatelessWidget {
                     color: const Color(0x26FFFFFF),
                     border: Border.all(color: const Color(0x40FFFFFF)),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.arrow_back_ios_new_rounded,
                     color: Colors.white,
                     size: 18,
@@ -200,7 +201,7 @@ class _TopBar extends StatelessWidget {
               Text(
                 '${AppStrings.lessonStepEs} ${currentPage + 1} '
                 '${AppStrings.lessonSlideOfEs} $totalPages',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.glassTextMuted,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -305,7 +306,7 @@ class _HookPage extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Icon(
+            child: Icon(
               Icons.lightbulb_outline_rounded,
               color: Colors.white,
               size: 40,
@@ -388,19 +389,29 @@ class _HookPage extends StatelessWidget {
 
 // ── Screen 2 · Vocabulary ──────────────────────────────────────────────────────
 
-class _VocabPage extends StatelessWidget {
+class _VocabPage extends StatefulWidget {
   const _VocabPage({
     required this.slide,
     required this.isSenior,
+    required this.tts,
     required this.onNext,
   });
 
   final LessonSlide slide;
   final bool isSenior;
+  final AudioService tts;
   final VoidCallback onNext;
 
   @override
+  State<_VocabPage> createState() => _VocabPageState();
+}
+
+class _VocabPageState extends State<_VocabPage> {
+  @override
   Widget build(BuildContext context) {
+    final slide    = widget.slide;
+    final isSenior = widget.isSenior;
+    final onNext   = widget.onNext;
     final wordSize    = isSenior ? 84.0 : 72.0;
     final spanishSize = isSenior ? AppFontSizes.titleLarge : AppFontSizes.title;
     final labelSize   = isSenior ? 15.0 : 13.0;
@@ -492,7 +503,7 @@ class _VocabPage extends StatelessWidget {
 
           // Placeholder audio button
           GestureDetector(
-            onTap: () {}, // audio will be wired in the next task
+            onTap: () => widget.tts.speak(widget.slide.contentEn),
             child: Container(
               width: audioSize,
               height: audioSize,
@@ -621,7 +632,7 @@ class _GrammarPageState extends State<_GrammarPage> {
               children: [
                 Text(
                   AppStrings.lessonGrammarSpanishLabelEs,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     letterSpacing: 2.5,
                     fontWeight: FontWeight.w700,
@@ -1123,7 +1134,7 @@ class _LevelBar extends StatelessWidget {
         children: [
           Text(
             AppStrings.lessonVoiceLevelLabelEs,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               letterSpacing: 2.5,
               fontWeight: FontWeight.w700,
@@ -1188,7 +1199,7 @@ class _DraftPage extends ConsumerStatefulWidget {
   const _DraftPage({required this.isSenior, required this.lessonId});
 
   final bool isSenior;
-  final int lessonId;
+  final String lessonId;
 
   @override
   ConsumerState<_DraftPage> createState() => _DraftPageState();
@@ -1231,20 +1242,13 @@ class _DraftPageState extends ConsumerState<_DraftPage> {
         feedbackEs: '',
       ),
     );
+    ref.invalidate(completedLessonIdsProvider);
     ref.invalidate(completedLessonCountProvider);
     ref.invalidate(lessonProgressProvider(widget.lessonId));
 
-    // Update roadmap stage
-    final completedCount = box.values.where((p) => p.completed).length;
-    final newStage = (completedCount / 2).floor().clamp(0, 5);
-    final currentStage = ref.read(progressProvider).stageIndex;
-    if (newStage > currentStage) {
-      ref.read(progressProvider.notifier).setStage(newStage);
-    }
-
     // Award XP and streak
-    ref.read(xpProvider.notifier).addXp(10);
-    ref.read(streakProvider.notifier).recordPractice();
+    ref.read(gamificationProvider.notifier).addXp(10);
+    ref.read(gamificationProvider.notifier).recordPractice();
 
     setState(() => _saved = true);
   }
@@ -1381,7 +1385,7 @@ class _PlaceholderPage extends StatelessWidget {
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.glassTextMuted,
             fontSize: 22,
             fontWeight: FontWeight.w600,

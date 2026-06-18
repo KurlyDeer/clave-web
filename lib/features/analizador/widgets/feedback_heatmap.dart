@@ -4,7 +4,7 @@ import '../../../core/models/voice_analysis_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_strings.dart';
 
-/// Displays the practiced sentence word-by-word with color-coded feedback:
+/// Displays the practiced sentence word-by-word with glass-style color-coded feedback:
 ///   🟢 Green  — perfect pronunciation
 ///   🟡 Yellow — understandable but heavy accent
 ///   🔴 Red    — missed or unrecognised
@@ -40,17 +40,17 @@ class FeedbackHeatmap extends StatelessWidget {
           runSpacing: 8,
           children: [
             _LegendItem(
-              color: _colorFor(WordStatus.perfect),
+              color: _glowColorFor(WordStatus.perfect),
               label: AppStrings.analizadorPerfectLegendEs,
               fontSize: fontSize - 3,
             ),
             _LegendItem(
-              color: _colorFor(WordStatus.heavy),
+              color: _glowColorFor(WordStatus.heavy),
               label: AppStrings.analizadorHeavyLegendEs,
               fontSize: fontSize - 3,
             ),
             _LegendItem(
-              color: _colorFor(WordStatus.missed),
+              color: _glowColorFor(WordStatus.missed),
               label: AppStrings.analizadorMissedLegendEs,
               fontSize: fontSize - 3,
             ),
@@ -71,21 +71,19 @@ class _WordChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = _colorFor(result.status);
-    final textColor = result.status == WordStatus.heavy
-        ? AppColors.darkText
-        : Colors.white;
+    final glowColor = _glowColorFor(result.status);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: bg,
+        color: AppColors.glassSurface,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: const [
+        border: Border.all(color: glowColor.withAlpha(180), width: 1.5),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.shadow,
-            blurRadius: 4,
-            offset: Offset(0, 1),
+            color: glowColor.withAlpha(100),
+            blurRadius: 8,
+            spreadRadius: 1,
           ),
         ],
       ),
@@ -94,7 +92,7 @@ class _WordChip extends StatelessWidget {
         style: TextStyle(
           fontSize: fontSize,
           fontWeight: FontWeight.w700,
-          color: textColor,
+          color: AppColors.glassText,
         ),
       ),
     );
@@ -129,7 +127,7 @@ class _LegendItem extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: fontSize,
-            color: AppColors.darkText.withValues(alpha: 0.7),
+            color: AppColors.glassTextMuted,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -140,8 +138,8 @@ class _LegendItem extends StatelessWidget {
 
 // ── Color helper ───────────────────────────────────────────────────────────────
 
-Color _colorFor(WordStatus status) => switch (status) {
+Color _glowColorFor(WordStatus status) => switch (status) {
       WordStatus.perfect => const Color(0xFF27AE60), // green
-      WordStatus.heavy => const Color(0xFFF39C12),   // amber
-      WordStatus.missed => const Color(0xFFE74C3C),  // red
+      WordStatus.heavy   => const Color(0xFFF39C12), // amber
+      WordStatus.missed  => const Color(0xFFE74C3C), // red
     };

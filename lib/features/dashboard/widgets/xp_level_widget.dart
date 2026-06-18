@@ -24,7 +24,7 @@ class XpLevelWidget extends StatelessWidget {
         Container(
           width: isSenior ? 52 : 44,
           height: isSenior ? 52 : 44,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: AppColors.terracotta,
             shape: BoxShape.circle,
           ),

@@ -4,7 +4,10 @@ import '../../core/data/writing_prompts_data.dart';
 import '../../core/models/book_page_model.dart';
 import '../../core/providers/book_pages_provider.dart';
 import '../../core/providers/persona_provider.dart';
+import '../../core/providers/audio_provider.dart';
+import '../../core/services/audio_service.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/glass_container.dart';
 import '../../l10n/app_strings.dart';
 import 'libro_screen.dart';
 import 'publish_screen.dart';
@@ -19,82 +22,117 @@ class BookGalleryScreen extends ConsumerWidget {
     final isSenior = persona?.isSeniorMode ?? false;
 
     return Scaffold(
-      backgroundColor: AppColors.cream,
-      appBar: AppBar(
-        backgroundColor: AppColors.deepBlue,
-        foregroundColor: Colors.white,
-        title: Text(
-          '${AppStrings.libroGalleryTitleEs}  •  ${AppStrings.libroGalleryTitleEn}',
-          style: TextStyle(
-            fontSize: isSenior ? AppFontSizes.subtitle : AppFontSizes.body,
-            fontWeight: FontWeight.w700,
+      backgroundColor: AppColors.glassGradientStart,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.glassGradientStart,
+              AppColors.glassGradientMid,
+              AppColors.glassGradientEnd,
+            ],
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+        child: SafeArea(
+          child: pages.isEmpty
+              ? _GlassEmptyState(isSenior: isSenior)
+              : _GlassPageList(pages: pages, isSenior: isSenior),
         ),
       ),
-      body: pages.isEmpty
-          ? _EmptyState(isSenior: isSenior)
-          : _PageList(pages: pages, isSenior: isSenior),
       floatingActionButton: pages.isEmpty
           ? null
-          : _NewPageFab(pageCount: pages.length, isSenior: isSenior),
+          : _GlassNewPageFab(pageCount: pages.length, isSenior: isSenior),
     );
   }
 }
 
-// ── Empty state ───────────────────────────────────────────────────────────────
+// ── Empty state ────────────────────────────────────────────────────────────────
 
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.isSenior});
+class _GlassEmptyState extends StatelessWidget {
+  const _GlassEmptyState({required this.isSenior});
 
   final bool isSenior;
 
   @override
   Widget build(BuildContext context) {
     final bodySize = isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body;
+    final textSize = isSenior ? AppFontSizes.subtitleLarge : AppFontSizes.subtitle;
     final buttonHeight = isSenior ? 72.0 : 60.0;
-    final textSize =
-        isSenior ? AppFontSizes.subtitleLarge : AppFontSizes.subtitle;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('📖', style: TextStyle(fontSize: 72)),
-          const SizedBox(height: 24),
-          Text(
-            AppStrings.libroEmptyStateEs,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: bodySize,
-              color: AppColors.darkText,
-              height: 1.6,
+          // Back button
+          Align(
+            alignment: Alignment.centerLeft,
+            child: IconButton(
+              icon: Icon(Icons.arrow_back, color: AppColors.glassText),
+              onPressed: () => Navigator.of(context).pop(),
             ),
           ),
-          const SizedBox(height: 32),
-          SizedBox(
-            height: buttonHeight,
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => _openNewPage(context, 0),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.terracotta,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 4,
-              ),
-              child: Text(
-                AppStrings.libroEmptyStateCTAEs,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: textSize,
-                  fontWeight: FontWeight.w700,
+          const SizedBox(height: 16),
+          Expanded(
+            child: Center(
+              child: GlassContainer(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('📖', style: TextStyle(fontSize: 72)),
+                    const SizedBox(height: 24),
+                    Text(
+                      AppStrings.libroGalleryTitleEs,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: textSize,
+                        color: AppColors.glassText,
+                        fontWeight: FontWeight.w800,
+                        shadows: [
+                          Shadow(
+                            color: AppColors.glowTerracotta.withValues(alpha: 0.6),
+                            blurRadius: 12,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      AppStrings.libroGlassEmptyEs,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: bodySize,
+                        color: AppColors.glassTextMuted,
+                        height: 1.6,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      height: buttonHeight,
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.glowTerracotta,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 4,
+                        ),
+                        child: Text(
+                          AppStrings.libroGlassGoToLessonEs,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: textSize,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -114,120 +152,195 @@ void _openNewPage(BuildContext context, int pageCount) {
   );
 }
 
-// ── Page list ─────────────────────────────────────────────────────────────────
+// ── Page list ──────────────────────────────────────────────────────────────────
 
-class _PageList extends ConsumerWidget {
-  const _PageList({required this.pages, required this.isSenior});
+class _GlassPageList extends ConsumerStatefulWidget {
+  const _GlassPageList({required this.pages, required this.isSenior});
 
   final List<BookPage> pages;
   final bool isSenior;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final bodySize = isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body;
+  ConsumerState<_GlassPageList> createState() => _GlassPageListState();
+}
+
+class _GlassPageListState extends ConsumerState<_GlassPageList> {
+  @override
+  Widget build(BuildContext context) {
+    final AudioService tts = ref.read(audioServiceProvider);
+    final isSenior = widget.isSenior;
+    final pages = widget.pages;
+    final headlineSize = isSenior ? AppFontSizes.titleLarge : AppFontSizes.subtitle;
     final smallSize = isSenior ? AppFontSizes.body : AppFontSizes.body - 2;
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
-      itemCount: pages.length + 2, // +1 count header, +1 publish button
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+      itemCount: pages.length + 2, // +1 header, +1 publish button
       itemBuilder: (context, index) {
+        // ── Header ──
         if (index == 0) {
           return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Text(
-              '${pages.length} ${AppStrings.libroPagesCountEs}',
-              style: TextStyle(
-                fontSize: smallSize,
-                color: AppColors.darkText.withValues(alpha: 0.55),
-                fontWeight: FontWeight.w600,
-              ),
+            padding: const EdgeInsets.only(bottom: 24, top: 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_back, color: AppColors.glassText),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        AppStrings.libroGalleryTitleEs,
+                        style: TextStyle(
+                          fontSize: headlineSize,
+                          color: AppColors.glassText,
+                          fontWeight: FontWeight.w800,
+                          shadows: [
+                            Shadow(
+                              color: AppColors.glowTerracotta.withValues(alpha: 0.6),
+                              blurRadius: 12,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 12),
+                  child: Text(
+                    '${AppStrings.libroGlassSubtitleEs} ${pages.length} ${AppStrings.libroPagesCountEs}.',
+                    style: TextStyle(
+                      fontSize: smallSize,
+                      color: AppColors.glassTextMuted,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
         }
 
+        // ── Publish button ──
         if (index == 1) {
           if (pages.length < 3) return const SizedBox.shrink();
           final buttonHeight = isSenior ? 72.0 : 60.0;
           return Padding(
             padding: const EdgeInsets.only(bottom: 20),
-            child: SizedBox(
-              height: buttonHeight,
-              child: ElevatedButton.icon(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => PublishScreen(pages: pages),
+            child: GlassContainer(
+              padding: EdgeInsets.zero,
+              borderColor: AppColors.glowTerracotta.withValues(alpha: 0.5),
+              child: SizedBox(
+                height: buttonHeight,
+                child: ElevatedButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => PublishScreen(pages: pages),
+                    ),
                   ),
-                ),
-                icon: const Icon(Icons.menu_book_rounded),
-                label: Text(
-                  AppStrings.publishTitleEs,
-                  style: TextStyle(
-                    fontSize: isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body,
-                    fontWeight: FontWeight.w700,
+                  icon: const Icon(Icons.menu_book_rounded),
+                  label: Text(
+                    AppStrings.publishTitleEs,
+                    style: TextStyle(
+                      fontSize: isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.terracotta,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.glowTerracotta,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    elevation: 0,
                   ),
-                  elevation: 4,
                 ),
               ),
             ),
           );
         }
 
+        // ── Page card ──
         final page = pages[index - 2];
-        return _PageCard(
+        return _GlassPageCard(
           page: page,
           isSenior: isSenior,
-          bodySize: bodySize,
-          smallSize: smallSize,
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (_) => LibroScreen(existingPage: page),
             ),
           ),
-          onDelete: () => _confirmDelete(context, ref, page),
+          onDelete: () => _confirmDelete(context, page),
+          onPlay: () => tts.speak(page.text),
         );
       },
     );
   }
 
-  Future<void> _confirmDelete(
-    BuildContext context,
-    WidgetRef ref,
-    BookPage page,
-  ) async {
+  Future<void> _confirmDelete(BuildContext context, BookPage page) async {
+    final isSenior = widget.isSenior;
+    final buttonHeight = isSenior ? 72.0 : 48.0;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          AppStrings.libroDeleteConfirmTitleEs,
-          style: TextStyle(
-            fontSize: isSenior ? AppFontSizes.subtitle : AppFontSizes.body,
-            fontWeight: FontWeight.w700,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: GlassContainer(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                AppStrings.libroDeleteConfirmTitleEs,
+                style: TextStyle(
+                  fontSize: isSenior ? AppFontSizes.subtitleLarge : AppFontSizes.subtitle,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.glassText,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                AppStrings.libroDeleteConfirmBodyEs,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body,
+                  color: AppColors.glassTextMuted,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(ctx).pop(false),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.glassText,
+                        side: BorderSide(color: AppColors.glassBorder),
+                        minimumSize: Size(0, buttonHeight),
+                      ),
+                      child: Text(AppStrings.libroDeleteConfirmNoEs),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(ctx).pop(true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        foregroundColor: Colors.white,
+                        minimumSize: Size(0, buttonHeight),
+                      ),
+                      child: Text(AppStrings.libroDeleteConfirmYesEs),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-        content: Text(
-          AppStrings.libroDeleteConfirmBodyEs,
-          style: TextStyle(
-            fontSize: isSenior ? AppFontSizes.body : AppFontSizes.body - 2,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(AppStrings.libroDeleteConfirmNoEs),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(AppStrings.libroDeleteConfirmYesEs),
-          ),
-        ],
       ),
     );
 
@@ -237,37 +350,33 @@ class _PageList extends ConsumerWidget {
   }
 }
 
-class _PageCard extends StatelessWidget {
-  const _PageCard({
+// ── Glass page card ────────────────────────────────────────────────────────────
+
+class _GlassPageCard extends StatelessWidget {
+  const _GlassPageCard({
     required this.page,
     required this.isSenior,
-    required this.bodySize,
-    required this.smallSize,
     required this.onTap,
     required this.onDelete,
+    required this.onPlay,
   });
 
   final BookPage page;
   final bool isSenior;
-  final double bodySize;
-  final double smallSize;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final VoidCallback onPlay;
 
   @override
   Widget build(BuildContext context) {
-    final preview = page.text.length > 80
-        ? '${page.text.substring(0, 80)}…'
-        : page.text;
-    final promptPreview = page.promptEs.length > 60
-        ? '${page.promptEs.substring(0, 60)}…'
-        : page.promptEs;
+    final textSize = isSenior ? AppFontSizes.subtitleLarge : AppFontSizes.subtitle;
+    final promptSize = isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body;
+    final smallSize = isSenior ? AppFontSizes.body : AppFontSizes.body - 2;
 
     String formattedDate;
     try {
       final dt = DateTime.parse(page.createdAt).toLocal();
-      formattedDate =
-          '${dt.day}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+      formattedDate = '${dt.day}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
     } catch (_) {
       formattedDate = page.createdAt.length >= 10
           ? page.createdAt.substring(0, 10)
@@ -279,93 +388,108 @@ class _PageCard extends StatelessWidget {
       direction: DismissDirection.endToStart,
       confirmDismiss: (_) async {
         onDelete();
-        return false; // deletion handled in onDelete with confirmation
+        return false;
       },
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
         decoration: BoxDecoration(
-          color: Colors.red[400],
-          borderRadius: BorderRadius.circular(16),
+          color: Colors.red[700],
+          borderRadius: BorderRadius.circular(20),
         ),
         child: const Icon(Icons.delete_outline, color: Colors.white, size: 28),
       ),
       child: GestureDetector(
         onTap: onTap,
-        child: Container(
+        child: GlassContainer(
+          padding: const EdgeInsets.all(20),
           margin: const EdgeInsets.only(bottom: 14),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: const [
-              BoxShadow(
-                color: AppColors.shadow,
-                blurRadius: 6,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Prompt preview
+              // English text row: play icon + text
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('✨', style: TextStyle(fontSize: 14)),
-                  const SizedBox(width: 6),
+                  IconButton(
+                    onPressed: onPlay,
+                    icon: const Icon(
+                      Icons.volume_up_rounded,
+                      color: AppColors.glowTerracotta,
+                    ),
+                    tooltip: AppStrings.libroGlassPlayEs,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    iconSize: 28,
+                  ),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      promptPreview,
+                      page.text,
                       style: TextStyle(
-                        fontSize: smallSize,
-                        color: AppColors.terracotta,
-                        fontWeight: FontWeight.w600,
+                        fontSize: textSize,
+                        fontFamily: 'Georgia',
+                        color: AppColors.glassText,
+                        fontWeight: FontWeight.w500,
+                        height: 1.5,
                       ),
                     ),
                   ),
-                  if (page.isReviewed)
+                ],
+              ),
+              const SizedBox(height: 10),
+              // Spanish prompt (italic, muted)
+              Text(
+                page.promptEs,
+                style: TextStyle(
+                  fontSize: promptSize,
+                  color: AppColors.glassTextMuted,
+                  fontStyle: FontStyle.italic,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Bottom row: date + reviewed badge + edit icon
+              Row(
+                children: [
+                  Text(
+                    formattedDate,
+                    style: TextStyle(
+                      fontSize: smallSize,
+                      color: AppColors.glassTextMuted,
+                    ),
+                  ),
+                  const Spacer(),
+                  if (page.isReviewed) ...[
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.green[50],
+                        color: Colors.green.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: Colors.green[300]!,
+                          color: Colors.greenAccent.withValues(alpha: 0.5),
                         ),
                       ),
                       child: Text(
                         AppStrings.libroRevisadaBadgeEs,
                         style: TextStyle(
-                          fontSize: smallSize - 2,
-                          color: Colors.green[700],
+                          fontSize: smallSize,
+                          color: Colors.greenAccent,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
+                    const SizedBox(width: 8),
+                  ],
+                  Icon(
+                    Icons.edit_outlined,
+                    size: 18,
+                    color: AppColors.glassTextMuted,
+                  ),
                 ],
-              ),
-              const SizedBox(height: 8),
-              // Text preview
-              Text(
-                preview,
-                style: TextStyle(
-                  fontSize: bodySize,
-                  color: AppColors.darkText,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 8),
-              // Date
-              Text(
-                formattedDate,
-                style: TextStyle(
-                  fontSize: smallSize,
-                  color: AppColors.darkText.withValues(alpha: 0.45),
-                ),
               ),
             ],
           ),
@@ -375,10 +499,10 @@ class _PageCard extends StatelessWidget {
   }
 }
 
-// ── FAB ───────────────────────────────────────────────────────────────────────
+// ── FAB ────────────────────────────────────────────────────────────────────────
 
-class _NewPageFab extends StatelessWidget {
-  const _NewPageFab({required this.pageCount, required this.isSenior});
+class _GlassNewPageFab extends StatelessWidget {
+  const _GlassNewPageFab({required this.pageCount, required this.isSenior});
 
   final int pageCount;
   final bool isSenior;
@@ -389,7 +513,7 @@ class _NewPageFab extends StatelessWidget {
 
     return FloatingActionButton.extended(
       onPressed: () => _openNewPage(context, pageCount),
-      backgroundColor: AppColors.terracotta,
+      backgroundColor: AppColors.glowTerracotta,
       foregroundColor: Colors.white,
       icon: const Icon(Icons.edit_note),
       label: Text(

@@ -7,22 +7,25 @@ class CurriculumData {
   CurriculumData._();
 
   static const List<LessonData> all = [
-    _lesson1,
-    _lesson2,
-    _lesson3,
-    _lesson4,
-    _lesson5,
-    _lesson6,
-    _lesson7,
-    _lesson8,
-    _lesson9,
-    _lesson10,
+    lesson1,
+    lesson2,
+    lesson3,
+    lesson4,
+    lesson5,
+    lesson6,
+    lesson7,
+    lesson8,
+    lesson9,
+    lesson10,
   ];
 
   // ── Lesson 1: Saludos ─────────────────────────────────────────────────────
 
-  static const _lesson1 = LessonData(
-    id: 1,
+  static const lesson1 = LessonData(
+    id: 'principiante.saludos.1',
+    tierId: 'principiante',
+    categoryId: 'saludos',
+    order: 1,
     level: 'Básico',
     content: {
       'nino': PersonaContent(
@@ -141,8 +144,11 @@ class CurriculumData {
 
   // ── Lesson 2: Números ─────────────────────────────────────────────────────
 
-  static const _lesson2 = LessonData(
-    id: 2,
+  static const lesson2 = LessonData(
+    id: 'principiante.saludos.2',
+    tierId: 'principiante',
+    categoryId: 'saludos',
+    order: 2,
     level: 'Básico',
     content: {
       'nino': PersonaContent(
@@ -261,8 +267,11 @@ class CurriculumData {
 
   // ── Lesson 3: Colores ─────────────────────────────────────────────────────
 
-  static const _lesson3 = LessonData(
-    id: 3,
+  static const lesson3 = LessonData(
+    id: 'principiante.familia.1',
+    tierId: 'principiante',
+    categoryId: 'familia',
+    order: 1,
     level: 'Básico',
     content: {
       'nino': PersonaContent(
@@ -381,8 +390,11 @@ class CurriculumData {
 
   // ── Lesson 4: En Casa ─────────────────────────────────────────────────────
 
-  static const _lesson4 = LessonData(
-    id: 4,
+  static const lesson4 = LessonData(
+    id: 'principiante.familia.2',
+    tierId: 'principiante',
+    categoryId: 'familia',
+    order: 2,
     level: 'Básico',
     content: {
       'nino': PersonaContent(
@@ -501,8 +513,11 @@ class CurriculumData {
 
   // ── Lesson 5: Comida ──────────────────────────────────────────────────────
 
-  static const _lesson5 = LessonData(
-    id: 5,
+  static const lesson5 = LessonData(
+    id: 'principiante.comida.1',
+    tierId: 'principiante',
+    categoryId: 'comida',
+    order: 1,
     level: 'Intermedio',
     content: {
       'nino': PersonaContent(
@@ -636,8 +651,11 @@ class CurriculumData {
 
   // ── Lesson 6: Trabajo ─────────────────────────────────────────────────────
 
-  static const _lesson6 = LessonData(
-    id: 6,
+  static const lesson6 = LessonData(
+    id: 'principiante.comida.2',
+    tierId: 'principiante',
+    categoryId: 'comida',
+    order: 2,
     level: 'Intermedio',
     content: {
       'nino': PersonaContent(
@@ -771,8 +789,11 @@ class CurriculumData {
 
   // ── Lesson 7: Emergencias ─────────────────────────────────────────────────
 
-  static const _lesson7 = LessonData(
-    id: 7,
+  static const lesson7 = LessonData(
+    id: 'intermedio.trabajo.1',
+    tierId: 'intermedio',
+    categoryId: 'trabajo',
+    order: 1,
     level: 'Intermedio',
     content: {
       'nino': PersonaContent(
@@ -896,8 +917,11 @@ class CurriculumData {
 
   // ── Lesson 8: Preguntas ───────────────────────────────────────────────────
 
-  static const _lesson8 = LessonData(
-    id: 8,
+  static const lesson8 = LessonData(
+    id: 'intermedio.trabajo.2',
+    tierId: 'intermedio',
+    categoryId: 'trabajo',
+    order: 2,
     level: 'Intermedio',
     content: {
       'nino': PersonaContent(
@@ -1026,8 +1050,11 @@ class CurriculumData {
 
   // ── Lesson 9: Dinero ──────────────────────────────────────────────────────
 
-  static const _lesson9 = LessonData(
-    id: 9,
+  static const lesson9 = LessonData(
+    id: 'fluido.conversacion.1',
+    tierId: 'fluido',
+    categoryId: 'conversacion',
+    order: 1,
     level: 'Avanzado',
     content: {
       'nino': PersonaContent(
@@ -1151,8 +1178,11 @@ class CurriculumData {
 
   // ── Lesson 10: Mi Historia ────────────────────────────────────────────────
 
-  static const _lesson10 = LessonData(
-    id: 10,
+  static const lesson10 = LessonData(
+    id: 'fluido.conversacion.2',
+    tierId: 'fluido',
+    categoryId: 'conversacion',
+    order: 2,
     level: 'Avanzado',
     content: {
       'nino': PersonaContent(

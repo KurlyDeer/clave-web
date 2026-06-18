@@ -4,15 +4,17 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
+import '../data/curriculum_structure.dart';
 import '../models/lesson_models.dart';
+import '../services/audio_service.dart';
 import '../services/claude_service.dart';
 import '../services/connectivity_service.dart';
+import '../../l10n/app_strings.dart';
 import 'connectivity_provider.dart';
 import 'lesson_progress_provider.dart';
 import 'persona_provider.dart';
 import 'progress_provider.dart';
-import 'streak_provider.dart';
-import 'xp_provider.dart';
+import 'gamification_controller.dart';
 
 // ── Status enum ───────────────────────────────────────────────────────────────
 
@@ -44,6 +46,11 @@ class LessonState {
     this.isOfflineError = false,
     this.errorMessage = '',
     this.elapsedSeconds = 0,
+    this.sttConfidence = 0.0,
+    this.sttLowConfidence = false,
+    this.grammarFlipOrder = const [],
+    this.grammarFlipCorrect,
+    this.libroPromptText = '',
   });
 
   final LessonData lesson;
@@ -60,6 +67,11 @@ class LessonState {
   final bool isOfflineError;
   final String errorMessage;
   final int elapsedSeconds;
+  final double sttConfidence;
+  final bool sttLowConfidence;
+  final List<String> grammarFlipOrder;
+  final bool? grammarFlipCorrect;
+  final String libroPromptText;
 
   PersonaContent get content => lesson.forPersona(personaKey);
   List<LessonSlide> get slides => content.slides;
@@ -78,6 +90,12 @@ class LessonState {
     bool? isOfflineError,
     String? errorMessage,
     int? elapsedSeconds,
+    double? sttConfidence,
+    bool? sttLowConfidence,
+    List<String>? grammarFlipOrder,
+    bool? grammarFlipCorrect,
+    String? libroPromptText,
+    bool resetGrammarFlip = false,
   }) {
     return LessonState(
       lesson: lesson,
@@ -94,6 +112,13 @@ class LessonState {
       isOfflineError: isOfflineError ?? this.isOfflineError,
       errorMessage: errorMessage ?? this.errorMessage,
       elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds,
+      sttConfidence: sttConfidence ?? this.sttConfidence,
+      sttLowConfidence: sttLowConfidence ?? this.sttLowConfidence,
+      grammarFlipOrder:
+          resetGrammarFlip ? const [] : (grammarFlipOrder ?? this.grammarFlipOrder),
+      grammarFlipCorrect:
+          resetGrammarFlip ? null : (grammarFlipCorrect ?? this.grammarFlipCorrect),
+      libroPromptText: libroPromptText ?? this.libroPromptText,
     );
   }
 }
@@ -150,6 +175,8 @@ class LessonNotifier extends StateNotifier<LessonState> {
         nextUnlocked: false,
         selectedAnswer: null,
         quizCorrect: null,
+        resetGrammarFlip: true,
+        libroPromptText: '',
       );
       _startUnlockTimerIfNeeded();
     }
@@ -177,33 +204,87 @@ class LessonNotifier extends StateNotifier<LessonState> {
     );
   }
 
+  // ── Grammar Flip ──────────────────────────────────────────────────────────
+
+  void setGrammarFlipOrder(List<String> order) {
+    state = state.copyWith(grammarFlipOrder: List.unmodifiable(order));
+  }
+
+  void checkGrammarFlip() {
+    final slide = state.slides[state.slideIndex];
+    final target = slide.contentEn
+        .toLowerCase()
+        .replaceAll(RegExp(r"[^\w\s]"), '')
+        .trim();
+    final answer = state.grammarFlipOrder
+        .join(' ')
+        .toLowerCase()
+        .replaceAll(RegExp(r"[^\w\s]"), '')
+        .trim();
+    final correct = target == answer;
+    state = state.copyWith(grammarFlipCorrect: correct, nextUnlocked: correct);
+  }
+
+  void resetGrammarFlip() {
+    state = state.copyWith(resetGrammarFlip: true);
+  }
+
+  // ── Libro Prompt ──────────────────────────────────────────────────────────
+
+  void updateLibroText(String text) {
+    state = state.copyWith(
+      libroPromptText: text,
+      nextUnlocked: text.trim().length >= 5,
+    );
+  }
+
   // ── Voice Challenge ───────────────────────────────────────────────────────
 
   Future<void> startRecording() async {
     if (!_sttAvailable) {
-      _sttAvailable = await _stt.initialize(onError: (_) {}, onStatus: (_) {});
+      _sttAvailable = await _stt.initialize(
+        onError: (_) {
+          state = state.copyWith(
+            status: LessonStatus.voiceChallenge,
+            errorMessage: AppStrings.sttErrorEs,
+          );
+        },
+        onStatus: (_) {},
+      );
     }
-    if (!_sttAvailable) return;
+    if (!_sttAvailable) {
+      state = state.copyWith(errorMessage: AppStrings.sttMicDeniedEs);
+      return;
+    }
 
     state = state.copyWith(
       status: LessonStatus.voiceRecording,
       voiceTranscription: '',
       isOfflineError: false,
       errorMessage: '',
+      sttConfidence: 0.0,
+      sttLowConfidence: false,
     );
 
+    await AudioService.deactivateForStt();
     await _stt.listen(
       localeId: 'en_US',
       listenFor: const Duration(seconds: 60),
       pauseFor: const Duration(seconds: 5),
       onResult: (result) {
-        state = state.copyWith(voiceTranscription: result.recognizedWords);
+        state = state.copyWith(
+          voiceTranscription: result.recognizedWords,
+          sttConfidence: result.finalResult
+              ? result.confidence
+              : state.sttConfidence,
+        );
       },
     );
   }
 
   Future<void> stopRecordingAndScore() async {
     await _stt.stop();
+    await AudioService.activateForTts();
     final transcribed = state.voiceTranscription.trim();
 
     if (transcribed.isEmpty) {
@@ -211,6 +292,14 @@ class LessonNotifier extends StateNotifier<LessonState> {
         status: LessonStatus.result,
         voiceScore: 0,
         feedbackEs: 'No escuché nada. ¡Inténtalo de nuevo!',
+      );
+      return;
+    }
+
+    if (state.sttConfidence > 0 && state.sttConfidence < 0.7) {
+      state = state.copyWith(
+        status: LessonStatus.voiceChallenge,
+        sttLowConfidence: true,
       );
       return;
     }
@@ -266,12 +355,16 @@ Responde SOLO con JSON: {"score": 75, "feedback_es": "¡Muy bien!..."}''';
       voiceTranscription: '',
       isOfflineError: false,
       errorMessage: '',
+      sttLowConfidence: false,
     );
   }
 
   // ── Completion ────────────────────────────────────────────────────────────
 
   void completeLesson(int score, String feedbackEs) {
+    // Score 0 means skipped (allowed). Scores 1–69 fail the voice gate.
+    if (score > 0 && score < 70) return;
+
     final elapsed = _startedAt != null
         ? DateTime.now().difference(_startedAt!).inSeconds
         : 0;
@@ -286,12 +379,31 @@ Responde SOLO con JSON: {"score": 75, "feedback_es": "¡Muy bien!..."}''';
       ),
     );
 
+    _ref.invalidate(completedLessonIdsProvider);
     _ref.invalidate(completedLessonCountProvider);
     // Also invalidate per-lesson provider so list rebuilds.
     _ref.invalidate(lessonProgressProvider(state.lesson.id));
 
-    final completedCount = box.values.where((p) => p.completed).length;
-    final newStage = (completedCount / 2).floor().clamp(0, 5);
+    // Stage = number of tiers with at least one completed non-placeholder lesson
+    final completedIds = box.keys
+        .where((k) {
+          final p = box.get(k);
+          return p != null && p.completed;
+        })
+        .map((k) => k.toString())
+        .toSet();
+    int tiersDone = 0;
+    for (final tier in CurriculumStructure.tiers) {
+      final tierLessons = tier.categories
+          .expand((c) => c.lessons)
+          .where((l) => !l.isPlaceholder)
+          .toList();
+      if (tierLessons.isNotEmpty &&
+          tierLessons.every((l) => completedIds.contains(l.id))) {
+        tiersDone++;
+      }
+    }
+    final newStage = tiersDone.clamp(0, 5);
     final currentStage = _ref.read(progressProvider).stageIndex;
     final advanced = newStage > currentStage;
 
@@ -300,8 +412,8 @@ Responde SOLO con JSON: {"score": 75, "feedback_es": "¡Muy bien!..."}''';
     }
 
     // Award XP and record streak
-    _ref.read(xpProvider.notifier).addXp(10);
-    _ref.read(streakProvider.notifier).recordPractice();
+    _ref.read(gamificationProvider.notifier).addXp(10);
+    _ref.read(gamificationProvider.notifier).recordPractice();
 
     state = state.copyWith(
       status: LessonStatus.complete,
@@ -318,6 +430,7 @@ Responde SOLO con JSON: {"score": 75, "feedback_es": "¡Muy bien!..."}''';
     _unlockTimer?.cancel();
     if (state.slideIndex >= state.slides.length) return;
     final slide = state.slides[state.slideIndex];
+    // grammarFlip and libroPrompt unlock via user interaction, not a timer
     if (slide.type == SlideType.vocab || slide.type == SlideType.phrase) {
       _unlockTimer = Timer(const Duration(seconds: 3), () {
         if (mounted && state.status == LessonStatus.slide) {
@@ -347,7 +460,7 @@ Responde SOLO con JSON: {"score": 75, "feedback_es": "¡Muy bien!..."}''';
   @override
   void dispose() {
     _unlockTimer?.cancel();
-    _stt.stop();
+    _stt.cancel();
     super.dispose();
   }
 }

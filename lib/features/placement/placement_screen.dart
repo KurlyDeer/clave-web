@@ -5,7 +5,7 @@ import '../../core/providers/persona_provider.dart';
 import '../../core/providers/placement_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../l10n/app_strings.dart';
-import '../dashboard/dashboard_screen.dart';
+import '../dashboard/main_shell_screen.dart';
 
 class PlacementScreen extends ConsumerStatefulWidget {
   const PlacementScreen({super.key});
@@ -37,7 +37,7 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
 
   void _goToDashboard() {
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const DashboardScreen()),
+      MaterialPageRoute(builder: (_) => const MainShellScreen()),
       (_) => false,
     );
   }
@@ -128,7 +128,7 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
             ),
           if (state.isComplete)
             _CompletionButton(isSenior: isSenior, onTap: _goToDashboard),
-          const SizedBox(height: 16),
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
         ],
       ),
     );
@@ -241,7 +241,7 @@ class _TypingIndicatorState extends State<_TypingIndicator>
                     child: Container(
                       width: 8,
                       height: 8,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.lightText,
                         shape: BoxShape.circle,
                       ),

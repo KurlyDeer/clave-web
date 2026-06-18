@@ -4,12 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/lesson_models.dart';
 import '../../core/providers/lesson_player_provider.dart';
 import '../../core/providers/persona_provider.dart';
-import '../../core/providers/tts_provider.dart';
+import '../../core/providers/audio_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../l10n/app_strings.dart';
 import '../../shared/widgets/offline_banner.dart';
 import 'lesson_summary_screen.dart';
+import 'widgets/grammar_flip_card.dart';
 import 'widgets/intro_slide_card.dart';
+import 'widgets/libro_prompt_card.dart';
 import 'widgets/phrase_slide_card.dart';
 import 'widgets/quiz_slide_card.dart';
 import 'widgets/result_slide_card.dart';
@@ -36,6 +38,7 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
         (prev, next) {
           if (prev?.status != LessonStatus.complete &&
               next.status == LessonStatus.complete) {
+            if (!context.mounted) return;
             Navigator.of(context).pushReplacement(
               MaterialPageRoute<void>(
                 builder: (_) => LessonSummaryScreen(
@@ -62,7 +65,7 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
     final notifier = ref.read(lessonPlayerProvider(widget.lesson).notifier);
     final persona = ref.watch(personaProvider);
     final isSenior = persona?.isSeniorMode ?? false;
-    final tts = ref.read(ttsServiceProvider);
+    final tts = ref.read(audioServiceProvider);
 
     final isVoiceActive = state.status == LessonStatus.voiceRecording ||
         state.status == LessonStatus.voiceLoading;
@@ -78,7 +81,9 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
         title: Text(
           widget.lessonLabel != null
               ? '${widget.lessonLabel}  •  ${state.content.titleEs}'
-              : 'Lección ${widget.lesson.id}/10  •  ${state.content.titleEs}',
+              : 'Lección ${widget.lesson.order}  •  ${state.content.titleEs}',
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
           style: TextStyle(
             fontSize: isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body,
             fontWeight: FontWeight.w700,
@@ -154,6 +159,25 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
               isSenior: isSenior,
               onSelectAnswer: notifier.selectAnswer,
             );
+          case SlideType.grammarFlip:
+            return GrammarFlipCard(
+              key: ValueKey('grammarFlip_${state.slideIndex}'),
+              slide: slide,
+              currentOrder: state.grammarFlipOrder,
+              flipCorrect: state.grammarFlipCorrect,
+              isSenior: isSenior,
+              onOrderChanged: notifier.setGrammarFlipOrder,
+              onCheck: notifier.checkGrammarFlip,
+              onReset: notifier.resetGrammarFlip,
+            );
+          case SlideType.libroPrompt:
+            return LibroPromptCard(
+              key: ValueKey('libroPrompt_${state.slideIndex}'),
+              slide: slide,
+              currentText: state.libroPromptText,
+              isSenior: isSenior,
+              onTextChanged: notifier.updateLibroText,
+            );
         }
 
       case LessonStatus.voiceChallenge:
@@ -169,6 +193,7 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
           onLongPressStart: notifier.startRecording,
           onLongPressEnd: notifier.stopRecordingAndScore,
           onSkip: notifier.skipVoiceChallenge,
+          sttLowConfidence: state.sttLowConfidence,
         );
 
       case LessonStatus.voiceLoading:
@@ -234,16 +259,19 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
     double btnHeight,
   ) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 20 + MediaQuery.of(context).padding.bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 8),
-          // 🔊 Repetir (always visible except during voice/loading)
+          // 🔊 Repetir (visible for vocab/phrase slides and result; hidden for interactive slides)
           if (state.status != LessonStatus.voiceChallenge &&
               state.status != LessonStatus.voiceLoading &&
-              state.status != LessonStatus.complete) ...[
+              state.status != LessonStatus.complete &&
+              !(state.status == LessonStatus.slide &&
+                  (state.slides[state.slideIndex].type == SlideType.grammarFlip ||
+                   state.slides[state.slideIndex].type == SlideType.libroPrompt))) ...[
             SizedBox(
               height: isSenior ? 56.0 : 48.0,
               child: ElevatedButton(
@@ -379,15 +407,15 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
         );
 
       case LessonStatus.result:
+        final canComplete = state.voiceScore >= 70 || state.voiceScore == 0;
         return SizedBox(
           height: btnHeight,
           child: ElevatedButton(
-            onPressed: () => notifier.completeLesson(
-              state.voiceScore,
-              state.feedbackEs,
-            ),
+            onPressed: canComplete
+                ? () => notifier.completeLesson(state.voiceScore, state.feedbackEs)
+                : notifier.retryVoiceChallenge,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green[700],
+              backgroundColor: canComplete ? Colors.green[700] : AppColors.deepBlue,
               foregroundColor: AppColors.lightText,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -395,7 +423,7 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
               elevation: 4,
             ),
             child: Text(
-              AppStrings.lessonCompleteActionEs,
+              canComplete ? AppStrings.lessonCompleteActionEs : AppStrings.retoTryAgainEs,
               style: TextStyle(
                 fontSize: bodySize,
                 fontWeight: FontWeight.w700,

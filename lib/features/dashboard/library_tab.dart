@@ -5,14 +5,10 @@ import '../../core/providers/persona_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/glass_container.dart';
 import '../../l10n/app_strings.dart';
-import '../analizador/analizador_screen.dart';
-import '../lessons/lesson_list_screen.dart';
 import '../libro/book_gallery_screen.dart';
-import '../repaso/repaso_screen.dart';
-import '../simulador/simulador_list_screen.dart';
 import '../vocab/vocab_screen.dart';
 
-/// The "Biblioteca" tab — links to all feature screens.
+/// The "Biblioteca" tab — Mi Libro + Mi Vocabulario only.
 class LibraryTab extends ConsumerWidget {
   const LibraryTab({super.key});
 
@@ -22,7 +18,7 @@ class LibraryTab extends ConsumerWidget {
     final isSenior = persona?.isSeniorMode ?? false;
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -68,62 +64,6 @@ class LibraryTab extends ConsumerWidget {
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (_) => const VocabScreen(),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              _NavButton(
-                icon: Icons.psychology,
-                label: AppStrings.dashboardRepasoEs,
-                isSenior: isSenior,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const RepasoScreen(),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                AppStrings.librarySectionToolsEs,
-                style: TextStyle(
-                  fontSize: isSenior
-                      ? AppFontSizes.subtitleLarge
-                      : AppFontSizes.subtitle,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.glassTextMuted,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 12),
-              _NavButton(
-                icon: Icons.school,
-                label: AppStrings.dashboardLessonsEs,
-                isSenior: isSenior,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const LessonListScreen(),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              _NavButton(
-                icon: Icons.theater_comedy,
-                label: AppStrings.dashboardSimuladorEs,
-                isSenior: isSenior,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const SimuladorListScreen(),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              _NavButton(
-                icon: Icons.mic,
-                label: AppStrings.dashboardAnalizadorEs,
-                isSenior: isSenior,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const AnalizadorScreen(),
                   ),
                 ),
               ),
@@ -178,7 +118,7 @@ class _NavButton extends StatelessWidget {
                 ),
               ),
             ),
-            const Icon(
+            Icon(
               Icons.chevron_right,
               color: AppColors.glassTextMuted,
               size: 24,

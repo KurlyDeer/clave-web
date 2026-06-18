@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
+  static const Color emeraldBase = Color(0xFF10B981);
+  static const Color emeraldHighlight = Color(0xFF34D399);
+
   static const Color terracotta = Color(0xFFD35400);
   static const Color deepBlue = Color(0xFF2E86C1);
   static const Color cream = Color(0xFFFDF6EC);
@@ -14,15 +17,38 @@ class AppColors {
   static const Color shadow = Color(0x1A000000);
 
   // ── Liquid Glass palette ───────────────────────────────────────────────────
-  static const Color glassGradientStart = Color(0xFF0D1B3E); // deep navy
-  static const Color glassGradientMid   = Color(0xFF1A1045); // deep indigo
-  static const Color glassGradientEnd   = Color(0xFF2D1B69); // deep purple
-  static const Color glassSurface       = Color(0x26FFFFFF); // 15% white
-  static const Color glassBorder        = Color(0x4DFFFFFF); // 30% white
-  static const Color glassHighlight     = Color(0x1AFFFFFF); // 10% white
-  static const Color glowTerracotta     = Color(0xFFE67E22); // bright terracotta
-  static const Color glassText          = Color(0xFFEEEEEE); // light text
-  static const Color glassTextMuted     = Color(0xAAFFFFFF); // 67% white
+  static bool _isDark = true;
+  static void setDarkMode(bool v) => _isDark = v;
+
+  static Color get glassGradientStart =>
+      _isDark ? const Color(0xFF0D1B3E) : const Color(0xFFF5F0EB);
+  static Color get glassGradientMid =>
+      _isDark ? const Color(0xFF1A1045) : const Color(0xFFF8EDE0);
+  static Color get glassGradientEnd =>
+      _isDark ? const Color(0xFF2D1B69) : const Color(0xFFFFEDD8);
+  static Color get glassSurface =>
+      _isDark ? const Color(0x26FFFFFF) : const Color(0x12000000);
+  static Color get glassBorder =>
+      _isDark ? const Color(0x4DFFFFFF) : const Color(0x1F000000);
+  static Color get glassHighlight =>
+      _isDark ? const Color(0x1AFFFFFF) : const Color(0x0D000000);
+  static Color get glassText =>
+      _isDark ? const Color(0xFFEEEEEE) : const Color(0xFF1A1A1A);
+  static Color get glassTextMuted =>
+      _isDark ? const Color(0xAAFFFFFF) : const Color(0x99000000);
+
+  static const Color glowTerracotta = Color(0xFFE67E22); // bright terracotta
+
+  // ── Semantic colors ───────────────────────────────────────────────────────
+  static const Color premiumGold  = Color(0xFFF39C12);
+  static const Color successGreen = Color(0xFF27AE60);
+  static const Color warningAmber = Color(0xFFF39C12);
+  static const Color errorRed     = Color(0xFFE74C3C);
+
+  // ── Difficulty level colors ───────────────────────────────────────────────
+  static const Color difficultyA1 = Color(0xFF27AE60); // green
+  static const Color difficultyA2 = Color(0xFF2E86C1); // blue
+  static const Color difficultyB1 = Color(0xFF8E44AD); // purple
 }
 
 class AppFontSizes {
@@ -40,6 +66,87 @@ class AppFontSizes {
   static const double headlineLarge = 38.0;
 }
 
+// ── AppGlassStyles ─────────────────────────────────────────────────────────
+
+class AppGlassStyles {
+  AppGlassStyles._();
+
+  static Gradient get backgroundGradient => LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      AppColors.glassGradientStart,
+      AppColors.glassGradientMid,
+      AppColors.glassGradientEnd,
+    ],
+  );
+
+  static BoxDecoration get cardDecoration => BoxDecoration(
+    color: AppColors.glassSurface,
+    borderRadius: BorderRadius.circular(16),
+    border: Border.all(color: AppColors.glassBorder),
+  );
+
+  static BoxDecoration glowBorder(Color color) => BoxDecoration(
+    color: AppColors.glassSurface,
+    borderRadius: BorderRadius.circular(16),
+    border: Border.all(color: color.withOpacity(0.7), width: 2),
+    boxShadow: [
+      BoxShadow(
+        color: color.withOpacity(0.25),
+        blurRadius: 12,
+        spreadRadius: 1,
+      ),
+    ],
+  );
+
+  static Color difficultyColor(String difficulty) {
+    switch (difficulty) {
+      case 'A1':
+        return AppColors.difficultyA1;
+      case 'A2':
+        return AppColors.difficultyA2;
+      case 'B1':
+        return AppColors.difficultyB1;
+      default:
+        return AppColors.difficultyA1;
+    }
+  }
+}
+
+// ── AppTextStyles ─────────────────────────────────────────────────────────
+
+class AppTextStyles {
+  AppTextStyles._();
+
+  static TextStyle glassTitle({bool isSenior = false}) => TextStyle(
+    fontSize: isSenior ? AppFontSizes.titleLarge : AppFontSizes.title,
+    fontWeight: FontWeight.w700,
+    color: AppColors.glassText,
+  );
+
+  static TextStyle glassBody({bool isSenior = false}) => TextStyle(
+    fontSize: isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body,
+    color: AppColors.glassText,
+    height: 1.5,
+  );
+
+  static TextStyle glassMuted({bool isSenior = false}) => TextStyle(
+    fontSize: isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body,
+    color: AppColors.glassTextMuted,
+    height: 1.4,
+  );
+
+  static TextStyle difficultyBadge(Color color) => TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w700,
+    color: color,
+    letterSpacing: 0.5,
+  );
+}
+
+// ── AppTheme ──────────────────────────────────────────────────────────────
+
 class AppTheme {
   AppTheme._();
 
@@ -47,12 +154,13 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.terracotta,
-        primary: AppColors.terracotta,
-        secondary: AppColors.deepBlue,
-        surface: AppColors.cream,
+        seedColor: AppColors.emeraldBase,
+        primary: AppColors.emeraldBase,
+        secondary: AppColors.emeraldHighlight,
+        surface: const Color(0xFFF8F9FA),
+        brightness: Brightness.light,
       ),
-      scaffoldBackgroundColor: AppColors.cream,
+      scaffoldBackgroundColor: const Color(0xFFFFFFFF),
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
           fontSize: AppFontSizes.headline,
@@ -85,7 +193,35 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           minimumSize: const Size.fromHeight(56),
-          backgroundColor: AppColors.terracotta,
+          backgroundColor: AppColors.emeraldBase,
+          foregroundColor: AppColors.lightText,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: const TextStyle(
+            fontSize: AppFontSizes.subtitle,
+            fontWeight: FontWeight.w700,
+          ),
+          elevation: 3,
+        ),
+      ),
+    );
+  }
+
+  static ThemeData get dark {
+    return ThemeData.dark(useMaterial3: true).copyWith(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.emeraldBase,
+        primary: AppColors.emeraldBase,
+        secondary: AppColors.emeraldHighlight,
+        surface: const Color(0xFF070708),
+        brightness: Brightness.dark,
+      ),
+      scaffoldBackgroundColor: const Color(0xFF09090B),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          minimumSize: const Size.fromHeight(56),
+          backgroundColor: AppColors.emeraldBase,
           foregroundColor: AppColors.lightText,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),

@@ -1,17 +1,16 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
+import '../services/audio_service.dart';
 import '../services/claude_service.dart';
 import '../services/connectivity_service.dart';
-import '../services/tts_service.dart';
+import '../../l10n/app_strings.dart';
+import 'audio_provider.dart';
 import 'connectivity_provider.dart';
-import 'streak_provider.dart';
-import 'tts_provider.dart';
+import 'gamification_controller.dart';
 import 'vocab_provider.dart';
-import 'xp_provider.dart';
 
 // ── Data models ──────────────────────────────────────────────────────────────
 
@@ -64,19 +63,19 @@ class SosState {
 // ── System prompt ─────────────────────────────────────────────────────────────
 
 const _sosSystemPrompt = '''
-Eres un intérprete de emergencia bilingüe especializado en el español latinoamericano en todas
-sus variedades regionales. Entiendes modismos de toda América Latina:
-- chamba/jale/laburo = work   - guagua = bus (Caribbean) or baby (Chile/Ecuador)
-- pana/cuate/parcero = friend  - chévere/bacano/chido = cool
-- plata/lana/billete = money   - ahorita = right now (context-dependent)
+You are a real-time bilingual translator. Translate the given Spanish text into natural, native-sounding American English. You must return ONLY a JSON object containing three string variations: formal, friendly, and urgent.
 
-Traduce el mensaje del usuario al inglés con TRES versiones.
-Responde SOLO con JSON válido, sin markdown, sin texto adicional:
-{"formal":"…","amistoso":"…","urgente":"…"}
+No markdown, no preamble, no text outside the JSON object:
+{"formal":"…","friendly":"…","urgent":"…"}
 
-formal   = lenguaje para doctores, jefes, autoridades
-amistoso = lenguaje natural para amigos y vecinos
-urgente  = máximo 8 palabras, directo para emergencias
+formal   = polished language for doctors, bosses, and authorities
+friendly = natural, relaxed language for friends and neighbors
+urgent   = maximum 8 words, direct phrasing for emergencies
+
+Regional Spanish knowledge — understand these before translating:
+- chamba/jale/laburo = work     - guagua = bus (Caribbean) or baby (Chile/Ecuador)
+- pana/cuate/parcero = friend   - chévere/bacano/chido = cool
+- plata/lana/billete = money    - ahorita = right now (context-dependent)
 ''';
 
 // ── Notifier ──────────────────────────────────────────────────────────────────
@@ -84,7 +83,7 @@ urgente  = máximo 8 palabras, directo para emergencias
 class SosNotifier extends StateNotifier<SosState> {
   SosNotifier({
     required ConnectivityService connectivity,
-    required TtsService tts,
+    required AudioService tts,
     required Ref ref,
   })  : _connectivity = connectivity,
         _tts = tts,
@@ -92,7 +91,7 @@ class SosNotifier extends StateNotifier<SosState> {
         super(const SosState());
 
   final ConnectivityService _connectivity;
-  final TtsService _tts;
+  final AudioService _tts;
   final Ref _ref;
   final _claude = ClaudeService();
   final _stt = SpeechToText();
@@ -102,7 +101,12 @@ class SosNotifier extends StateNotifier<SosState> {
   Future<void> _initStt() async {
     if (!_sttAvailable) {
       _sttAvailable = await _stt.initialize(
-        onError: (_) {},
+        onError: (_) {
+          state = state.copyWith(
+            status: SosStatus.idle,
+            errorMessage: AppStrings.sttErrorEs,
+          );
+        },
         onStatus: (_) {},
       );
     }
@@ -110,7 +114,10 @@ class SosNotifier extends StateNotifier<SosState> {
 
   Future<void> startRecording() async {
     await _initStt();
-    if (!_sttAvailable) return;
+    if (!_sttAvailable) {
+      state = state.copyWith(errorMessage: AppStrings.sttMicDeniedEs);
+      return;
+    }
 
     state = state.copyWith(
       status: SosStatus.recording,
@@ -119,6 +126,7 @@ class SosNotifier extends StateNotifier<SosState> {
       errorMessage: '',
     );
 
+    await AudioService.deactivateForStt();
     await _stt.listen(
       localeId: 'es_US',
       listenFor: const Duration(seconds: 60),
@@ -131,6 +139,7 @@ class SosNotifier extends StateNotifier<SosState> {
 
   Future<void> stopRecordingAndTranslate() async {
     await _stt.stop();
+    await AudioService.activateForTts();
 
     final spoken = state.spokenText.trim();
     if (spoken.isEmpty) {
@@ -156,8 +165,8 @@ class SosNotifier extends StateNotifier<SosState> {
       final options = _parseOptions(raw);
       state = state.copyWith(status: SosStatus.success, options: options);
       // Award XP and record streak for a successful translation
-      _ref.read(xpProvider.notifier).addXp(5);
-      _ref.read(streakProvider.notifier).recordPractice();
+      _ref.read(gamificationProvider.notifier).addXp(5);
+      _ref.read(gamificationProvider.notifier).recordPractice();
       // Auto-save phrase pair to vocabulary
       final formalEn =
           options.isNotEmpty ? options.first.text.trim() : '';
@@ -209,8 +218,8 @@ class SosNotifier extends StateNotifier<SosState> {
 
       final options = _parseOptions(raw);
       state = state.copyWith(status: SosStatus.success, options: options);
-      _ref.read(xpProvider.notifier).addXp(5);
-      _ref.read(streakProvider.notifier).recordPractice();
+      _ref.read(gamificationProvider.notifier).addXp(5);
+      _ref.read(gamificationProvider.notifier).recordPractice();
       final formalEn = options.isNotEmpty ? options.first.text.trim() : '';
       if (formalEn.isNotEmpty) {
         await _ref.read(vocabProvider.notifier).addWord(
@@ -238,12 +247,13 @@ class SosNotifier extends StateNotifier<SosState> {
 
   List<TranslationOption> _parseOptions(String raw) {
     try {
-      // Strip accidental markdown fences.
-      final cleaned = raw
-          .replaceAll(RegExp(r'```json\s*'), '')
-          .replaceAll(RegExp(r'```\s*'), '')
-          .trim();
-      final json = jsonDecode(cleaned) as Map<String, dynamic>;
+      // Extract the JSON object, stripping any preamble/postamble.
+      final start = raw.indexOf('{');
+      final end = raw.lastIndexOf('}');
+      if (start == -1 || end == -1 || end <= start) {
+        return [TranslationOption(tone: 'General', toneEs: 'General', text: raw)];
+      }
+      final json = jsonDecode(raw.substring(start, end + 1)) as Map<String, dynamic>;
       return [
         TranslationOption(
           tone: 'Formal',
@@ -253,12 +263,12 @@ class SosNotifier extends StateNotifier<SosState> {
         TranslationOption(
           tone: 'Amistoso',
           toneEs: 'Amistoso',
-          text: json['amistoso'] as String? ?? '',
+          text: json['friendly'] as String? ?? '',
         ),
         TranslationOption(
           tone: 'Urgente',
           toneEs: 'Urgente',
-          text: json['urgente'] as String? ?? '',
+          text: json['urgent'] as String? ?? '',
         ),
       ];
     } catch (_) {
@@ -271,7 +281,7 @@ class SosNotifier extends StateNotifier<SosState> {
 
   @override
   void dispose() {
-    _stt.stop();
+    _stt.cancel();
     super.dispose();
   }
 }
@@ -282,7 +292,7 @@ final sosProvider =
     StateNotifierProvider.autoDispose<SosNotifier, SosState>((ref) {
   return SosNotifier(
     connectivity: ref.watch(connectivityServiceProvider),
-    tts: ref.watch(ttsServiceProvider),
+    tts: ref.read(audioServiceProvider),
     ref: ref,
   );
 });

@@ -29,7 +29,7 @@ class GrammarRichText extends StatelessWidget {
       TextSpan(children: spans),
       style: TextStyle(
         fontSize: bodySize,
-        color: AppColors.darkText,
+        color: AppColors.glassText,
         height: 1.6,
       ),
     );
@@ -59,12 +59,12 @@ class GrammarRichText extends StatelessWidget {
       spans.add(TextSpan(
         text: text.substring(error.startIndex, error.endIndex),
         style: TextStyle(
-          backgroundColor: AppColors.terracotta.withValues(alpha: 0.15),
-          color: AppColors.terracotta,
+          backgroundColor: AppColors.glowTerracotta.withValues(alpha: 0.25),
+          color: AppColors.glowTerracotta,
           fontWeight: FontWeight.w600,
           decoration: TextDecoration.underline,
           decorationStyle: TextDecorationStyle.wavy,
-          decorationColor: AppColors.terracotta,
+          decorationColor: AppColors.glowTerracotta,
         ),
         recognizer: recognizer,
       ));

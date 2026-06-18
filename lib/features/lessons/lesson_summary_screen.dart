@@ -20,7 +20,7 @@ class LessonSummaryScreen extends ConsumerStatefulWidget {
     required this.milestoneEs,
   });
 
-  final int lessonId;
+  final String lessonId;
   final String lessonTitle;
   final int xpGained;
   final int elapsedSeconds;

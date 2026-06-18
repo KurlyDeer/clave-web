@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/glass_container.dart';
 import '../../../l10n/app_strings.dart';
 
-/// Single AI coaching tip shown below the heatmap.
+/// Single AI coaching tip shown below the heatmap — glass style.
 class CoachingTipCard extends StatelessWidget {
   const CoachingTipCard({
     super.key,
@@ -20,16 +21,10 @@ class CoachingTipCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final bodySize = isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body;
     final smallSize = bodySize - 2;
+    final scoreColor = _scoreGlowColor(score);
 
-    return Container(
+    return GlassContainer(
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.deepBlue.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.deepBlue.withValues(alpha: 0.25),
-        ),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -42,27 +37,31 @@ class CoachingTipCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: smallSize,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.deepBlue,
+                  color: AppColors.glassText,
                 ),
               ),
               const Spacer(),
-              // Score badge
+              // Score badge with traffic-light glow
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _scoreColor(score).withValues(alpha: 0.15),
+                  color: AppColors.glassSurface,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: _scoreColor(score).withValues(alpha: 0.5),
-                  ),
+                  border: Border.all(color: scoreColor.withAlpha(200)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: scoreColor.withAlpha(100),
+                      blurRadius: 8,
+                    ),
+                  ],
                 ),
                 child: Text(
                   '${AppStrings.analizadorScoreLabelEs} $score',
                   style: TextStyle(
                     fontSize: smallSize - 1,
                     fontWeight: FontWeight.w700,
-                    color: _scoreColor(score),
+                    color: scoreColor,
                   ),
                 ),
               ),
@@ -73,7 +72,7 @@ class CoachingTipCard extends StatelessWidget {
             tipEs,
             style: TextStyle(
               fontSize: bodySize,
-              color: AppColors.darkText,
+              color: AppColors.glassText,
               height: 1.5,
             ),
           ),
@@ -82,9 +81,9 @@ class CoachingTipCard extends StatelessWidget {
     );
   }
 
-  Color _scoreColor(int score) {
-    if (score >= 80) return const Color(0xFF27AE60);
-    if (score >= 60) return const Color(0xFFF39C12);
-    return const Color(0xFFE74C3C);
+  Color _scoreGlowColor(int score) {
+    if (score >= 80) return const Color(0xFF27AE60); // green
+    if (score >= 60) return const Color(0xFFF39C12); // amber
+    return const Color(0xFFE74C3C);                  // red
   }
 }

@@ -162,6 +162,10 @@ class AppStrings {
   static const String lessonQuizWrongEs = 'Incorrecto — intenta de nuevo';
   static const String lessonCompleteActionEs = 'Completar Lección ✓';
 
+  // ── STT feedback ──────────────────────────────────────────────
+  static const String sttLowConfidenceEs =
+      'No te escuché bien. ¡Inténtalo de nuevo!';
+
   // ── Reto de Voz ───────────────────────────────────────────────
   static const String retoTitleEs = '🎤 Reto de Voz';
   static const String retoInstructionEs = 'Di esta oración en inglés:';
@@ -319,6 +323,11 @@ class AppStrings {
   static const String libroDeleteConfirmNoEs = 'Cancelar';
   static const String libroRevisadaBadgeEs = '✓ Revisada';
   static const String libroEditPageEs = 'Editar página';
+  static const String libroGlassSubtitleEs = 'Has escrito';
+  static const String libroGlassEmptyEs =
+      'Tu libro está en blanco.\n¡Completa tu primera lección para empezar a escribir!';
+  static const String libroGlassGoToLessonEs = 'Ir a mi primera lección';
+  static const String libroGlassPlayEs = 'Escuchar';
 
   // ── Simulador de Vida Real ────────────────────────────────────
   static const String simuladorTitleEs = '🎭 Simulador de Vida Real';
@@ -349,6 +358,8 @@ class AppStrings {
   static const String simuladorYouSaidEs = 'Dijiste:';
   static const String simuladorAiSpeakingEs = 'Escucha al personaje…';
   static const String simuladorTapToReplayEs = '🔊 Repetir';
+  static const String simuladorFinishXpEs = 'Terminar y Ganar +15 XP';
+  static const String simuladorTapMicEs = 'Toca el micrófono y responde en inglés';
 
   // ── Publicar mi Libro ─────────────────────────────────────────
   static const String publishTitleEs = '📚 Publicar mi Libro';
@@ -429,7 +440,7 @@ class AppStrings {
   static const String glassStatsStreakEs         = 'Racha';
   static const String glassStatsWordsEs         = 'Palabras';
   static const String glassStatsLevelEs         = 'Nivel';
-  static const String glassProgressTitleEs      = 'Tu Progreso';
+  static const String glassProgressTitleEs      = 'Camino a tu Libro';
   static const String glassProgressLessonsEs    = 'lecciones completadas';
 
   // ── Repaso Inteligente ────────────────────────────────────────
@@ -455,11 +466,16 @@ class AppStrings {
   static const String repasoBackToDashEs     = 'Volver al Inicio';
 
   // ── Camino al Libro ───────────────────────────────────────────
-  static const String caminoTitleEs        = '🗺 Camino al Libro';
-  static const String caminoLockedEs       = 'Bloqueado';
-  static const String caminoUnlockedEs     = '¡Entendido!';
-  static const String caminoPreviewLabelEs = 'TU LOGRO ACTUAL';
-  static const String caminoViewEs         = 'Ver Camino →';
+  static const String caminoTitleEs            = '🗺 Camino al Libro';
+  static const String caminoLockedEs           = 'Bloqueado';
+  static const String caminoUnlockedEs         = '¡Entendido!';
+  static const String caminoPreviewLabelEs     = 'TU PROGRESO';
+  static const String caminoViewEs             = 'Ver Camino →';
+  static const String caminoLockedSnackbarEs   = 'Completa la lección anterior primero';
+  static const String caminoCompletedBadgeEs   = 'Completada ✓';
+  static const String caminoNextLessonEs       = 'Siguiente lección';
+  static const String caminoAllCompleteEs      = '¡Todas las lecciones completadas!';
+  static const String caminoProgressEs         = 'lecciones completadas';
 
   // ── Grammar Flip (Screen 3) ───────────────────────────────────
   static const String lessonGrammarTitleEs         = 'Construye la Frase';
@@ -486,15 +502,167 @@ class AppStrings {
   static const String lessonDraftHomeEs        = 'Volver al Inicio';
 
   // ── Bottom Navigation ─────────────────────────────────────────
-  static const String navHomeEs    = 'Inicio';
-  static const String navLibraryEs = 'Biblioteca';
-  static const String navSosEs     = 'S.O.S.';
+  static const String navHomeEs       = 'Inicio';
+  static const String navLibraryEs    = 'Biblioteca';
+  static const String navSosEs        = 'S.O.S.';
+  static const String navCompaneroEs  = 'Mi Compañero';
+
+  // ── Mi Compañero ──────────────────────────────────────────────
+  static const String companeroTitleEs    = 'Mi Compañero';
+  static const String companeroSubtitleEs = 'Tu tutor de inglés personal';
+  static const String companeroInputHintEs = '¿Qué quieres preguntar?';
+  static const String companeroErrorEs    = 'Error al conectar. Intenta de nuevo.';
+  static const String companeroConnectionErrorEs = 'Error de conexión. Toca para reintentar.';
+  static const String companeroRetryEs    = '↻ Reintentar';
+
+  // ── Tier Map ──────────────────────────────────────────────────
+  static const String tierMapTitleEs   = '🗺️ Mis Lecciones';
+  static const String tierLockedEs     = 'Completa primero:';
+  static const String tierComingSoonEs = 'Próximamente';
+
+  // ── Tier Names ────────────────────────────────────────────────
+  static const String tierFundamentosEs  = 'Fundamentos';
+  static const String tierPrincipianteEs = 'Principiante';
+  static const String tierIntermedioEs   = 'Intermedio';
+  static const String tierFluidoEs       = 'Fluido';
+
+  // ── FTUE Onboarding ───────────────────────────────────────────
+  static const String ftueWelcomeTitleEs      = 'Bienvenido a tu nuevo tutor de inglés';
+  static const String ftueWelcomeSubtitleEs   = 'Aprende inglés a tu ritmo, con lecciones diseñadas para tu vida real.';
+  static const String ftueNameTitleEs         = '¿Cómo te llamas?';
+  static const String ftueNameHintEs          = 'Tu nombre';
+  static const String ftueGoalTitleEs         = '¿Cuál es tu meta principal?';
+  static const String ftueGoalSubtitleEs      = 'Personalizaremos tu camino de aprendizaje.';
+  static const String ftueGoalCareerEs        = 'Avanzar en mi Carrera';
+  static const String ftueGoalCareerDescEs    = 'Inglés para el trabajo y oportunidades profesionales';
+  static const String ftueGoalTravelEs        = 'Viajar con Confianza';
+  static const String ftueGoalTravelDescEs    = 'Inglés para viajes y comunicación básica';
+  static const String ftueGoalCitizenshipEs   = 'Ciudadanía de EE.UU.';
+  static const String ftueGoalCitizenshipDescEs = 'Prepárate para tu examen de naturalización';
+  static const String ftueStartEs             = 'Comenzar mi viaje';
+  static const String ftueNextEs              = 'Siguiente';
+
+  // ── Onboarding ────────────────────────────────────────────────
+  static const String onboardingTitleEs     = '¿Cuánto tiempo tienes hoy?';
+  static const String onboardingSubtitleEs  = 'Crea tu plan de estudio personalizado.';
+  static const String onboardingGoal5TitleEs  = '5 Minutos';
+  static const String onboardingGoal5DescEs   = 'Repaso rápido y vocabulario';
+  static const String onboardingGoal15TitleEs = '15 Minutos';
+  static const String onboardingGoal15DescEs  = 'Lección completa y pronunciación';
+  static const String onboardingGoal30TitleEs = '30+ Minutos';
+  static const String onboardingGoal30DescEs  = 'Inmersión total y escritura';
+  static const String onboardingCtaEs       = 'Comenzar mi viaje';
+
+  // ── Study Plan ────────────────────────────────────────────────
+  static const String studyPlanTitleEs        = '¿Cuánto tiempo tienes?';
+  static const String studyPlanQuestionEs     =
+      'Escoge cuánto tiempo puedes dedicar al inglés cada día.\n'
+      'Ajustaremos tu camino de aprendizaje para ti.';
+  static const String studyPlanQuickTitleEs   = '5 Minutos al Día';
+  static const String studyPlanQuickDescEs    =
+      'Ideal si tienes poco tiempo. Una práctica rápida y efectiva.';
+  static const String studyPlanStandardTitleEs = '15 Minutos al Día';
+  static const String studyPlanStandardDescEs  =
+      'El plan más popular. Avanza rápido sin agotarte.';
+  static const String studyPlanDeepTitleEs    = '30+ Minutos al Día';
+  static const String studyPlanDeepDescEs     =
+      'Para quienes quieren aprender rápido. ¡Máximo progreso!';
 
   // ── Library Tab ───────────────────────────────────────────────
   static const String libraryTitleEs        = '📚 Biblioteca';
   static const String librarySectionBookEs  = 'Mi Libro';
   static const String librarySectionVocabEs = 'Mi Vocabulario';
   static const String librarySectionToolsEs = 'Herramientas de Práctica';
+
+  // ── Settings ──────────────────────────────────────────────────
+  static const String settingsTitleEs        = 'Ajustes';
+  static const String settingsVoiceSectionEs = 'Voz del Profesor';
+  static const String settingsVoiceProfesorEs   = 'Profesor';
+  static const String settingsVoiceProfesoraEs  = 'Profesora';
+  static const String settingsPreviewEs      = 'Escuchar ejemplo';
+  static const String settingsPreviewText    = 'Hello! Welcome to English Bridge.';
+
+  // ── Mi Perfil ─────────────────────────────────────────────────
+  static const String profileTitleEs             = 'Mi Perfil';
+  static const String profileTitleEn             = 'My Profile';
+  static const String profilePersonaSectionEs    = 'MI PERFIL';
+  static const String profileGoalSectionEs       = 'MI META DIARIA';
+  static const String profileDangerSectionEs     = 'ZONA DE REINICIO';
+  static const String profileResetButtonEs       = 'Borrar Todo y Empezar de Nuevo';
+  static const String profileResetConfirmTitleEs = '¿Estás seguro?';
+  static const String profileResetConfirmBodyEs  =
+      'Esto borrará todo tu progreso, vocabulario, libro y configuración. '
+      'Esta acción no se puede deshacer.';
+  static const String profileResetConfirmYesEs   = 'Sí, borrar todo';
+  static const String profileResetConfirmNoEs    = 'Cancelar';
+
+  // ── Recordatorio ──────────────────────────────────────────────
+  static const String profileReminderSectionEs = 'RECORDATORIO DE ESTUDIO';
+  static const String profileReminderLabelEs   = 'Hora del recordatorio';
+  static const String profileReminderOffEs     = 'Sin recordatorio';
+  static const String profileReminderSetEs     = 'Cada día a las';
+  static const String profileReminderRemoveEs  = 'Desactivar recordatorio';
+
+  // ── Learning Path ─────────────────────────────────────────────
+  static const String pathTitleEs             = 'Tu Camino de Aprendizaje';
+  static const String pathTitleEn             = 'Your Learning Path';
+  static const String pathEmptyStateEs        = '¡Pronto habrá más lecciones!';
+  static const String pathCompletedOfEs       = 'de';
+
+  // ── Lesson Detail Screen ───────────────────────────────────────
+  static const String lessonDetailVocabTitleEs    = '📚 Vocabulario';
+  static const String lessonDetailGrammarTitleEs  = '✏️ Regla Gramatical';
+  static const String lessonDetailPracticeEs      = 'Practicar en el Simulador';
+  static const String lessonDetailPracticeEn      = 'Practice in the Simulator';
+  static const String lessonDetailVocabTapTtsEs   = 'Toca para escuchar';
+  static const String lessonDetailExampleLabelEs  = 'Ejemplo:';
+  static const String lessonDetailRepracticeEs    = 'Practicar de Nuevo';
+
+  // ── Profile Settings (Sound + Dark Mode) ─────────────────────────────────
+  static const String profileSettingsSectionEs     = 'SONIDO Y PRONUNCIACION';
+  static const String profileTtsToggleTitleEs      = 'Pronunciación con Audio';
+  static const String profileTtsToggleDescEs       = 'Escucha las palabras al estudiar vocabulario';
+  static const String profileDarkModeToggleTitleEs = 'Modo Oscuro';
+  static const String profileDarkModeToggleDescEs  = 'Tema oscuro activo — modo claro próximamente';
+
+  // ── Lesson Detail PageView ────────────────────────────────────────────────
+  static const String lessonDetailIntroTitleEs = 'Objetivo de la Lección';
+  static const String lessonDetailIntroBodyEs  = 'En esta lección practicarás:';
+  static const String lessonDetailReadyEs      = '¿Listo para practicar?';
+  static const String lessonDetailQuizTitleEs  = '🧠 Cuestionario';
+  static const String lessonDetailQuizNextEs   = 'Siguiente pregunta';
+  static const String lessonDetailQuizFinishEs = 'Ver resultado';
+  static const String lessonDetailQuizResultEs = 'Tu resultado:';
+  static const String lessonDetailQuizContinueEs = 'Continuar →';
+
+  // ── Simulator Guardrails ──────────────────────────────────────────────────
+  static const String simuladorGoalLabelEs     = '🎯 Tu meta:';
+  static const String simuladorHintAfterFailEs = '💡 Intenta decir algo como:';
+  static const String simuladorSkipTurnEs      = 'Saltar este turno';
+
+  // ── Report Card Screen ────────────────────────────────────────
+  static const String reportCardAnalyzingEs      = 'Analizando tu pronunciación y gramática...';
+  static const String reportCardGradeLabelEs     = 'Tu Calificación';
+  static const String reportCardClaimXpEs        = 'Reclamar 50 XP y Continuar';
+  static const String reportCardNoErrorsEs       = '¡Perfecto! Sin errores detectados.';
+  static const String reportCardMistakeLabelEs   = 'Dijiste:';
+  static const String reportCardCorrectionLabelEs = 'Mejor:';
+
+  // ── Learning Tracks ───────────────────────────────────────────────────────
+  static const String trackGeneralEs         = 'Inglés General';
+  static const String trackCitizenshipEs     = 'Ciudadanía';
+  static const String citizenshipTrackDescEs = 'Prepárate para el examen de ciudadanía americana';
+
+  // ── Premium / Citizenship Paywall ─────────────────────────────────────────
+  static const String premiumTitleEs    = 'Desbloquea la Preparación para la Ciudadanía';
+  static const String premiumSubtitleEs =
+      'Prepárate para tu entrevista de naturalización con práctica guiada por IA';
+  static const String premiumBullet1Es  = 'Simulador de Oficial de USCIS';
+  static const String premiumBullet2Es  = 'Práctica del Formulario N-400';
+  static const String premiumBullet3Es  = 'Preguntas de Historia y Cívica';
+  static const String premiumUpgradeEs  = 'Desbloquear Ciudadanía';
+  static const String premiumBadgeEs    = 'PRO';
+  static const String premiumRestoreEs  = '¿Ya compraste? Restaurar';
 
   // ── Privacy ───────────────────────────────────────────────────
   static const String privacyTitleEs = '🔏 Política de Privacidad';
@@ -531,4 +699,24 @@ class AppStrings {
       'Preguntas sobre privacidad: privacidad@englishbridge.app';
   static const String privacySection4BodyEn  =
       'Privacy questions: privacy@englishbridge.app';
+
+  // ── STT errors ────────────────────────────────────────────────
+  static const String sttMicDeniedEs =
+      'Permiso de micrófono denegado. Actívalo en Ajustes de tu dispositivo.';
+  static const String sttErrorEs = 'Error de micrófono. Intenta de nuevo.';
+
+  // ── AI Daily Lesson ───────────────────────────────────────────
+  static const String aiDailyLessonTitleEs    = 'Tu Lección Diaria Personalizada';
+  static const String aiDailyLessonSubtitleEs = 'Una lección nueva creada solo para ti';
+  static const String aiDailyLessonLoadingEs  = 'Generando tu lección de hoy...';
+  static const String aiDailyLessonErrorEs    = 'No pudimos generar tu lección. Intenta de nuevo.';
+
+  // ── Smart Review (Quiz Bank) ───────────────────────────────────
+  static const String smartReviewTitleEs        = 'Practicar Debilidades';
+  static const String smartReviewTitleEn        = 'Smart Review';
+  static const String smartReviewCardSubtitleEs = ' preguntas pendientes';
+  static const String smartReviewCompleteTitleEs = '¡Repaso Completado!';
+  static const String smartReviewCompleteBodyEs  =
+      'Las respuestas correctas fueron eliminadas.';
+  static const String smartReviewBackEs          = 'Volver al inicio';
 }

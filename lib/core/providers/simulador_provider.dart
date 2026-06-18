@@ -1,25 +1,25 @@
-import 'dart:convert';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
+import '../models/lesson_models.dart';
 import '../models/scenario_models.dart';
-import '../services/claude_service.dart';
+import '../services/audio_service.dart';
 import '../services/connectivity_service.dart';
+import '../services/simulator_service.dart';
+import '../../l10n/app_strings.dart';
 import 'connectivity_provider.dart';
-import 'streak_provider.dart';
-import 'xp_provider.dart';
+import 'lesson_progress_provider.dart';
 
 // ── Status enum ───────────────────────────────────────────────────────────────
 
 enum SimuladorStatus {
-  loading,      // initial AI line loading
-  aiSpeaking,   // TTS is playing AI line
-  waitingForVoice, // ready for user to hold mic
-  recording,    // STT active
-  analyzing,    // Claude call in progress
-  feedback,     // showing result of user turn
-  complete,     // scenario finished
+  loading,         // initial AI line loading
+  aiSpeaking,      // TTS is playing AI line
+  waitingForVoice, // ready for user to tap mic
+  recording,       // STT active
+  analyzing,       // service call in progress
+  feedback,        // showing result of user turn
+  complete,        // scenario finished
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -33,10 +33,13 @@ class SimuladorState {
     this.currentHintEs = '',
     this.userTranscription = '',
     this.feedbackEs = '',
-    this.isAcceptable = true,
+    this.feedbackColor = 'green',
     this.turnCount = 0,
     this.isOfflineError = false,
     this.errorMessage = '',
+    this.sttConfidence = 0.0,
+    this.sttLowConfidence = false,
+    this.failedAttempts = 0,
   });
 
   final ScenarioData scenario;
@@ -46,10 +49,16 @@ class SimuladorState {
   final String currentHintEs;
   final String userTranscription;
   final String feedbackEs;
-  final bool isAcceptable;
+  final String feedbackColor;
   final int turnCount;
   final bool isOfflineError;
   final String errorMessage;
+  final double sttConfidence;
+  final bool sttLowConfidence;
+  final int failedAttempts;
+
+  bool get isAcceptable => feedbackColor != 'red';
+  bool get showHint => failedAttempts >= 3;
 
   SimuladorState copyWith({
     SimuladorStatus? status,
@@ -58,10 +67,13 @@ class SimuladorState {
     String? currentHintEs,
     String? userTranscription,
     String? feedbackEs,
-    bool? isAcceptable,
+    String? feedbackColor,
     int? turnCount,
     bool? isOfflineError,
     String? errorMessage,
+    double? sttConfidence,
+    bool? sttLowConfidence,
+    int? failedAttempts,
   }) {
     return SimuladorState(
       scenario: scenario,
@@ -71,30 +83,15 @@ class SimuladorState {
       currentHintEs: currentHintEs ?? this.currentHintEs,
       userTranscription: userTranscription ?? this.userTranscription,
       feedbackEs: feedbackEs ?? this.feedbackEs,
-      isAcceptable: isAcceptable ?? this.isAcceptable,
+      feedbackColor: feedbackColor ?? this.feedbackColor,
       turnCount: turnCount ?? this.turnCount,
       isOfflineError: isOfflineError ?? this.isOfflineError,
       errorMessage: errorMessage ?? this.errorMessage,
+      sttConfidence: sttConfidence ?? this.sttConfidence,
+      sttLowConfidence: sttLowConfidence ?? this.sttLowConfidence,
+      failedAttempts: failedAttempts ?? this.failedAttempts,
     );
   }
-}
-
-// ── Claude response model ─────────────────────────────────────────────────────
-
-class _ClaudeResponse {
-  const _ClaudeResponse({
-    required this.isAcceptable,
-    required this.feedbackEs,
-    required this.nextLineEn,
-    required this.nextHintEs,
-    required this.isComplete,
-  });
-
-  final bool isAcceptable;
-  final String feedbackEs;
-  final String nextLineEn;
-  final String nextHintEs;
-  final bool isComplete;
 }
 
 // ── Notifier ──────────────────────────────────────────────────────────────────
@@ -103,20 +100,21 @@ class SimuladorNotifier extends StateNotifier<SimuladorState> {
   SimuladorNotifier({
     required ScenarioData scenario,
     required ConnectivityService connectivity,
+    required SimulatorService service,
     required Ref ref,
   })  : _connectivity = connectivity,
+        _service = service,
         _ref = ref,
         super(SimuladorState(scenario: scenario));
 
   final ConnectivityService _connectivity;
+  final SimulatorService _service;
   final Ref _ref;
-  final _claude = ClaudeService();
   final _stt = SpeechToText();
   bool _sttAvailable = false;
 
   // ── Startup ──────────────────────────────────────────────────────────────
 
-  /// Called once when the screen loads — sets up the opening AI turn.
   void startScenario() {
     final s = state.scenario;
     final openingTurn = ScenarioTurn(
@@ -133,7 +131,6 @@ class SimuladorNotifier extends StateNotifier<SimuladorState> {
     );
   }
 
-  /// Called by the screen after TTS finishes speaking an AI line.
   void onAiSpeechComplete() {
     if (state.status == SimuladorStatus.aiSpeaking) {
       state = state.copyWith(status: SimuladorStatus.waitingForVoice);
@@ -144,36 +141,64 @@ class SimuladorNotifier extends StateNotifier<SimuladorState> {
 
   Future<void> startRecording() async {
     if (!_sttAvailable) {
-      _sttAvailable = await _stt.initialize(onError: (_) {}, onStatus: (_) {});
+      _sttAvailable = await _stt.initialize(
+        onError: (_) {
+          state = state.copyWith(
+            status: SimuladorStatus.waitingForVoice,
+            errorMessage: AppStrings.sttErrorEs,
+          );
+        },
+        onStatus: (_) {},
+      );
     }
-    if (!_sttAvailable) return;
+    if (!_sttAvailable) {
+      state = state.copyWith(errorMessage: AppStrings.sttMicDeniedEs);
+      return;
+    }
 
     state = state.copyWith(
       status: SimuladorStatus.recording,
       userTranscription: '',
       isOfflineError: false,
       errorMessage: '',
+      sttConfidence: 0.0,
+      sttLowConfidence: false,
     );
 
+    await AudioService.deactivateForStt();
     await _stt.listen(
       localeId: 'en_US',
       listenFor: const Duration(seconds: 60),
       pauseFor: const Duration(seconds: 5),
       onResult: (result) {
-        state = state.copyWith(userTranscription: result.recognizedWords);
+        state = state.copyWith(
+          userTranscription: result.recognizedWords,
+          sttConfidence: result.finalResult
+              ? result.confidence
+              : state.sttConfidence,
+        );
       },
     );
   }
 
   Future<void> stopRecordingAndAnalyze() async {
     await _stt.stop();
+    await AudioService.activateForTts();
     final transcribed = state.userTranscription.trim();
 
     if (transcribed.isEmpty) {
       state = state.copyWith(
         status: SimuladorStatus.feedback,
-        feedbackEs: 'No escuché nada. ¡Mantén el micrófono y habla en inglés!',
-        isAcceptable: false,
+        feedbackColor: 'red',
+        feedbackEs: 'No escuché nada. ¡Toca el micrófono y habla en inglés!',
+      );
+      return;
+    }
+
+    if (state.sttConfidence > 0 && state.sttConfidence < 0.7) {
+      state = state.copyWith(
+        status: SimuladorStatus.waitingForVoice,
+        sttLowConfidence: true,
       );
       return;
     }
@@ -190,54 +215,47 @@ class SimuladorNotifier extends StateNotifier<SimuladorState> {
     state = state.copyWith(status: SimuladorStatus.analyzing);
 
     try {
-      // Build conversation history for Claude context
-      final history = _buildHistory();
-      final userMessage =
-          '$history\n\nUser just said: "$transcribed"\n\nRespond ONLY with JSON.';
-
-      final raw = await _claude.complete(
-        systemPrompt: state.scenario.systemPrompt,
-        userMessage: userMessage,
-        maxTokens: 512,
+      final response = await _service.evaluate(
+        scenarioContext: state.scenario.systemPrompt,
+        conversationHistory: _buildHistory(),
+        userMessage: transcribed,
       );
 
-      final response = _parseResponse(raw);
-
-      // Append user turn to history
       final userTurn = ScenarioTurn(
         speaker: TurnSpeaker.user,
         textEn: transcribed,
-        feedbackEs: response.feedbackEs,
-        isAcceptable: response.isAcceptable,
+        feedbackColor: response.feedbackColor,
+        isAcceptable: response.feedbackColor != 'red',
       );
-
       final newTurns = [...state.turns, userTurn];
 
-      if (response.isComplete) {
-        // Append final AI goodbye turn then complete
+      final newFailed = response.feedbackColor == 'green'
+          ? 0
+          : state.failedAttempts + 1;
+
+      if (response.isConversationFinished) {
         final finalAiTurn = ScenarioTurn(
           speaker: TurnSpeaker.ai,
-          textEn: response.nextLineEn,
-          hintEs: '',
+          textEn: response.aiSpokenReply,
         );
         _awardCompletion();
         state = state.copyWith(
           status: SimuladorStatus.complete,
           turns: [...newTurns, finalAiTurn],
-          feedbackEs: response.feedbackEs,
-          isAcceptable: response.isAcceptable,
-          currentAiLineEn: response.nextLineEn,
-          currentHintEs: '',
+          feedbackColor: response.feedbackColor,
+          currentAiLineEn: response.aiSpokenReply,
+          currentHintEs: response.hintEs,
+          failedAttempts: 0,
         );
       } else {
         state = state.copyWith(
           status: SimuladorStatus.feedback,
           turns: newTurns,
-          feedbackEs: response.feedbackEs,
-          isAcceptable: response.isAcceptable,
-          currentAiLineEn: response.nextLineEn,
-          currentHintEs: response.nextHintEs,
+          feedbackColor: response.feedbackColor,
+          currentAiLineEn: response.aiSpokenReply,
+          currentHintEs: response.hintEs,
           turnCount: state.turnCount + 1,
+          failedAttempts: newFailed,
         );
       }
     } catch (_) {
@@ -251,21 +269,17 @@ class SimuladorNotifier extends StateNotifier<SimuladorState> {
 
   // ── After feedback — advance to next AI turn ──────────────────────────────
 
-  /// Called when user taps "Continuar" after feedback or retries after error.
   void advanceToNextAiTurn() {
     if (state.status != SimuladorStatus.feedback) return;
 
-    // Append the pending AI turn to history
     final aiTurn = ScenarioTurn(
       speaker: TurnSpeaker.ai,
       textEn: state.currentAiLineEn,
       hintEs: state.currentHintEs,
     );
-    final newTurns = [...state.turns, aiTurn];
-
     state = state.copyWith(
       status: SimuladorStatus.aiSpeaking,
-      turns: newTurns,
+      turns: [...state.turns, aiTurn],
       userTranscription: '',
     );
   }
@@ -279,11 +293,44 @@ class SimuladorNotifier extends StateNotifier<SimuladorState> {
     );
   }
 
+  /// Skips the current user turn after repeated failures.
+  /// Adds a "[Saltado]" user turn and repeats the AI's last line.
+  void skipTurn() {
+    const userSkipTurn = ScenarioTurn(
+      speaker: TurnSpeaker.user,
+      textEn: '[Saltado]',
+      feedbackColor: 'amber',
+    );
+    final aiTurn = ScenarioTurn(
+      speaker: TurnSpeaker.ai,
+      textEn: state.currentAiLineEn,
+      hintEs: state.currentHintEs,
+    );
+    state = state.copyWith(
+      status: SimuladorStatus.aiSpeaking,
+      turns: [...state.turns, userSkipTurn, aiTurn],
+      userTranscription: '',
+      failedAttempts: 0,
+    );
+  }
+
   // ── Completion ────────────────────────────────────────────────────────────
 
   void _awardCompletion() {
-    _ref.read(xpProvider.notifier).addXp(15);
-    _ref.read(streakProvider.notifier).recordPractice();
+    // XP + recordPractice moved to ReportCardScreen (awarded on claim tap).
+
+    // If launched from a PathLesson, mark that lesson complete in Hive.
+    final lessonId = state.scenario.sourceLessonId;
+    if (lessonId != null) {
+      final box = _ref.read(lessonProgressBoxProvider);
+      box.put(
+        lessonId,
+        const LessonProgress(completed: true, voiceScore: 0, feedbackEs: ''),
+      );
+      _ref.invalidate(lessonProgressProvider(lessonId));
+      _ref.invalidate(completedLessonIdsProvider);
+      _ref.invalidate(completedLessonCountProvider);
+    }
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -300,34 +347,9 @@ class SimuladorNotifier extends StateNotifier<SimuladorState> {
     return buffer.toString();
   }
 
-  _ClaudeResponse _parseResponse(String raw) {
-    try {
-      final cleaned = raw
-          .replaceAll(RegExp(r'```json\s*'), '')
-          .replaceAll(RegExp(r'```\s*'), '')
-          .trim();
-      final json = jsonDecode(cleaned) as Map<String, dynamic>;
-      return _ClaudeResponse(
-        isAcceptable: (json['is_acceptable'] as bool?) ?? true,
-        feedbackEs: (json['feedback_es'] as String?) ?? '¡Bien hecho!',
-        nextLineEn: (json['next_line_en'] as String?) ?? '',
-        nextHintEs: (json['next_hint_es'] as String?) ?? '',
-        isComplete: (json['is_complete'] as bool?) ?? false,
-      );
-    } catch (_) {
-      return const _ClaudeResponse(
-        isAcceptable: true,
-        feedbackEs: '¡Buen intento! Sigue practicando.',
-        nextLineEn: 'Thank you. Can you tell me more?',
-        nextHintEs: 'Intenta responder la pregunta en inglés.',
-        isComplete: false,
-      );
-    }
-  }
-
   @override
   void dispose() {
-    _stt.stop();
+    _stt.cancel();
     super.dispose();
   }
 }
@@ -339,6 +361,7 @@ final simuladorProvider = StateNotifierProvider.autoDispose
   return SimuladorNotifier(
     scenario: scenario,
     connectivity: ref.watch(connectivityServiceProvider),
+    service: ref.watch(simulatorServiceProvider),
     ref: ref,
   );
 });

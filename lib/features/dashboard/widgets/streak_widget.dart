@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/providers/gamification_controller.dart';
 import '../../../core/providers/streak_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_strings.dart';
@@ -13,7 +14,7 @@ class StreakWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final streak = ref.watch(streakProvider);
-    final notifier = ref.read(streakProvider.notifier);
+    final isMissedDay = ref.watch(gamificationProvider).isMissedDay;
     final bodySize = isSenior ? AppFontSizes.bodyLarge : AppFontSizes.body;
 
     if (streak == null || streak.currentStreak == 0) {
@@ -29,7 +30,7 @@ class StreakWidget extends ConsumerWidget {
       );
     }
 
-    if (notifier.isMissedDay) {
+    if (isMissedDay) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(

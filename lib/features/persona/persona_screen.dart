@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/providers/onboarding_controller.dart';
 import '../../core/providers/persona_provider.dart';
-import '../../core/providers/user_name_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/glass_container.dart';
 import '../../l10n/app_strings.dart';
 import '../placement/placement_screen.dart';
 
@@ -26,9 +27,10 @@ class _PersonaScreenState extends ConsumerState<PersonaScreen> {
 
   void _onContinue() {
     if (_selected == null) return;
-    final name = _nameController.text.trim();
-    ref.read(userNameProvider.notifier).setName(name);
-    ref.read(personaProvider.notifier).setPersona(_selected!);
+    final notifier = ref.read(onboardingProvider.notifier);
+    notifier.setPersona(_selected!);
+    notifier.setName(_nameController.text.trim());
+    notifier.savePersonaAndName();
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => const PlacementScreen()),
     );
@@ -41,66 +43,39 @@ class _PersonaScreenState extends ConsumerState<PersonaScreen> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: AppColors.cream,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildLogo(isSenior),
-                const SizedBox(height: 32),
-                _buildHeader(isSenior),
-                const SizedBox(height: 28),
-                _buildPersonaCards(isSenior),
-                const SizedBox(height: 32),
-                _buildNameField(isSenior),
-                const SizedBox(height: 24),
-                _buildContinueButton(isSenior),
-                const SizedBox(height: 24),
+        backgroundColor: AppColors.glassGradientStart,
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                AppColors.glassGradientStart,
+                AppColors.glassGradientMid,
+                AppColors.glassGradientEnd,
               ],
+            ),
+          ),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(isSenior),
+                  const SizedBox(height: 28),
+                  _buildPersonaCards(isSenior),
+                  const SizedBox(height: 32),
+                  _buildNameField(isSenior),
+                  const SizedBox(height: 24),
+                  _buildContinueButton(isSenior),
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildLogo(bool isSenior) {
-    return Column(
-      children: [
-        Container(
-          width: 88,
-          height: 88,
-          decoration: BoxDecoration(
-            color: AppColors.terracotta,
-            borderRadius: BorderRadius.circular(22),
-            boxShadow: const [
-              BoxShadow(
-                color: AppColors.shadow,
-                blurRadius: 16,
-                offset: Offset(0, 6),
-              ),
-            ],
-          ),
-          child: const Center(
-            child: Text('🌉', style: TextStyle(fontSize: 48)),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          AppStrings.appName,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: isSenior
-                ? AppFontSizes.headlineLarge
-                : AppFontSizes.headline,
-            fontWeight: FontWeight.w800,
-            color: AppColors.terracotta,
-            letterSpacing: -0.5,
-          ),
-        ),
-      ],
     );
   }
 
@@ -113,7 +88,7 @@ class _PersonaScreenState extends ConsumerState<PersonaScreen> {
           style: TextStyle(
             fontSize: isSenior ? AppFontSizes.titleLarge : AppFontSizes.title,
             fontWeight: FontWeight.w800,
-            color: AppColors.darkText,
+            color: AppColors.glassText,
           ),
         ),
         const SizedBox(height: 6),
@@ -124,7 +99,7 @@ class _PersonaScreenState extends ConsumerState<PersonaScreen> {
             fontSize: isSenior
                 ? AppFontSizes.bodyLarge - 2
                 : AppFontSizes.body - 2,
-            color: AppColors.darkText.withValues(alpha: 0.6),
+            color: AppColors.glassTextMuted,
           ),
         ),
       ],
@@ -184,37 +159,37 @@ class _PersonaScreenState extends ConsumerState<PersonaScreen> {
           style: TextStyle(
             fontSize: bodySize,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkText,
+            color: AppColors.glassText,
           ),
         ),
         const SizedBox(height: 10),
         TextField(
           controller: _nameController,
-          style: TextStyle(fontSize: bodySize),
+          style: TextStyle(fontSize: bodySize, color: AppColors.glassText),
           decoration: InputDecoration(
             hintText: AppStrings.personaNameHintEs,
             hintStyle: TextStyle(
               fontSize: bodySize,
-              color: AppColors.darkText.withValues(alpha: 0.4),
+              color: AppColors.glassTextMuted,
             ),
             filled: true,
-            fillColor: AppColors.cardBackground,
+            fillColor: AppColors.glassSurface,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 18,
               vertical: 16,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: AppColors.unselectedBorder),
+              borderSide: BorderSide(color: AppColors.glassBorder),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: AppColors.unselectedBorder),
+              borderSide: BorderSide(color: AppColors.glassBorder),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide:
-                  const BorderSide(color: AppColors.terracotta, width: 2),
+                  const BorderSide(color: AppColors.glowTerracotta, width: 2),
             ),
           ),
         ),
@@ -228,31 +203,44 @@ class _PersonaScreenState extends ConsumerState<PersonaScreen> {
     final textSize =
         isSenior ? AppFontSizes.subtitleLarge : AppFontSizes.subtitle;
 
-    return SizedBox(
-      height: buttonHeight,
-      child: ElevatedButton(
-        onPressed: hasSelection ? _onContinue : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor:
-              hasSelection ? AppColors.terracotta : AppColors.unselectedBorder,
-          foregroundColor: AppColors.lightText,
-          disabledBackgroundColor: AppColors.unselectedBorder,
-          disabledForegroundColor:
-              AppColors.lightText.withValues(alpha: 0.6),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: hasSelection
+            ? [
+                BoxShadow(
+                  color: AppColors.glowTerracotta.withValues(alpha: 0.4),
+                  blurRadius: 20,
+                  spreadRadius: 2,
+                ),
+              ]
+            : [],
+      ),
+      child: SizedBox(
+        height: buttonHeight,
+        child: ElevatedButton(
+          onPressed: hasSelection ? _onContinue : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.glowTerracotta,
+            foregroundColor: AppColors.lightText,
+            disabledBackgroundColor:
+                AppColors.glowTerracotta.withValues(alpha: 0.35),
+            disabledForegroundColor: AppColors.lightText.withValues(alpha: 0.6),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            elevation: 0,
           ),
-          elevation: hasSelection ? 4 : 0,
-        ),
-        child: Text(
-          hasSelection
-              ? '${AppStrings.personaContinueEs}  •  ${AppStrings.personaContinueEn}'
-              : AppStrings.ctaSelectPersonaFirst,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: textSize,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.3,
+          child: Text(
+            hasSelection
+                ? '${AppStrings.personaContinueEs}  •  ${AppStrings.personaContinueEn}'
+                : AppStrings.ctaSelectPersonaFirst,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: textSize,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.3,
+            ),
           ),
         ),
       ),
@@ -296,76 +284,74 @@ class _PersonaCard extends StatelessWidget {
         scale: _isSelected ? 1.06 : 1.0,
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutBack,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
-          decoration: BoxDecoration(
-            color: _isSelected
-                ? AppColors.terracotta.withValues(alpha: 0.08)
-                : AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: _isSelected
-                  ? AppColors.terracotta
-                  : AppColors.unselectedBorder,
-              width: _isSelected ? 3 : 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: _isSelected
-                    ? AppColors.terracotta.withValues(alpha: 0.18)
-                    : AppColors.shadow,
-                blurRadius: _isSelected ? 14 : 6,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                emoji,
-                style: TextStyle(fontSize: isSenior ? 40 : 34),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: labelSize,
-                  fontWeight: FontWeight.w700,
-                  color: _isSelected
-                      ? AppColors.terracotta
-                      : AppColors.darkText,
+        child: Container(
+          decoration: _isSelected
+              ? BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.glowTerracotta.withValues(alpha: 0.4),
+                      blurRadius: 16,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                )
+              : null,
+          child: GlassContainer(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+            borderRadius: 18,
+            borderColor:
+                _isSelected ? AppColors.glowTerracotta : AppColors.glassBorder,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  emoji,
+                  style: TextStyle(fontSize: isSenior ? 40 : 34),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                sublabel,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: sublabelSize,
-                  color: AppColors.darkText.withValues(alpha: 0.55),
-                ),
-              ),
-              if (_isSelected) ...[
                 const SizedBox(height: 10),
-                Container(
-                  width: 28,
-                  height: 28,
-                  decoration: const BoxDecoration(
-                    color: AppColors.terracotta,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.check,
-                    color: AppColors.lightText,
-                    size: 18,
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: labelSize,
+                    fontWeight: FontWeight.w700,
+                    color: _isSelected
+                        ? AppColors.glowTerracotta
+                        : AppColors.glassText,
                   ),
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  sublabel,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: sublabelSize,
+                    color: AppColors.glassTextMuted,
+                  ),
+                ),
+                if (_isSelected) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: AppColors.glowTerracotta,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      color: AppColors.lightText,
+                      size: 18,
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

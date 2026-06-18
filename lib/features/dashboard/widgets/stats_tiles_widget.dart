@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/providers/gamification_controller.dart';
 import '../../../core/providers/streak_provider.dart';
 import '../../../core/providers/vocab_provider.dart';
 import '../../../core/providers/xp_provider.dart';
@@ -16,6 +17,7 @@ class StatsTilesWidget extends ConsumerWidget {
     final xp = ref.watch(xpProvider);
     final streak = ref.watch(streakProvider);
     final vocabStats = ref.watch(vocabStatsProvider);
+    final gamification = ref.watch(gamificationProvider);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -51,7 +53,7 @@ class StatsTilesWidget extends ConsumerWidget {
                 _StatTile(
                   icon: Icons.emoji_events,
                   value: '${xp.level}',
-                  label: AppStrings.glassStatsLevelEs,
+                  label: gamification.levelTitle,
                 ),
               ],
             ),
@@ -86,7 +88,7 @@ class _StatTile extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: AppFontSizes.title,
               fontWeight: FontWeight.w800,
               color: AppColors.glassText,
@@ -95,11 +97,13 @@ class _StatTile extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 13,
+            style: TextStyle(
+              fontSize: 14,
               color: AppColors.glassTextMuted,
             ),
             textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
           ),
         ],
       ),

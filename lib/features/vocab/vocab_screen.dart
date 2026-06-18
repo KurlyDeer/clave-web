@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/models/vocab_word_model.dart';
 import '../../core/providers/persona_provider.dart';
-import '../../core/providers/tts_provider.dart';
+import '../../core/providers/audio_provider.dart';
 import '../../core/providers/vocab_provider.dart';
-import '../../core/services/tts_service.dart';
+import '../../core/services/audio_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../../l10n/app_strings.dart';
 
@@ -81,7 +81,7 @@ class _VocabScreenState extends ConsumerState<VocabScreen> {
     final isSenior = persona?.isSeniorMode ?? false;
     final allWords = ref.watch(vocabProvider);
     final stats = ref.watch(vocabStatsProvider);
-    final tts = ref.read(ttsServiceProvider);
+    final tts = ref.read(audioServiceProvider);
 
     Widget body;
     if (allWords.isEmpty) {
@@ -148,7 +148,7 @@ class _StudyView extends StatelessWidget {
   final ({int known, int total}) stats;
   final bool isSenior;
   final bool isFlipped;
-  final TtsService tts;
+  final AudioService tts;
   final VoidCallback onFlipped;
   final VoidCallback onKnow;
   final VoidCallback onRepeat;
@@ -292,7 +292,7 @@ class _StudyView extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16 + MediaQuery.of(context).padding.bottom),
         ],
       ),
     );
@@ -312,7 +312,7 @@ class _FlashCard extends StatefulWidget {
 
   final VocabWord word;
   final bool isSenior;
-  final TtsService tts;
+  final AudioService tts;
   final VoidCallback onFlipped;
 
   @override
@@ -397,14 +397,14 @@ class _CardFace extends StatelessWidget {
   factory _CardFace.back({
     required VocabWord word,
     required bool isSenior,
-    required TtsService tts,
+    required AudioService tts,
   }) =>
       _CardFace._(isFront: false, word: word, isSenior: isSenior, tts: tts);
 
   final bool isFront;
   final VocabWord word;
   final bool isSenior;
-  final TtsService? tts;
+  final AudioService? tts;
 
   // Abuelo: high-contrast terracotta back; default: deepBlue back.
   Color get _backColor =>

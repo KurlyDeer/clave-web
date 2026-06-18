@@ -3,8 +3,10 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  cloud_firestore
   connectivity_plus
-  flutter_tts
+  firebase_auth
+  firebase_core
   printing
   share_plus
   speech_to_text_windows

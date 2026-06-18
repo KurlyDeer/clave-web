@@ -17,6 +17,7 @@ const List<ScenarioData> kScenarios = [
     openingLineEn: 'Good morning! How are you feeling today?',
     openingHintEs: 'Saluda y dile cómo estás. Por ejemplo: "Good morning, doctor. I feel..."',
     expectedTurns: 6,
+    targetGoalEs: 'Describir tus síntomas al médico',
     systemPrompt: '''
 You are Dr. Martinez, a friendly bilingual doctor speaking with an elderly Hispanic patient who is learning English.
 
@@ -47,6 +48,7 @@ RULES:
     openingLineEn: 'Hello! Can I help you today?',
     openingHintEs: 'Dile que necesitas recoger tu medicina. Di: "Yes, I need to pick up..."',
     expectedTurns: 5,
+    targetGoalEs: 'Pedir y entender instrucciones de medicamentos',
     systemPrompt: '''
 You are Pharmacist Maria, a patient and friendly pharmacist speaking with an elderly Hispanic customer learning English.
 
@@ -79,6 +81,7 @@ RULES:
     openingLineEn: 'Welcome to class! What is your name?',
     openingHintEs: 'Di tu nombre. Por ejemplo: "My name is..." o simplemente tu nombre.',
     expectedTurns: 6,
+    targetGoalEs: 'Presentarte con tu maestra',
     systemPrompt: '''
 You are Mrs. Johnson, a warm and encouraging elementary school teacher speaking with a new Hispanic student who is learning English.
 
@@ -110,6 +113,7 @@ RULES:
     openingLineEn: 'Hi there! Are you looking for a book today?',
     openingHintEs: 'Dile que sí y qué tipo de libro quieres. Di: "Yes! I want a book about..."',
     expectedTurns: 5,
+    targetGoalEs: 'Pedir un libro en la biblioteca',
     systemPrompt: '''
 You are Mr. Chen, a kind and enthusiastic school librarian speaking with a young Hispanic student learning English.
 
@@ -143,6 +147,7 @@ RULES:
     openingLineEn: "Hi, thanks for coming in. So, tell me — do you have construction experience?",
     openingHintEs: 'Dile tu experiencia. Di: "Yes, I have experience in..." y menciona lo que sabes hacer.',
     expectedTurns: 7,
+    targetGoalEs: 'Pasar una entrevista de trabajo',
     systemPrompt: '''
 You are Steve, a no-nonsense but fair construction foreman interviewing a Hispanic worker for a job on his crew.
 
@@ -173,6 +178,7 @@ RULES:
     openingLineEn: 'Good afternoon! How can I assist you today?',
     openingHintEs: 'Dile que quieres abrir una cuenta. Di: "I would like to open an account..."',
     expectedTurns: 6,
+    targetGoalEs: 'Abrir tu primera cuenta bancaria',
     systemPrompt: '''
 You are Lisa, a professional and patient bank teller helping a Hispanic customer open a bank account for the first time.
 

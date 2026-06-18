@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 // ── Slide types ───────────────────────────────────────────────────────────────
 
-enum SlideType { vocab, phrase, quiz }
+enum SlideType { vocab, phrase, quiz, grammarFlip, libroPrompt }
 
 // ── LessonSlide ───────────────────────────────────────────────────────────────
 
@@ -22,7 +22,7 @@ class LessonSlide {
   final String contentEs;
   final String? exampleEn;
   final String? exampleEs;
-  final List<String>? options; // quiz only — 4 items
+  final List<String>? options; // quiz: 4 answer choices; grammarFlip: shuffled words
   final int? correctIndex; // quiz only — 0–3
 }
 
@@ -51,13 +51,21 @@ class PersonaContent {
 class LessonData {
   const LessonData({
     required this.id,
+    required this.tierId,
+    required this.categoryId,
+    required this.order,
     required this.level,
     required this.content,
+    this.isPlaceholder = false,
   });
 
-  final int id; // 1–10
-  final String level; // 'Básico' | 'Intermedio' | 'Avanzado'
+  final String id;        // composite: "tier.category.order", e.g. "principiante.saludos.1"
+  final String tierId;    // e.g. "principiante"
+  final String categoryId;// e.g. "saludos"
+  final int order;        // position within category: 1, 2, 3…
+  final String level;     // 'Básico' | 'Intermedio' | 'Avanzado'
   final Map<String, PersonaContent> content; // keys: 'nino', 'adulto', 'abuelo'
+  final bool isPlaceholder; // true = "próximamente" lesson with no real content
 
   PersonaContent forPersona(String key) =>
       content[key] ?? content['adulto']!;

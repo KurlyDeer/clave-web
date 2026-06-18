@@ -9,11 +9,11 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../core/models/book_page_model.dart';
 import '../../core/providers/persona_provider.dart';
-import '../../core/providers/streak_provider.dart';
+import '../../core/providers/gamification_controller.dart';
 import '../../core/providers/user_name_provider.dart';
-import '../../core/providers/xp_provider.dart';
 import '../../core/services/book_pdf_service.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/glass_container.dart';
 import '../../l10n/app_strings.dart';
 import 'publish_success_screen.dart';
 
@@ -107,6 +107,7 @@ class _PublishScreenState extends ConsumerState<PublishScreen> {
       });
 
       final tempDir = await getTemporaryDirectory();
+      if (!mounted) return;
       final file = File(
         '${tempDir.path}/${_titleCtrl.text.trim().replaceAll(' ', '_')}.pdf',
       );
@@ -123,8 +124,8 @@ class _PublishScreenState extends ConsumerState<PublishScreen> {
   }
 
   void _onSuccess() {
-    ref.read(xpProvider.notifier).addXp(20);
-    ref.read(streakProvider.notifier).recordPractice();
+    ref.read(gamificationProvider.notifier).addXp(20);
+    ref.read(gamificationProvider.notifier).recordPractice();
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
         builder: (_) => const PublishSuccessScreen(),
@@ -141,177 +142,236 @@ class _PublishScreenState extends ConsumerState<PublishScreen> {
     final buttonHeight = isSenior ? 72.0 : 60.0;
 
     return Scaffold(
-      backgroundColor: AppColors.cream,
-      appBar: AppBar(
-        backgroundColor: AppColors.deepBlue,
-        foregroundColor: Colors.white,
-        title: Text(
-          '${AppStrings.publishTitleEs}  •  ${AppStrings.publishTitleEn}',
-          style: TextStyle(
-            fontSize: isSenior ? AppFontSizes.subtitleLarge : AppFontSizes.body,
-            fontWeight: FontWeight.w700,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.glassGradientStart,
+              AppColors.glassGradientMid,
+              AppColors.glassGradientEnd,
+            ],
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+        child: SafeArea(
+          bottom: false,
+          child: _status == _PublishStatus.generating
+              ? _GeneratingView(bodySize: bodySize)
+              : Column(
+                  children: [
+                    // ── Top bar ────────────────────────────────────────────
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 4, 16, 0),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              color: AppColors.glassText,
+                            ),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                          Expanded(
+                            child: Text(
+                              '${AppStrings.publishTitleEs}  •  ${AppStrings.publishTitleEn}',
+                              style: TextStyle(
+                                fontSize: isSenior
+                                    ? AppFontSizes.subtitleLarge
+                                    : AppFontSizes.body,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.glassText,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Stats card
+                            _StatsCard(
+                              pageCount: widget.pages.length,
+                              chapterCount: _chapterCount,
+                              isSenior: isSenior,
+                              bodySize: bodySize,
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Title field label
+                            Text(
+                              AppStrings.publishBookTitleLabelEs,
+                              style: TextStyle(
+                                fontSize: bodySize,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.glassText,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            TextField(
+                              controller: _titleCtrl,
+                              style: TextStyle(
+                                fontSize: bodySize,
+                                color: AppColors.glassText,
+                              ),
+                              cursorColor: AppColors.glowTerracotta,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: AppColors.glassSurface,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: AppColors.glassBorder,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: AppColors.glassBorder,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: AppColors.glowTerracotta,
+                                    width: 2,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+
+                            // Section title
+                            Text(
+                              AppStrings.publishStatsCardTitleEs,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: titleSize,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.glassText,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '📚',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: isSenior ? 60.0 : 48.0,
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+
+                            // Preview button
+                            GestureDetector(
+                              onTap: _openPreview,
+                              child: GlassContainer(
+                                padding: EdgeInsets.zero,
+                                child: SizedBox(
+                                  height: buttonHeight,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.visibility_outlined,
+                                        color: AppColors.glassText,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        AppStrings.publishPreviewEs,
+                                        style: TextStyle(
+                                          fontSize: bodySize,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.glassText,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Download button
+                            GestureDetector(
+                              onTap: _download,
+                              child: GlassContainer(
+                                backgroundColor:
+                                    AppColors.deepBlue.withValues(alpha: 0.6),
+                                borderColor: AppColors.deepBlue,
+                                padding: EdgeInsets.zero,
+                                child: SizedBox(
+                                  height: buttonHeight,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.download_rounded,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        AppStrings.publishDownloadEs,
+                                        style: TextStyle(
+                                          fontSize: bodySize,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Share button
+                            GestureDetector(
+                              onTap: _share,
+                              child: GlassContainer(
+                                backgroundColor:
+                                    AppColors.glowTerracotta.withValues(alpha: 0.7),
+                                borderColor: AppColors.glowTerracotta,
+                                padding: EdgeInsets.zero,
+                                child: SizedBox(
+                                  height: buttonHeight,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.share_rounded,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        AppStrings.publishShareEs,
+                                        style: TextStyle(
+                                          fontSize: bodySize,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
-      body: _status == _PublishStatus.generating
-          ? _GeneratingView(bodySize: bodySize)
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Stats card
-                  _StatsCard(
-                    pageCount: widget.pages.length,
-                    chapterCount: _chapterCount,
-                    isSenior: isSenior,
-                    bodySize: bodySize,
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Title field
-                  Text(
-                    AppStrings.publishBookTitleLabelEs,
-                    style: TextStyle(
-                      fontSize: bodySize,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.darkText,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: _titleCtrl,
-                    style: TextStyle(
-                      fontSize: bodySize,
-                      color: AppColors.darkText,
-                    ),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: AppColors.unselectedBorder,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: AppColors.deepBlue,
-                          width: 2,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Title
-                  Text(
-                    AppStrings.publishStatsCardTitleEs,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: titleSize,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.darkText,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '📚',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: isSenior ? 60.0 : 48.0,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Preview button
-                  SizedBox(
-                    height: buttonHeight,
-                    child: OutlinedButton.icon(
-                      onPressed: _openPreview,
-                      icon: const Icon(Icons.visibility_outlined),
-                      label: Text(
-                        AppStrings.publishPreviewEs,
-                        style: TextStyle(
-                          fontSize: bodySize,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.deepBlue,
-                        side: const BorderSide(
-                          color: AppColors.deepBlue,
-                          width: 2,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Download button
-                  SizedBox(
-                    height: buttonHeight,
-                    child: ElevatedButton.icon(
-                      onPressed: _download,
-                      icon: const Icon(Icons.download_rounded),
-                      label: Text(
-                        AppStrings.publishDownloadEs,
-                        style: TextStyle(
-                          fontSize: bodySize,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.deepBlue,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 4,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Share button
-                  SizedBox(
-                    height: buttonHeight,
-                    child: ElevatedButton.icon(
-                      onPressed: _share,
-                      icon: const Icon(Icons.share_rounded),
-                      label: Text(
-                        AppStrings.publishShareEs,
-                        style: TextStyle(
-                          fontSize: bodySize,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.terracotta,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 4,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                ],
-              ),
-            ),
     );
   }
 }
@@ -332,7 +392,7 @@ class _GeneratingView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const CircularProgressIndicator(
-              color: AppColors.terracotta,
+              color: AppColors.glowTerracotta,
               strokeWidth: 4,
             ),
             const SizedBox(height: 24),
@@ -342,7 +402,7 @@ class _GeneratingView extends StatelessWidget {
               style: TextStyle(
                 fontSize: bodySize,
                 fontWeight: FontWeight.w600,
-                color: AppColors.darkText,
+                color: AppColors.glassText,
               ),
             ),
           ],
@@ -369,20 +429,9 @@ class _StatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GlassContainer(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.terracotta.withValues(alpha: 0.4)),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColors.shadow,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
+      borderColor: AppColors.glowTerracotta,
       child: Row(
         children: [
           _StatItem(
@@ -394,7 +443,7 @@ class _StatsCard extends StatelessWidget {
           Container(
             width: 1,
             height: 40,
-            color: AppColors.unselectedBorder,
+            color: AppColors.glassBorder,
             margin: const EdgeInsets.symmetric(horizontal: 20),
           ),
           _StatItem(
@@ -427,21 +476,21 @@ class _StatItem extends StatelessWidget {
     return Expanded(
       child: Column(
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 28)),
+          Text(emoji, style: TextStyle(fontSize: 28)),
           const SizedBox(height: 4),
           Text(
             '$count',
             style: TextStyle(
               fontSize: bodySize + 4,
               fontWeight: FontWeight.w900,
-              color: AppColors.terracotta,
+              color: AppColors.glowTerracotta,
             ),
           ),
           Text(
             label,
             style: TextStyle(
               fontSize: bodySize - 2,
-              color: AppColors.darkText.withValues(alpha: 0.6),
+              color: AppColors.glassTextMuted,
             ),
           ),
         ],

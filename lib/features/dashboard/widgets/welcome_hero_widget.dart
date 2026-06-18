@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/next_step_provider.dart';
 import '../../../core/providers/persona_provider.dart';
+import '../../../core/providers/streak_provider.dart';
 import '../../../core/providers/user_name_provider.dart';
 import '../../../core/providers/xp_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_container.dart';
+import '../../profile/profile_screen.dart';
 
 class WelcomeHeroWidget extends ConsumerWidget {
   const WelcomeHeroWidget({super.key});
@@ -18,6 +20,8 @@ class WelcomeHeroWidget extends ConsumerWidget {
     final name = ref.watch(userNameProvider);
     final nextStep = ref.watch(nextStepProvider);
     final xp = ref.watch(xpProvider);
+    final streak = ref.watch(streakProvider);
+    final currentStreak = streak?.currentStreak ?? 0;
 
     final headlineSize =
         isSenior ? AppFontSizes.headlineLarge : AppFontSizes.headline;
@@ -58,8 +62,65 @@ class WelcomeHeroWidget extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: 12),
-          // XP frosted-glass badge — top right of dashboard
-          _XpBadge(totalXp: xp.totalXp, isSenior: isSenior),
+          // Two stat pills + gear icon — top right of dashboard
+          Column(
+            children: [
+              // Gear icon → Settings
+              GestureDetector(
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const ProfileScreen(),
+                  ),
+                ),
+                child: GlassContainer(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    Icons.settings_outlined,
+                    color: AppColors.glassText,
+                    size: isSenior ? 24 : 20,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              _StreakPill(currentStreak: currentStreak, isSenior: isSenior),
+              const SizedBox(height: 8),
+              _XpBadge(totalXp: xp.totalXp, isSenior: isSenior),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Streak Pill ───────────────────────────────────────────────────────────────
+
+class _StreakPill extends StatelessWidget {
+  const _StreakPill({required this.currentStreak, required this.isSenior});
+
+  final int currentStreak;
+  final bool isSenior;
+
+  @override
+  Widget build(BuildContext context) {
+    final fontSize = isSenior ? 16.0 : 13.0;
+    final iconSize = isSenior ? 20.0 : 16.0;
+
+    return GlassContainer(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.local_fire_department, color: Colors.orange, size: iconSize),
+          const SizedBox(width: 4),
+          Text(
+            '${currentStreak}d',
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w700,
+              color: AppColors.glassText,
+            ),
+          ),
         ],
       ),
     );

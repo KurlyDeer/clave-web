@@ -11,6 +11,13 @@ class ApiConfig {
   static const String anthropicVersion = '2023-06-01';
   static const Duration timeout = Duration(seconds: 30);
 
+  // ── OpenAI TTS ─────────────────────────────────────────────────────────────
+  // TODO: Move to server-side proxy before release.
+  static const String openAiApiKey = 'YOUR_OPENAI_API_KEY_HERE';
+  static const String openAiTtsUrl = 'https://api.openai.com/v1/audio/speech';
+  static const String openAiTtsModel = 'tts-1';
+  static const Duration ttsTimeout = Duration(seconds: 15);
+
   static const String rcApiKeyIos     = 'REVENUECAT_IOS_KEY';
   static const String rcApiKeyAndroid = 'REVENUECAT_ANDROID_KEY';
 }

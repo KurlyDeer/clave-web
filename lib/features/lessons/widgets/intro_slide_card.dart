@@ -12,7 +12,7 @@ class IntroSlideCard extends StatelessWidget {
   });
 
   final PersonaContent content;
-  final int lessonId;
+  final String lessonId;
   final bool isSenior;
 
   @override

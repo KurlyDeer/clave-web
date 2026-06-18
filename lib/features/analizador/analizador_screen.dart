@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 
+import '../../core/data/analizador_data.dart';
+import '../../core/models/voice_analysis_model.dart';
 import '../../core/providers/analizador_provider.dart';
+import '../../core/providers/audio_provider.dart';
 import '../../core/providers/persona_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/glass_container.dart';
+import '../../core/widgets/stt_low_confidence_tooltip.dart';
 import '../../l10n/app_strings.dart';
-import '../sos/widgets/mic_hold_button.dart';
+import '../simulador/widgets/glass_mic_button.dart';
 import 'widgets/abuelo_feedback.dart';
 import 'widgets/coaching_tip_card.dart';
 import 'widgets/feedback_heatmap.dart';
@@ -20,50 +24,17 @@ class AnalizadorScreen extends ConsumerStatefulWidget {
 }
 
 class _AnalizadorScreenState extends ConsumerState<AnalizadorScreen> {
-  // Sound levels are kept in local state to allow high-frequency waveform
-  // updates without triggering expensive provider rebuilds.
+  // Sound levels kept local to allow high-frequency waveform updates without
+  // triggering expensive provider rebuilds.
   final List<double> _soundLevels = [];
 
-  // Dedicated TTS instance for this screen — allows rate adjustment
-  final FlutterTts _tts = FlutterTts();
-  static const double _normalRate = 0.45;
-  static const double _slowRate = 0.32; // ~0.75× of normal
-
-  @override
-  void initState() {
-    super.initState();
-    _initTts();
-  }
-
-  Future<void> _initTts() async {
-    await _tts.setLanguage('en-US');
-    await _tts.setVolume(1.0);
-    await _tts.setPitch(1.0);
-    await _tts.setSpeechRate(_normalRate);
-  }
-
-  @override
-  void dispose() {
-    _tts.stop();
-    super.dispose();
-  }
-
-  // ── TTS helpers ─────────────────────────────────────────────────────────────
-
   Future<void> _speakNormal(String text) async {
-    await _tts.setSpeechRate(_normalRate);
-    await _tts.stop();
-    await _tts.speak(text);
+    await ref.read(audioServiceProvider).speak(text, speed: 1.0);
   }
 
-  /// Speaks at 0.75× speed — designed for Abuelo mode "Escuchar de nuevo".
   Future<void> _speakSlow(String text) async {
-    await _tts.setSpeechRate(_slowRate);
-    await _tts.stop();
-    await _tts.speak(text);
+    await ref.read(audioServiceProvider).speak(text, speed: 0.7);
   }
-
-  // ── Sound level handler ──────────────────────────────────────────────────────
 
   void _onSoundLevel(double level) {
     if (!mounted) return;
@@ -74,8 +45,6 @@ class _AnalizadorScreenState extends ConsumerState<AnalizadorScreen> {
   }
 
   void _clearLevels() => setState(() => _soundLevels.clear());
-
-  // ── Recording actions ────────────────────────────────────────────────────────
 
   void _startRecording() {
     _clearLevels();
@@ -105,81 +74,114 @@ class _AnalizadorScreenState extends ConsumerState<AnalizadorScreen> {
     final isRecording = state.status == AnalizadorStatus.listening;
 
     return Scaffold(
-      backgroundColor: AppColors.cream,
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF8E3A59), // deep rose — unique identity
-        foregroundColor: Colors.white,
-        title: Text(
-          '${AppStrings.analizadorTitleEs}  •  ${AppStrings.analizadorTitleEn}',
-          style: TextStyle(
-            fontSize: isSenior ? AppFontSizes.subtitleLarge : AppFontSizes.body,
-            fontWeight: FontWeight.w700,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.glassGradientStart,
+              AppColors.glassGradientMid,
+              AppColors.glassGradientEnd,
+            ],
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            _tts.stop();
-            Navigator.of(context).pop();
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.volume_up_rounded),
-            tooltip: 'Escuchar',
-            onPressed: () => _speakNormal(sentence.en),
+        child: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              // ── Top bar ────────────────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 4, 16, 0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: AppColors.glassText,
+                      ),
+                      onPressed: () {
+                        ref.read(audioServiceProvider).stop();
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    Expanded(
+                      child: Text(
+                        '${AppStrings.analizadorTitleEs}  •  ${AppStrings.analizadorTitleEn}',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: isSenior
+                              ? AppFontSizes.subtitleLarge
+                              : AppFontSizes.subtitle,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.glassText,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // ── Scrollable content ─────────────────────────────────────────
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 40),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // ── Sentence nav ─────────────────────────────────────
+                      _SentenceNavRow(
+                        current: state.sentenceIndex + 1,
+                        total: state.totalSentences,
+                        difficulty: sentence.difficulty,
+                        isSenior: isSenior,
+                        onPrev: () {
+                          _clearLevels();
+                          ref.read(analizadorProvider.notifier).prevSentence();
+                        },
+                        onNext: () {
+                          _clearLevels();
+                          ref.read(analizadorProvider.notifier).nextSentence();
+                        },
+                      ),
+                      const SizedBox(height: 12),
+
+                      // ── Sentence card ────────────────────────────────────
+                      _SentenceCard(
+                        sentence: sentence,
+                        isSenior: isSenior,
+                        bodySize: bodySize,
+                        titleSize: titleSize,
+                        onListen: () => _speakNormal(sentence.en),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // ── Waveform (idle / listening states only) ──────────
+                      if (state.status == AnalizadorStatus.idle ||
+                          state.status == AnalizadorStatus.listening) ...[
+                        _WaveformSection(
+                          isActive: isRecording,
+                          levels: _soundLevels,
+                          isSenior: isSenior,
+                        ),
+                      ],
+
+                      // ── Status-driven body ────────────────────────────────
+                      _buildBody(
+                        state: state,
+                        persona: persona,
+                        isSenior: isSenior,
+                        bodySize: bodySize,
+                        buttonHeight: buttonHeight,
+                        isRecording: isRecording,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // ── Sentence navigation ──────────────────────────────────────────
-            _SentenceNavRow(
-              current: state.sentenceIndex + 1,
-              total: state.totalSentences,
-              difficulty: sentence.difficulty,
-              isSenior: isSenior,
-              onPrev: () {
-                _clearLevels();
-                ref.read(analizadorProvider.notifier).prevSentence();
-              },
-              onNext: () {
-                _clearLevels();
-                ref.read(analizadorProvider.notifier).nextSentence();
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // ── Target sentence card ─────────────────────────────────────────
-            _SentenceCard(
-              sentence: sentence,
-              isSenior: isSenior,
-              bodySize: bodySize,
-              titleSize: titleSize,
-              onListen: () => _speakNormal(sentence.en),
-            ),
-            const SizedBox(height: 24),
-
-            // ── Waveform ─────────────────────────────────────────────────────
-            _WaveformSection(
-              isActive: isRecording,
-              levels: _soundLevels,
-              isSenior: isSenior,
-            ),
-
-            // ── Body — changes based on status ───────────────────────────────
-            _buildBody(
-              state: state,
-              persona: persona,
-              isSenior: isSenior,
-              bodySize: bodySize,
-              buttonHeight: buttonHeight,
-              isRecording: isRecording,
-            ),
-          ],
         ),
       ),
     );
@@ -194,7 +196,7 @@ class _AnalizadorScreenState extends ConsumerState<AnalizadorScreen> {
     required bool isRecording,
   }) {
     switch (state.status) {
-      // ── Idle / Listening ───────────────────────────────────────────────────
+      // ── Idle / Listening ─────────────────────────────────────────────────
       case AnalizadorStatus.idle:
       case AnalizadorStatus.listening:
         return _RecordSection(
@@ -202,21 +204,19 @@ class _AnalizadorScreenState extends ConsumerState<AnalizadorScreen> {
           transcript: state.transcript,
           isSenior: isSenior,
           bodySize: bodySize,
-          buttonHeight: buttonHeight,
-          onStart: _startRecording,
-          onStop: _stopRecording,
+          onTapMic: isRecording ? _stopRecording : _startRecording,
+          sttLowConfidence: state.sttLowConfidence,
         );
 
-      // ── Analyzing ──────────────────────────────────────────────────────────
+      // ── Analyzing ────────────────────────────────────────────────────────
       case AnalizadorStatus.analyzing:
         return _AnalyzingSection(bodySize: bodySize);
 
-      // ── Claude result (heatmap) ────────────────────────────────────────────
+      // ── Claude result (heatmap) ──────────────────────────────────────────
       case AnalizadorStatus.result:
-        final result = state.analysisResult!;
         return _ResultSection(
           transcript: state.transcript,
-          result: result,
+          result: state.analysisResult!,
           isSenior: isSenior,
           bodySize: bodySize,
           buttonHeight: buttonHeight,
@@ -226,7 +226,7 @@ class _AnalizadorScreenState extends ConsumerState<AnalizadorScreen> {
           },
         );
 
-      // ── Abuelo result (thumbs) ─────────────────────────────────────────────
+      // ── Abuelo result (thumbs) ───────────────────────────────────────────
       case AnalizadorStatus.abueloResult:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -243,7 +243,7 @@ class _AnalizadorScreenState extends ConsumerState<AnalizadorScreen> {
           ],
         );
 
-      // ── Errors ─────────────────────────────────────────────────────────────
+      // ── Offline error ────────────────────────────────────────────────────
       case AnalizadorStatus.offlineError:
         return _ErrorSection(
           message: AppStrings.analizadorOfflineEs,
@@ -256,6 +256,7 @@ class _AnalizadorScreenState extends ConsumerState<AnalizadorScreen> {
           },
         );
 
+      // ── General error ────────────────────────────────────────────────────
       case AnalizadorStatus.error:
         return _ErrorSection(
           message: state.errorMessage.isNotEmpty
@@ -306,8 +307,8 @@ class _SentenceNavRow extends StatelessWidget {
       children: [
         IconButton(
           onPressed: onPrev,
-          icon: const Icon(Icons.chevron_left_rounded, size: 28),
-          color: AppColors.deepBlue,
+          icon: Icon(Icons.chevron_left_rounded, size: 28),
+          color: AppColors.glassText,
           tooltip: AppStrings.analizadorPrevSentenceEs,
         ),
         Expanded(
@@ -319,7 +320,7 @@ class _SentenceNavRow extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: fontSize,
-                  color: AppColors.darkText.withValues(alpha: 0.55),
+                  color: AppColors.glassTextMuted,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -330,7 +331,7 @@ class _SentenceNavRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: fontSize,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.terracotta,
+                  color: AppColors.glowTerracotta,
                 ),
               ),
             ],
@@ -338,8 +339,8 @@ class _SentenceNavRow extends StatelessWidget {
         ),
         IconButton(
           onPressed: onNext,
-          icon: const Icon(Icons.chevron_right_rounded, size: 28),
-          color: AppColors.deepBlue,
+          icon: Icon(Icons.chevron_right_rounded, size: 28),
+          color: AppColors.glassText,
           tooltip: AppStrings.analizadorNextSentenceEs,
         ),
       ],
@@ -358,7 +359,7 @@ class _SentenceCard extends StatelessWidget {
     required this.onListen,
   });
 
-  final dynamic sentence; // PracticeSentence
+  final PracticeSentence sentence;
   final bool isSenior;
   final double bodySize;
   final double titleSize;
@@ -366,19 +367,8 @@ class _SentenceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GlassContainer(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColors.shadow,
-            blurRadius: 10,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -387,7 +377,7 @@ class _SentenceCard extends StatelessWidget {
             AppStrings.analizadorSentenceLabelEs,
             style: TextStyle(
               fontSize: bodySize - 2,
-              color: AppColors.darkText.withValues(alpha: 0.55),
+              color: AppColors.glassTextMuted,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -398,17 +388,17 @@ class _SentenceCard extends StatelessWidget {
             style: TextStyle(
               fontSize: titleSize,
               fontWeight: FontWeight.w800,
-              color: AppColors.darkText,
+              color: AppColors.glassText,
               height: 1.3,
             ),
           ),
           const SizedBox(height: 8),
-          // Spanish meaning
+          // Spanish translation
           Text(
             sentence.es,
             style: TextStyle(
               fontSize: bodySize - 2,
-              color: AppColors.darkText.withValues(alpha: 0.55),
+              color: AppColors.glassTextMuted,
               fontStyle: FontStyle.italic,
             ),
           ),
@@ -417,40 +407,30 @@ class _SentenceCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Container(
+                child: GlassContainer(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColors.terracotta.withValues(alpha: 0.09),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppColors.terracotta.withValues(alpha: 0.3),
-                    ),
-                  ),
+                  borderRadius: 10,
+                  borderColor: AppColors.glowTerracotta.withAlpha(153),
                   child: Text(
                     sentence.targetSoundEs,
                     style: TextStyle(
                       fontSize: bodySize - 3,
-                      color: AppColors.terracotta,
+                      color: AppColors.glowTerracotta,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
               ),
               const SizedBox(width: 10),
-              InkWell(
+              GestureDetector(
                 onTap: onListen,
-                borderRadius: BorderRadius.circular(40),
-                child: Container(
-                  width: isSenior ? 52 : 44,
-                  height: isSenior ? 52 : 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.deepBlue,
-                    shape: BoxShape.circle,
-                  ),
+                child: GlassContainer(
+                  padding: const EdgeInsets.all(12),
+                  borderRadius: 40,
                   child: Icon(
                     Icons.volume_up_rounded,
-                    color: Colors.white,
+                    color: AppColors.glassText,
                     size: isSenior ? 28 : 22,
                   ),
                 ),
@@ -478,28 +458,20 @@ class _WaveformSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: isSenior ? 80 : 64,
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: isActive
-            ? const Color(0xFF8E3A59).withValues(alpha: 0.06)
-            : AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isActive
-              ? const Color(0xFF8E3A59).withValues(alpha: 0.4)
-              : AppColors.unselectedBorder,
+    final h = isSenior ? 80.0 : 64.0;
+    return SizedBox(
+      height: h,
+      child: GlassContainer(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        borderRadius: 16,
+        borderColor:
+            isActive ? AppColors.glowTerracotta.withAlpha(128) : AppColors.glassBorder,
+        child: LiveWaveform(
+          isActive: isActive,
+          levels: levels,
+          color: isActive ? AppColors.glowTerracotta : AppColors.glassTextMuted,
+          height: isSenior ? 72 : 56,
         ),
-      ),
-      child: LiveWaveform(
-        isActive: isActive,
-        levels: levels,
-        color: isActive
-            ? const Color(0xFF8E3A59)
-            : AppColors.deepBlue.withValues(alpha: 0.35),
-        height: isSenior ? 72 : 56,
       ),
     );
   }
@@ -513,18 +485,16 @@ class _RecordSection extends StatelessWidget {
     required this.transcript,
     required this.isSenior,
     required this.bodySize,
-    required this.buttonHeight,
-    required this.onStart,
-    required this.onStop,
+    required this.onTapMic,
+    this.sttLowConfidence = false,
   });
 
   final bool isRecording;
   final String transcript;
   final bool isSenior;
   final double bodySize;
-  final double buttonHeight;
-  final VoidCallback onStart;
-  final VoidCallback onStop;
+  final VoidCallback onTapMic;
+  final bool sttLowConfidence;
 
   @override
   Widget build(BuildContext context) {
@@ -537,30 +507,27 @@ class _RecordSection extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: bodySize - 1,
-            color: isRecording
-                ? const Color(0xFF8E3A59)
-                : AppColors.darkText.withValues(alpha: 0.6),
+            color:
+                isRecording ? AppColors.glowTerracotta : AppColors.glassTextMuted,
             fontWeight: isRecording ? FontWeight.w700 : FontWeight.w500,
           ),
         ),
         const SizedBox(height: 20),
         Center(
-          child: MicHoldButton(
+          child: GlassMicButton(
             isRecording: isRecording,
-            isSenior: isSenior,
-            onLongPressStart: onStart,
-            onLongPressEnd: onStop,
+            isAnalyzing: false,
+            onTap: onTapMic,
           ),
         ),
+        if (!isRecording && sttLowConfidence) ...[
+          const SizedBox(height: 16),
+          SttLowConfidenceTooltip(fontSize: bodySize - 2),
+        ],
         if (isRecording && transcript.isNotEmpty) ...[
           const SizedBox(height: 20),
-          Container(
+          GlassContainer(
             padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.cardBackground,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.unselectedBorder),
-            ),
             child: Row(
               children: [
                 const Text('🎙', style: TextStyle(fontSize: 18)),
@@ -570,7 +537,7 @@ class _RecordSection extends StatelessWidget {
                     transcript,
                     style: TextStyle(
                       fontSize: bodySize - 1,
-                      color: AppColors.darkText,
+                      color: AppColors.glassText,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -596,23 +563,26 @@ class _AnalyzingSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 32),
-      child: Column(
-        children: [
-          const CircularProgressIndicator(
-            color: Color(0xFF8E3A59),
-            strokeWidth: 4,
-          ),
-          const SizedBox(height: 20),
-          Text(
-            AppStrings.analizadorAnalyzingEs,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: bodySize,
-              fontWeight: FontWeight.w600,
-              color: AppColors.darkText,
+      child: GlassContainer(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(
+              color: AppColors.glassText,
+              strokeWidth: 4,
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            Text(
+              AppStrings.analizadorAnalyzingEs,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: bodySize,
+                fontWeight: FontWeight.w600,
+                color: AppColors.glassText,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -631,7 +601,7 @@ class _ResultSection extends StatelessWidget {
   });
 
   final String transcript;
-  final dynamic result; // VoiceAnalysisResult
+  final VoiceAnalysisResult result;
   final bool isSenior;
   final double bodySize;
   final double buttonHeight;
@@ -642,31 +612,34 @@ class _ResultSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // "You said" row
+        // "You said" transcript
         if (transcript.isNotEmpty) ...[
-          Row(
-            children: [
-              const Text('🎙', style: TextStyle(fontSize: 16)),
-              const SizedBox(width: 6),
-              Text(
-                '${AppStrings.analizadorYouSaidEs} ',
-                style: TextStyle(
-                  fontSize: bodySize - 2,
-                  color: AppColors.darkText.withValues(alpha: 0.55),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  transcript,
+          GlassContainer(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                const Text('🎙', style: TextStyle(fontSize: 16)),
+                const SizedBox(width: 8),
+                Text(
+                  '${AppStrings.analizadorYouSaidEs} ',
                   style: TextStyle(
                     fontSize: bodySize - 2,
-                    color: AppColors.darkText.withValues(alpha: 0.7),
-                    fontStyle: FontStyle.italic,
+                    color: AppColors.glassTextMuted,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-            ],
+                Expanded(
+                  child: Text(
+                    transcript,
+                    style: TextStyle(
+                      fontSize: bodySize - 2,
+                      color: AppColors.glassText,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 16),
         ],
@@ -687,49 +660,52 @@ class _ResultSection extends StatelessWidget {
           ),
         const SizedBox(height: 24),
 
-        // XP badge if good score
+        // XP badge — good score
         if (result.score >= 60)
           Center(
-            child: Container(
+            child: GlassContainer(
               padding:
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.amber[100],
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: Colors.amber[400]!, width: 2),
-              ),
+              borderRadius: 30,
+              borderColor: AppColors.glowTerracotta.withAlpha(153),
               child: Text(
                 AppStrings.analizadorXpEarnedEs,
                 style: TextStyle(
                   fontSize: bodySize,
                   fontWeight: FontWeight.w800,
-                  color: Colors.amber[800],
+                  color: AppColors.glassText,
                 ),
               ),
             ),
           ),
         const SizedBox(height: 20),
 
-        // Try again button
-        SizedBox(
-          height: buttonHeight,
-          child: ElevatedButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(
-              AppStrings.analizadorTryAgainEs,
-              style: TextStyle(
-                fontSize: bodySize,
-                fontWeight: FontWeight.w700,
-              ),
+        // Retry button
+        GestureDetector(
+          onTap: onRetry,
+          child: GlassContainer(
+            padding: EdgeInsets.symmetric(
+              vertical: isSenior ? 22 : 16,
+              horizontal: 24,
             ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF8E3A59),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              elevation: 4,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.refresh_rounded,
+                  color: AppColors.glassText,
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  AppStrings.analizadorTryAgainEs,
+                  style: TextStyle(
+                    fontSize: bodySize,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.glassText,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -762,41 +738,45 @@ class _ErrorSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.red[50],
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.red[200]!),
-          ),
+        GlassContainer(
+          borderColor: AppColors.glowTerracotta.withAlpha(153),
           child: Text(
             message,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: bodySize,
-              color: Colors.red[800],
+              color: AppColors.glassText,
               height: 1.5,
             ),
           ),
         ),
         const SizedBox(height: 20),
-        SizedBox(
-          height: buttonHeight,
-          child: ElevatedButton(
-            onPressed: onRetry,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.terracotta,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
+        GestureDetector(
+          onTap: onRetry,
+          child: GlassContainer(
+            padding: EdgeInsets.symmetric(
+              vertical: isSenior ? 22 : 16,
+              horizontal: 24,
             ),
-            child: Text(
-              AppStrings.analizadorTryAgainEs,
-              style: TextStyle(
-                fontSize: bodySize,
-                fontWeight: FontWeight.w700,
-              ),
+            borderColor: AppColors.glowTerracotta.withAlpha(153),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.refresh_rounded,
+                  color: AppColors.glassText,
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  AppStrings.analizadorTryAgainEs,
+                  style: TextStyle(
+                    fontSize: bodySize,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.glassText,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
