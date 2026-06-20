@@ -1,13 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:audio_session/audio_session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../config/api_config.dart';
+import 'audio_service_native.dart'
+    if (dart.library.html) 'audio_service_web.dart' as platform;
 
 enum TtsVoice { alloy, nova }
 
@@ -30,33 +29,17 @@ class AudioService {
   /// Configures the iOS audio session for speech playback.
   /// Call once at app startup before runApp.
   static Future<void> init() async {
-    try {
-      final session = await AudioSession.instance;
-      await session.configure(const AudioSessionConfiguration.speech());
-    } catch (e) {
-      debugPrint('[AudioService] AudioSession init failed: $e');
-    }
+    await platform.initAudioSession();
   }
 
   /// Deactivates the audio session before STT starts so the mic has priority.
   static Future<void> deactivateForStt() async {
-    try {
-      final session = await AudioSession.instance;
-      await session.setActive(false);
-    } catch (e) {
-      debugPrint('[AudioService] deactivateForStt error: $e');
-    }
+    await platform.deactivateAudioSession();
   }
 
   /// Re-activates the audio session after STT stops so TTS can play.
   static Future<void> activateForTts() async {
-    try {
-      final session = await AudioSession.instance;
-      await session.configure(const AudioSessionConfiguration.speech());
-      await session.setActive(true);
-    } catch (e) {
-      debugPrint('[AudioService] activateForTts error: $e');
-    }
+    await platform.activateAudioSession();
   }
 
   static void setEnabled(bool value) => _enabled = value;
@@ -77,11 +60,38 @@ class AudioService {
     if (text.trim().isEmpty) return;
     try {
       await _player.stop();
-      final cacheFile = await _getCacheFile(text, _voice);
-      if (!cacheFile.existsSync()) {
-        await _downloadTts(text, _voice, cacheFile);
+      if (kIsWeb) {
+        // On web, stream directly from API (no file caching).
+        final uri = Uri.parse(ApiConfig.openAiTtsUrl);
+        final response = await http
+            .post(
+              uri,
+              headers: {
+                'Authorization': 'Bearer ${ApiConfig.openAiApiKey}',
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode({
+                'model': ApiConfig.openAiTtsModel,
+                'input': text,
+                'voice': _voice.apiName,
+              }),
+            )
+            .timeout(ApiConfig.ttsTimeout);
+        if (response.statusCode == 200) {
+          // Use a data URI for web playback.
+          final b64 = base64Encode(response.bodyBytes);
+          await _player.setUrl('data:audio/mpeg;base64,$b64');
+        } else {
+          throw Exception('TTS API error: ${response.statusCode}');
+        }
+      } else {
+        // Native: cache to file for offline playback.
+        final cacheFile = await platform.getCacheFile(text, _voice.apiName);
+        if (!await platform.fileExists(cacheFile)) {
+          await _downloadTts(text, _voice, cacheFile);
+        }
+        await _player.setFilePath(cacheFile);
       }
-      await _player.setFilePath(cacheFile.path);
       await _player.setSpeed(speed);
       await _player.play();
     } catch (e) {
@@ -99,30 +109,12 @@ class AudioService {
     _player.dispose();
   }
 
-  // ── Cache ─────────────────────────────────────────────────────────────────
-
-  Future<File> _getCacheFile(String text, TtsVoice voice) async {
-    final dir = await getTemporaryDirectory();
-    final key = _cacheKey(text, voice);
-    return File('${dir.path}/tts_$key.mp3');
-  }
-
-  /// Stable hash from (text, voice) pair used as the cache filename.
-  String _cacheKey(String text, TtsVoice voice) {
-    final combined = '${voice.apiName}|$text';
-    var hash = 5381;
-    for (final c in combined.codeUnits) {
-      hash = ((hash << 5) + hash + c) & 0x7FFFFFFF;
-    }
-    return hash.toRadixString(36);
-  }
-
-  // ── Download ──────────────────────────────────────────────────────────────
+  // ── Download (native only) ────────────────────────────────────────────────
 
   Future<void> _downloadTts(
     String text,
     TtsVoice voice,
-    File target,
+    String targetPath,
   ) async {
     final response = await http
         .post(
@@ -140,7 +132,7 @@ class AudioService {
         .timeout(ApiConfig.ttsTimeout);
 
     if (response.statusCode == 200) {
-      await target.writeAsBytes(response.bodyBytes);
+      await platform.writeBytes(targetPath, response.bodyBytes);
     } else {
       throw Exception('TTS API error: ${response.statusCode}');
     }

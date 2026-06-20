@@ -367,8 +367,11 @@ class _ErrorBubble extends StatelessWidget {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        constraints:
-            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width > 800
+              ? 600
+              : MediaQuery.of(context).size.width * 0.78,
+        ),
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
@@ -439,8 +442,11 @@ class _AiBubble extends StatelessWidget {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        constraints:
-            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width > 800
+              ? 600
+              : MediaQuery.of(context).size.width * 0.78,
+        ),
         margin: const EdgeInsets.only(bottom: 12),
         child: GlassContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -494,8 +500,11 @@ class _UserBubble extends StatelessWidget {
     return Align(
       alignment: Alignment.centerRight,
       child: Container(
-        constraints:
-            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.72),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width > 800
+              ? 600
+              : MediaQuery.of(context).size.width * 0.72,
+        ),
         margin: const EdgeInsets.only(bottom: 12),
         padding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -23,8 +24,6 @@ import 'core/providers/streak_provider.dart';
 import 'core/providers/vocab_provider.dart';
 import 'core/services/audio_service.dart';
 import 'core/services/notification_service.dart';
-import 'features/dashboard/main_shell_screen.dart';
-import 'features/onboarding/onboarding_screen.dart';
 
 /// Set to true once you have run `flutterfire configure` and added
 /// GoogleService-Info.plist to ios/Runner/. Until then, Firebase and
@@ -35,7 +34,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // iOS audio session — must run before any playback.
-  await AudioService.init();
+  // Skipped on web: AudioSession is a native-only plugin.
+  if (!kIsWeb) {
+    await AudioService.init();
+  }
 
   // Firebase + Crashlytics — only runs when real credentials are present.
   // Flip _kFirebaseConfigured to true after running `flutterfire configure`.
@@ -43,12 +45,21 @@ void main() async {
     try {
       await Firebase.initializeApp(
           options: DefaultFirebaseOptions.currentPlatform);
-      FlutterError.onError =
-          FirebaseCrashlytics.instance.recordFlutterFatalError;
-      PlatformDispatcher.instance.onError = (error, stack) {
-        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-        return true;
-      };
+
+      // Web: explicitly set local auth persistence to survive browser refreshes.
+      if (kIsWeb) {
+        await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
+      }
+
+      // Crashlytics is not supported on web.
+      if (!kIsWeb) {
+        FlutterError.onError =
+            FirebaseCrashlytics.instance.recordFlutterFatalError;
+        PlatformDispatcher.instance.onError = (error, stack) {
+          FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+          return true;
+        };
+      }
     } catch (e) {
       debugPrint('[Firebase] Init failed: $e');
     }
@@ -84,36 +95,27 @@ void main() async {
     }
   }
 
-  // Notifications
-  await NotificationService.instance.initialize();
+  // Notifications — flutter_local_notifications is not supported on web.
+  if (!kIsWeb) {
+    await NotificationService.instance.initialize();
 
-  // Re-schedule daily reminder if user has one configured
-  final reminderHour = prefs.getInt('reminder_hour');
-  final reminderMinute = prefs.getInt('reminder_minute');
+    // Re-schedule daily reminder if user has one configured
+    final reminderHour = prefs.getInt('reminder_hour');
+    final reminderMinute = prefs.getInt('reminder_minute');
+    final personaName = prefs.getString('persona');
 
-  final personaName = prefs.getString('persona');
-
-  if (reminderHour != null && personaName != null) {
-    final persona = Persona.values.byName(personaName);
-    await NotificationService.instance.scheduleDailyReminder(
-      persona: persona,
-      hour: reminderHour,
-      minute: reminderMinute ?? 0,
-    );
-  }
-  final onboardingComplete = prefs.getBool('onboarding_complete') ?? false;
-  final hasLegacyPersona = personaName != null;
-
-  final Widget home;
-  if (onboardingComplete || hasLegacyPersona) {
-    // One-time migration: mark legacy users as onboarded
-    if (!onboardingComplete && hasLegacyPersona) {
-      await prefs.setBool('onboarding_complete', true);
+    if (reminderHour != null && personaName != null) {
+      final persona = Persona.values.byName(personaName);
+      await NotificationService.instance.scheduleDailyReminder(
+        persona: persona,
+        hour: reminderHour,
+        minute: reminderMinute ?? 0,
+      );
     }
-    home = const MainShellScreen();
-  } else {
-    home = const OnboardingScreen();
   }
+
+  // Navigation is now handled by AuthGate inside EnglishBridgeApp —
+  // no need to determine `home` here.
 
   runApp(
     ProviderScope(
@@ -125,7 +127,7 @@ void main() async {
         vocabBoxProvider.overrideWithValue(vocabBox),
         gamificationBoxProvider.overrideWithValue(gamificationBox),
       ],
-      child: EnglishBridgeApp(home: home),
+      child: const EnglishBridgeApp(),
     ),
   );
 }

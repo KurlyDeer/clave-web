@@ -30,7 +30,7 @@ class _PremiumModalContent extends StatelessWidget {
         color: AppColors.glassGradientMid.withValues(alpha: 0.98),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         border: Border.all(
-          color: AppColors.premiumGold.withOpacity(0.3),
+          color: AppColors.premiumGold.withValues(alpha: 0.3),
           width: 1.5,
         ),
       ),
@@ -47,7 +47,7 @@ class _PremiumModalContent extends StatelessWidget {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.4),
+                    color: Colors.grey.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),

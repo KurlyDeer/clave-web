@@ -26,7 +26,9 @@ class AiMessageBubble extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.82,
+          maxWidth: MediaQuery.of(context).size.width > 800
+              ? 600
+              : MediaQuery.of(context).size.width * 0.82,
         ),
         child: Container(
           margin: const EdgeInsets.only(left: 12, right: 48, top: 8, bottom: 4),

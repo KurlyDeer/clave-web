@@ -10,6 +10,7 @@ import '../../core/providers/persona_provider.dart';
 import '../../core/providers/smart_review_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/glass_container.dart';
+import '../../core/widgets/responsive_layout.dart';
 import '../../l10n/app_strings.dart';
 import '../simulador/simulador_screen.dart';
 
@@ -75,9 +76,10 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
           ),
         ),
         child: SafeArea(
-          child: Column(
-            children: [
-              // ── Header ───────────────────────────────────────────────────
+          child: ResponsiveConstrainer(
+            child: Column(
+              children: [
+                // ── Header ───────────────────────────────────────────────────
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -239,8 +241,9 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 // ── Page 1: Intro ─────────────────────────────────────────────────────────────

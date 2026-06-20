@@ -11,8 +11,8 @@ class GlassContainer extends StatelessWidget {
     required this.child,
     this.padding = const EdgeInsets.all(20),
     this.margin,
-    this.borderRadius = 20,
-    this.blurSigma = 15,
+    this.borderRadius = 16.0, // Matches Tailwind rounded-2xl
+    this.blurSigma = 12.0, // Matches backdrop-blur-sm roughly
     this.backgroundColor,
     this.borderColor,
   });

@@ -9,6 +9,7 @@ import '../../core/providers/stats_provider.dart';
 import '../../core/providers/vocab_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/glass_container.dart';
+import '../../core/widgets/responsive_layout.dart';
 import '../../l10n/app_strings.dart';
 import '../lessons/lesson_detail_screen.dart';
 import '../repaso/repaso_screen.dart';
@@ -40,6 +41,287 @@ class GlassHomeTab extends ConsumerWidget {
       return !(progress?.completed ?? false);
     });
 
+    // ── Extracted Widgets ──────────────────────────────────────────
+    final welcomeHero = const Padding(
+      padding: EdgeInsets.only(top: 24, bottom: 12),
+      child: WelcomeHeroWidget(),
+    );
+
+    final statsDashboard = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: GlassContainer(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Column(
+                children: [
+                  const Text('🔥', style: TextStyle(fontSize: 24)),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${stats.streak}',
+                    style: TextStyle(
+                      fontSize: AppFontSizes.title,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.glassText,
+                    ),
+                  ),
+                  Text(
+                    'Racha',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.glassTextMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: GlassContainer(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Column(
+                children: [
+                  const Text('⭐', style: TextStyle(fontSize: 24)),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${stats.xp}',
+                    style: TextStyle(
+                      fontSize: AppFontSizes.title,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.glassText,
+                    ),
+                  ),
+                  Text(
+                    'XP Total',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.glassTextMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: GlassContainer(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Column(
+                children: [
+                  const Text('🎙️', style: TextStyle(fontSize: 24)),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${stats.speakingLessonsCompleted}',
+                    style: TextStyle(
+                      fontSize: AppFontSizes.title,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.glassText,
+                    ),
+                  ),
+                  Text(
+                    'Hablando',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.glassTextMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final aiDailyCard = const Padding(
+      padding: EdgeInsets.fromLTRB(20, 4, 20, 4),
+      child: AiDailyLessonCard(),
+    );
+
+    final trackToggle = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Row(
+        children: [
+          _TrackButton(
+            label: '🌎 ${AppStrings.trackGeneralEs}',
+            isActive: track == LearningTrack.general,
+            onTap: () => ref
+                .read(learningTrackProvider.notifier)
+                .setTrack(LearningTrack.general),
+          ),
+          const SizedBox(width: 10),
+          _TrackButton(
+            label: '🇺🇸 ${AppStrings.trackCitizenshipEs}',
+            isActive: track == LearningTrack.citizenship,
+            showProBadge: !isPremium,
+            onTap: () {
+              if (isPremium) {
+                ref
+                    .read(learningTrackProvider.notifier)
+                    .setTrack(LearningTrack.citizenship);
+              } else {
+                showPremiumModal(context, ref);
+              }
+            },
+          ),
+        ],
+      ),
+    );
+
+    Widget? repasoCardWidget;
+    if (showRepaso) {
+      repasoCardWidget = Padding(
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
+        child: GestureDetector(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => const RepasoScreen(),
+            ),
+          ),
+          child: GlassContainer(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            child: Row(
+              children: [
+                const Text('🧠', style: TextStyle(fontSize: 24)),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppStrings.repasoTitleEs,
+                        style: TextStyle(
+                          fontSize: AppFontSizes.subtitle,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.glassText,
+                        ),
+                      ),
+                      if (repasoDue.isNotEmpty)
+                        Text(
+                          '${repasoDue.length} palabras para hoy',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.glassTextMuted,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right,
+                    color: AppColors.glassTextMuted, size: 24),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    Widget? smartReviewCardWidget;
+    if (smartReviewCount >= 3) {
+      smartReviewCardWidget = Padding(
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
+        child: GestureDetector(
+          onTap: () {
+            final notifier = ref.read(smartReviewProvider.notifier);
+            final entries = notifier.pickReviewItems();
+            final result = SmartReviewService.buildReviewLesson(entries);
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => LessonDetailScreen(
+                  lesson: result.lesson,
+                  isReviewMode: true,
+                  reviewBankKeys: result.bankKeys,
+                ),
+              ),
+            );
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.glowTerracotta.withValues(alpha: 0.6),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.glowTerracotta.withValues(alpha: 0.15),
+                  blurRadius: 12,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: GlassContainer(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              child: Row(
+                children: [
+                  const Text('🧠', style: TextStyle(fontSize: 24)),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppStrings.smartReviewTitleEs,
+                          style: TextStyle(
+                            fontSize: AppFontSizes.subtitle,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.glassText,
+                          ),
+                        ),
+                        Text(
+                          '$smartReviewCount${AppStrings.smartReviewCardSubtitleEs}',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.glassTextMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right,
+                      color: AppColors.glowTerracotta, size: 24),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final pathHeader = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Flexible(
+            child: Text(
+              AppStrings.pathTitleEs,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: AppFontSizes.title,
+                fontWeight: FontWeight.w800,
+                color: AppColors.glassText,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '$completedCount ${AppStrings.pathCompletedOfEs} ${lessons.length}',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.glassTextMuted,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    // ── Layout Assembly ──────────────────────────────────────────────
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -53,366 +335,187 @@ class GlassHomeTab extends ConsumerWidget {
         ),
       ),
       child: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // ── Welcome hero ──────────────────────────────────────────────
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.only(top: 24, bottom: 12),
-                child: WelcomeHeroWidget(),
-              ),
-            ),
-            // ── Gamified Stats Dashboard ──────────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GlassContainer(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Column(
-                          children: [
-                            const Text('🔥', style: TextStyle(fontSize: 24)),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${stats.streak}',
-                              style: TextStyle(
-                                fontSize: AppFontSizes.title,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.glassText,
-                              ),
-                            ),
-                            Text(
-                              'Racha',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.glassTextMuted,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: GlassContainer(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Column(
-                          children: [
-                            const Text('⭐', style: TextStyle(fontSize: 24)),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${stats.xp}',
-                              style: TextStyle(
-                                fontSize: AppFontSizes.title,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.glassText,
-                              ),
-                            ),
-                            Text(
-                              'XP Total',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.glassTextMuted,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: GlassContainer(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Column(
-                          children: [
-                            const Text('🎙️', style: TextStyle(fontSize: 24)),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${stats.speakingLessonsCompleted}',
-                              style: TextStyle(
-                                fontSize: AppFontSizes.title,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.glassText,
-                              ),
-                            ),
-                            Text(
-                              'Hablando',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.glassTextMuted,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            // ── AI Daily Lesson card ──────────────────────────────────────
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(20, 4, 20, 4),
-                child: AiDailyLessonCard(),
-              ),
-            ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isDesktop =
+                constraints.maxWidth >= ResponsiveBreakpoints.desktop;
 
-            // ── Learning track toggle ─────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 8),
-                child: Row(
-                  children: [
-                    _TrackButton(
-                      label: '🌎 ${AppStrings.trackGeneralEs}',
-                      isActive: track == LearningTrack.general,
-                      onTap: () => ref
-                          .read(learningTrackProvider.notifier)
-                          .setTrack(LearningTrack.general),
-                    ),
-                    const SizedBox(width: 10),
-                    _TrackButton(
-                      label: '🇺🇸 ${AppStrings.trackCitizenshipEs}',
-                      isActive: track == LearningTrack.citizenship,
-                      showProBadge: !isPremium,
-                      onTap: () {
-                        if (isPremium) {
-                          ref
-                              .read(learningTrackProvider.notifier)
-                              .setTrack(LearningTrack.citizenship);
-                        } else {
-                          showPremiumModal(context, ref);
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // ── Repaso card (shown when vocab exists) ─────────────────────
-            if (showRepaso)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
-                  child: GestureDetector(
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const RepasoScreen(),
-                      ),
-                    ),
-                    child: GlassContainer(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 14),
-                      child: Row(
-                        children: [
-                          Text('🧠',
-                              style: TextStyle(fontSize: 24)),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  AppStrings.repasoTitleEs,
-                                  style: TextStyle(
-                                    fontSize: AppFontSizes.subtitle,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.glassText,
+            if (isDesktop) {
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1200),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Left Column: Path Lessons
+                      Expanded(
+                        flex: 5,
+                        child: CustomScrollView(
+                          slivers: [
+                            SliverToBoxAdapter(child: welcomeHero),
+                            SliverToBoxAdapter(child: trackToggle),
+                            SliverToBoxAdapter(child: pathHeader),
+                            if (lessonsAsync.isLoading)
+                              SliverToBoxAdapter(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 32),
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      color: AppColors.glowTerracotta,
+                                    ),
                                   ),
                                 ),
-                                if (repasoDue.isNotEmpty)
-                                  Text(
-                                    '${repasoDue.length} palabras para hoy',
+                              )
+                            else if (lessonsAsync.hasError)
+                              SliverToBoxAdapter(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(24),
+                                  child: Text(
+                                    'Error al cargar las lecciones',
+                                    textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      fontSize: 13,
                                       color: AppColors.glassTextMuted,
+                                      fontSize: AppFontSizes.body,
                                     ),
                                   ),
-                              ],
-                            ),
-                          ),
-                          Icon(Icons.chevron_right,
-                              color: AppColors.glassTextMuted, size: 24),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-            // ── Smart Review card (shown when >= 3 failed questions) ──────
-            if (smartReviewCount >= 3)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
-                  child: GestureDetector(
-                    onTap: () {
-                      final notifier =
-                          ref.read(smartReviewProvider.notifier);
-                      final entries = notifier.pickReviewItems();
-                      final result =
-                          SmartReviewService.buildReviewLesson(entries);
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => LessonDetailScreen(
-                            lesson: result.lesson,
-                            isReviewMode: true,
-                            reviewBankKeys: result.bankKeys,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color:
-                              AppColors.glowTerracotta.withOpacity(0.6),
-                          width: 1.5,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.glowTerracotta.withOpacity(0.15),
-                            blurRadius: 12,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                      child: GlassContainer(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 14),
-                        child: Row(
-                          children: [
-                            const Text('🧠',
-                                style: TextStyle(fontSize: 24)),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    AppStrings.smartReviewTitleEs,
-                                    style: TextStyle(
-                                      fontSize: AppFontSizes.subtitle,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.glassText,
-                                    ),
-                                  ),
-                                  Text(
-                                    '$smartReviewCount${AppStrings.smartReviewCardSubtitleEs}',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: AppColors.glassTextMuted,
-                                    ),
-                                  ),
-                                ],
+                                ),
+                              )
+                            else
+                              SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final lesson = lessons[index];
+                                    final isCompleted = ref
+                                            .watch(pathLessonProgressProvider(
+                                                lesson.id))
+                                            ?.completed ??
+                                        false;
+                                    final isCitizenshipLocked =
+                                        track == LearningTrack.citizenship &&
+                                            !isPremium;
+                                    final isNext = !isCitizenshipLocked &&
+                                        index == nextIndex;
+                                    final isLocked = isCitizenshipLocked ||
+                                        (!isCompleted &&
+                                            index != nextIndex &&
+                                            nextIndex != -1);
+                                    return PathLessonCard(
+                                      lesson: lesson,
+                                      isNextAvailable: isNext,
+                                      isLocked: isLocked,
+                                      onLockedTap: isCitizenshipLocked
+                                          ? () => showPremiumModal(context, ref)
+                                          : null,
+                                    );
+                                  },
+                                  childCount: lessons.length,
+                                ),
                               ),
-                            ),
-                            Icon(Icons.chevron_right,
-                                color: AppColors.glowTerracotta, size: 24),
+                            const SliverToBoxAdapter(
+                                child: SizedBox(height: 32)),
                           ],
                         ),
                       ),
-                    ),
+                      // Right Column: Dashboard Sidebar
+                      Expanded(
+                        flex: 3,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.only(top: 24, right: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              statsDashboard,
+                              const SizedBox(height: 16),
+                              aiDailyCard,
+                              if (repasoCardWidget != null) ...[
+                                const SizedBox(height: 8),
+                                repasoCardWidget,
+                              ],
+                              if (smartReviewCardWidget != null) ...[
+                                const SizedBox(height: 8),
+                                smartReviewCardWidget,
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
+              );
+            }
 
-            // ── Section header ────────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        AppStrings.pathTitleEs,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontSize: AppFontSizes.title,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.glassText,
+            // Mobile Layout
+            return CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(child: welcomeHero),
+                SliverToBoxAdapter(child: statsDashboard),
+                SliverToBoxAdapter(child: aiDailyCard),
+                SliverToBoxAdapter(child: trackToggle),
+                if (repasoCardWidget != null)
+                  SliverToBoxAdapter(child: repasoCardWidget),
+                if (smartReviewCardWidget != null)
+                  SliverToBoxAdapter(child: smartReviewCardWidget),
+                SliverToBoxAdapter(child: pathHeader),
+                if (lessonsAsync.isLoading)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.glowTerracotta,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '$completedCount ${AppStrings.pathCompletedOfEs} ${lessons.length}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.glassTextMuted,
+                  )
+                else if (lessonsAsync.hasError)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        'Error al cargar las lecciones',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: AppColors.glassTextMuted,
+                          fontSize: AppFontSizes.body,
+                        ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-
-            // ── Lesson cards ──────────────────────────────────────────────
-            if (lessonsAsync.isLoading)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 32),
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.glowTerracotta,
-                    ),
-                  ),
-                ),
-              )
-            else if (lessonsAsync.hasError)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text(
-                    'Error al cargar las lecciones',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: AppColors.glassTextMuted,
-                      fontSize: AppFontSizes.body,
-                    ),
-                  ),
-                ),
-              )
-            else
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final lesson = lessons[index];
-                    final isCompleted =
-                        ref.watch(pathLessonProgressProvider(lesson.id))?.completed ??
+                  )
+                else
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final lesson = lessons[index];
+                        final isCompleted = ref
+                                .watch(pathLessonProgressProvider(lesson.id))
+                                ?.completed ??
                             false;
-                    final isCitizenshipLocked =
-                        track == LearningTrack.citizenship && !isPremium;
-                    final isNext = !isCitizenshipLocked && index == nextIndex;
-                    final isLocked = isCitizenshipLocked ||
-                        (!isCompleted && index != nextIndex && nextIndex != -1);
-                    return PathLessonCard(
-                      lesson: lesson,
-                      isNextAvailable: isNext,
-                      isLocked: isLocked,
-                      onLockedTap: isCitizenshipLocked
-                          ? () => showPremiumModal(context, ref)
-                          : null,
-                    );
-                  },
-                  childCount: lessons.length,
-                ),
-              ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
-          ],
+                        final isCitizenshipLocked =
+                            track == LearningTrack.citizenship && !isPremium;
+                        final isNext =
+                            !isCitizenshipLocked && index == nextIndex;
+                        final isLocked = isCitizenshipLocked ||
+                            (!isCompleted &&
+                                index != nextIndex &&
+                                nextIndex != -1);
+                        return PathLessonCard(
+                          lesson: lesson,
+                          isNextAvailable: isNext,
+                          isLocked: isLocked,
+                          onLockedTap: isCitizenshipLocked
+                              ? () => showPremiumModal(context, ref)
+                              : null,
+                        );
+                      },
+                      childCount: lessons.length,
+                    ),
+                  ),
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
+              ],
+            );
+          },
         ),
       ),
     );

@@ -1,11 +1,9 @@
-import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../core/models/book_page_model.dart';
 import '../../core/providers/persona_provider.dart';
@@ -106,16 +104,10 @@ class _PublishScreenState extends ConsumerState<PublishScreen> {
         _status = _PublishStatus.ready;
       });
 
-      final tempDir = await getTemporaryDirectory();
-      if (!mounted) return;
-      final file = File(
-        '${tempDir.path}/${_titleCtrl.text.trim().replaceAll(' ', '_')}.pdf',
-      );
-      await file.writeAsBytes(bytes);
-
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        subject: _titleCtrl.text.trim(),
+      // On web and native, Printing.sharePdf() works cross-platform.
+      await Printing.sharePdf(
+        bytes: bytes,
+        filename: '${_titleCtrl.text.trim().replaceAll(' ', '_')}.pdf',
       );
       if (mounted) _onSuccess();
     } catch (_) {

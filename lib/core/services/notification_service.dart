@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -13,6 +14,7 @@ class NotificationService {
   static const int _dailyReminderId = 1;
 
   Future<void> initialize() async {
+    if (kIsWeb) return; // flutter_local_notifications is not supported on web.
     tz.initializeTimeZones();
 
     const androidSettings =
@@ -36,6 +38,7 @@ class NotificationService {
     required int hour,
     required int minute,
   }) async {
+    if (kIsWeb) return;
     await cancelAll();
 
     final String title;
@@ -98,10 +101,12 @@ class NotificationService {
   /// Cancels today's scheduled notification.
   /// On next app launch, main.dart will re-schedule it.
   Future<void> cancelToday() async {
+    if (kIsWeb) return;
     await _plugin.cancel(_dailyReminderId);
   }
 
   Future<void> cancelAll() async {
+    if (kIsWeb) return;
     await _plugin.cancelAll();
   }
 }

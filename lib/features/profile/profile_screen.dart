@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/providers/gamification_controller.dart';
 import '../../core/providers/lesson_progress_provider.dart';
+import '../../core/providers/auth_provider.dart';
 import '../../core/providers/persona_provider.dart';
 import '../../core/providers/settings_provider.dart';
 import '../../core/providers/shared_preferences_provider.dart';
@@ -14,7 +15,6 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/glass_container.dart';
 import '../../l10n/app_strings.dart';
 import '../../core/providers/book_pages_provider.dart';
-import '../welcome/welcome_screen.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -433,6 +433,36 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 const SizedBox(height: 28),
 
+                // ── Sign Out ────────────────────────────────────────────────
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: GestureDetector(
+                    onTap: () => ref.read(authServiceProvider).signOut(),
+                    child: GlassContainer(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 16),
+                      borderColor: AppColors.glassBorder,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.logout_rounded,
+                              color: AppColors.glassText, size: 22),
+                          const SizedBox(width: 10),
+                          Text(
+                            'Cerrar Sesión',
+                            style: TextStyle(
+                              fontSize: bodySize,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.glassText,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 28),
+
                 // ── Danger Zone ──────────────────────────────────────────────
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -604,11 +634,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     if (!context.mounted) return;
 
-    // Navigate to WelcomeScreen, clearing the entire back stack
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute<void>(builder: (_) => const WelcomeScreen()),
-      (_) => false,
-    );
+    // Sign out — AuthGate will automatically navigate to LoginScreen.
+    await ref.read(authServiceProvider).signOut();
   }
 }
 
